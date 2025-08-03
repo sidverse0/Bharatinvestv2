@@ -33,6 +33,28 @@ export function useUser() {
       let parsedData: UserData = JSON.parse(data);
       let dataChanged = false;
 
+      // Ensure all fields from UserData are present
+      if (typeof parsedData.lastLoginDate === 'undefined') {
+        parsedData.lastLoginDate = new Date().toISOString();
+        dataChanged = true;
+      }
+      if (typeof parsedData.loginStreak === 'undefined') {
+        parsedData.loginStreak = 1;
+        dataChanged = true;
+      }
+      if (typeof parsedData.totalDeposits === 'undefined') {
+        parsedData.totalDeposits = 0;
+        dataChanged = true;
+      }
+       if (typeof parsedData.firstInvestmentMade === 'undefined') {
+        parsedData.firstInvestmentMade = false;
+        dataChanged = true;
+      }
+      if (typeof parsedData.todaysReturn === 'undefined') {
+        parsedData.todaysReturn = 0;
+        dataChanged = true;
+      }
+
       // Apply sign-up bonus on first login & set streak
       if(parsedData.isFirstLogin) {
         parsedData.balance += SIGNUP_BONUS;
@@ -62,7 +84,9 @@ export function useUser() {
             dataChanged = true;
         }
         // If daysDiff is 0, they already logged in today, do nothing.
-        parsedData.lastLoginDate = today.toISOString();
+        if (daysDiff > 0) {
+          parsedData.lastLoginDate = today.toISOString();
+        }
       }
       
       // Auto-approve transactions older than 2 minutes
