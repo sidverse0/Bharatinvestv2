@@ -6,10 +6,13 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex h-screen flex-col items-center justify-center bg-gray-50 p-6">
-      <div className="flex flex-col items-center gap-4 w-full max-w-sm">
-        <BharatInvestLogo className="h-12 w-12 text-primary" />
-        <h1 className="text-3xl font-bold text-gray-800">BharatInvest</h1>
+    <main className="flex h-screen flex-col items-center justify-center bg-background p-6">
+      <div className="flex flex-col items-center gap-6 w-full max-w-sm">
+        <div className="flex items-center gap-3">
+          <h1 className="text-4xl font-bold text-foreground">Bharat</h1>
+          <BharatInvestLogo className="h-10 w-10" />
+          <h1 className="text-4xl font-bold text-foreground">Invest</h1>
+        </div>
         {children}
       </div>
     </main>
