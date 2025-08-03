@@ -5,13 +5,12 @@ import { useUser } from '@/hooks/use-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import { formatCurrency, calculateTimeLeft } from '@/lib/helpers';
+import { formatCurrency } from '@/lib/helpers';
 import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp, AlertTriangle, Briefcase, PlusCircle, Rocket } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -19,7 +18,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { APP_LINK, REFERRAL_BONUS } from '@/lib/constants';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -102,10 +100,10 @@ export default function ProfilePage() {
   if (loading || !user) {
     return (
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-24 w-full rounded-lg" />
+        <Skeleton className="h-24 w-full rounded-lg" />
+        <Skeleton className="h-48 w-full rounded-lg" />
+        <Skeleton className="h-48 w-full rounded-lg" />
       </div>
     );
   }
@@ -155,25 +153,24 @@ export default function ProfilePage() {
 
         <Link href="/my-investments" passHref>
           <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-3">
+            <CardHeader className="flex flex-row items-center justify-between p-4">
+                <div className="flex items-center gap-4">
                   <div className="p-3 bg-primary/10 rounded-lg text-primary">
                     <Rocket className="h-6 w-6" />
                   </div>
                   <div>
-                    <CardTitle>My Investments</CardTitle>
-                    <CardDescription>View your active and past investments</CardDescription>
+                    <p className="font-semibold text-lg">My Investments</p>
+                    <p className="text-sm text-muted-foreground">View your active and past investments</p>
                   </div>
                 </div>
-                <Rocket className="h-5 w-5 text-muted-foreground" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
           </Card>
         </Link>
         
-
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">🎉 Achievements</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-xl">🎉 Achievements</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-4">
             {achievementBadges.map(badge => (
