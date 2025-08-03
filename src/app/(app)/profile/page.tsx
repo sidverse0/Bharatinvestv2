@@ -317,7 +317,7 @@ export default function ProfilePage() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <Button type="submit">Apply</Button>
+                  <Button type="submit" variant="accent">Apply</Button>
                 </form>
               </Form>
             </CardContent>

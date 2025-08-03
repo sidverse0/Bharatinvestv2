@@ -25,8 +25,8 @@ export default function BottomNav() {
             const Icon = item.icon;
             return (
               <Link key={item.href} href={item.href} className="relative flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-colors w-16 text-center">
-                <Icon className={cn('h-6 w-6 transition-all', isActive && 'text-primary scale-110')} />
-                <span className={cn('text-xs transition-all', isActive && 'text-primary font-medium')}>{item.label}</span>
+                <Icon className={cn('h-6 w-6 transition-all', isActive && 'text-accent scale-110')} />
+                <span className={cn('text-xs transition-all', isActive && 'text-accent font-medium')}>{item.label}</span>
               </Link>
             );
           })}

@@ -202,7 +202,7 @@ export default function WithdrawPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" size="lg" className="w-full h-12 text-lg" disabled={isLoading}>
+                <Button type="submit" variant="accent" size="lg" className="w-full h-12 text-lg" disabled={isLoading}>
                   {isLoading ? <Loader2 className="animate-spin" /> : "Submit Request"}
                 </Button>
               </form>

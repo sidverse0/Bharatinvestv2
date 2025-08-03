@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { IconButton } from '@/components/ui/icon-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -25,9 +26,9 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  const StatCard = ({ icon, title, value, isLoading, className }: { icon: React.ReactNode, title: string, value: string, isLoading: boolean, className?: string }) => (
+  const StatCard = ({ icon, title, value, isLoading, className, iconBgClass, iconColorClass }: { icon: React.ReactNode, title: string, value: string, isLoading: boolean, className?: string, iconBgClass?: string, iconColorClass?: string }) => (
     <div className={`bg-muted/40 p-4 rounded-xl flex items-center gap-4 ${className}`}>
-      <div className="p-3 bg-primary/10 rounded-full text-primary">
+      <div className={cn("p-3 rounded-full", iconBgClass)}>
         {icon}
       </div>
       <div className='flex-1'>
@@ -66,10 +67,11 @@ export default function HomePage() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                      <StatCard
-                        icon={<Wallet className="h-6 w-6" />}
+                        icon={<Wallet className="h-6 w-6 text-accent-foreground" />}
                         title="Balance"
                         value={loading || !user ? '...' : formatCurrencySimple(user.balance)}
                         isLoading={loading}
+                        iconBgClass="bg-accent"
                     />
                 </div>
             </div>

@@ -122,7 +122,7 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
       <CardFooter className="p-4 pt-0">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button className="w-full font-bold h-11">
+            <Button variant="accent" className="w-full font-bold h-11">
                 Invest Now <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </AlertDialogTrigger>

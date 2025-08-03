@@ -284,7 +284,7 @@ export default function DepositPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" size="lg" className="w-full text-lg h-12" disabled={isLoading}>
+                <Button type="submit" variant="accent" size="lg" className="w-full text-lg h-12" disabled={isLoading}>
                   {isLoading ? <Loader2 className="animate-spin" /> : "Submit for Approval"}
                 </Button>
                  <Alert className="mt-4 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
@@ -333,5 +333,3 @@ export default function DepositPage() {
     </ClientOnly>
   );
 }
-
-    
