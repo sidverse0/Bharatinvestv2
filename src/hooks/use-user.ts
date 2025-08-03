@@ -299,14 +299,17 @@ export function useUser() {
   }, [user]);
 
   const removeTransaction = useCallback((txId: string) => {
-    if (!user) return;
-
-    const updatedUser = {
-      ...user,
-      transactions: user.transactions.filter(tx => tx.id !== txId),
-    };
-    updateUser(updatedUser);
-  }, [user]);
+    setUser(currentUser => {
+      if (!currentUser) return null;
+      const updatedUser = {
+        ...currentUser,
+        transactions: currentUser.transactions.filter(tx => tx.id !== txId),
+      };
+      // Also update localStorage
+      localStorage.setItem(`${USER_DATA_PREFIX}${currentUser.name}`, JSON.stringify(updatedUser));
+      return updatedUser;
+    });
+  }, []);
 
   const applyPromoCode = useCallback((code: string): PromoCodeResult => {
     if (!user) return { status: 'invalid' };
