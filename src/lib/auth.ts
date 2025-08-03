@@ -21,6 +21,8 @@ const saveUsers = (users: any) => {
 // Helper to set session
 const setSession = (name: string) => {
   localStorage.setItem(SESSION_KEY, name);
+  // Dispatch a storage event to notify other tabs/hooks
+  window.dispatchEvent(new Event("storage"));
 };
 
 // Signup function
@@ -31,9 +33,9 @@ export const signup = (name: string, email: string, password: string): { success
   }
   
   // Check if name exists
-  const nameExists = Object.values(users).some((user: any) => user.name === name);
+  const nameExists = Object.values(users).some((user: any) => user.name.toLowerCase() === name.toLowerCase());
   if (nameExists) {
-    return { success: false, message: 'Name already exists.' };
+    return { success: false, message: 'Name already exists. Please choose a different name.' };
   }
 
   users[email] = { password, name };
@@ -48,7 +50,7 @@ export const signup = (name: string, email: string, password: string): { success
     investments: [],
     transactions: [],
     usedPromoCodes: {},
-    isFirstLogin: true,
+    isFirstLogin: true, // This flag will trigger the bonus in useUser hook
   };
   localStorage.setItem(`${USER_DATA_PREFIX}${name}`, JSON.stringify(newUser));
 
@@ -69,4 +71,6 @@ export const login = (email: string, password: string): { success: boolean; mess
 // Logout function
 export const logout = () => {
   localStorage.removeItem(SESSION_KEY);
+   // Dispatch a storage event to notify other tabs/hooks
+  window.dispatchEvent(new Event("storage"));
 };

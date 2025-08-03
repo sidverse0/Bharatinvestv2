@@ -64,7 +64,7 @@ export default function ProfilePage() {
     form.reset();
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
         <Skeleton className="h-32 w-full" />
@@ -80,7 +80,7 @@ export default function ProfilePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-2xl">{user?.name}</CardTitle>
+              <CardTitle className="text-2xl">{user.name}</CardTitle>
               <CardDescription>Your personal dashboard</CardDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
@@ -90,13 +90,13 @@ export default function ProfilePage() {
           <CardContent className="space-y-4">
              <div>
               <p className="text-sm text-muted-foreground">Current Balance</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency(user?.balance ?? 0)}</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency(user.balance)}</p>
             </div>
              <div>
               <p className="text-sm text-muted-foreground">Referral Code</p>
               <div className="flex items-center gap-2">
-                <p className="font-mono text-lg">{user?.referralCode}</p>
-                <Button variant="ghost" size="icon" onClick={() => handleCopy(user?.referralCode ?? '', 'Referral Code')}>
+                <p className="font-mono text-lg">{user.referralCode}</p>
+                <Button variant="ghost" size="icon" onClick={() => handleCopy(user.referralCode, 'Referral Code')}>
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
@@ -153,11 +153,11 @@ export default function ProfilePage() {
         <Card>
           <CardHeader><CardTitle>My Investments</CardTitle></CardHeader>
           <CardContent>
-            {user?.investments.length === 0 ? (
+            {user.investments.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">You have no active investments.</p>
             ) : (
               <div className="space-y-4">
-                {user?.investments.map(inv => {
+                {user.investments.map(inv => {
                   const { progress, timeLeftString } = calculateTimeLeft(inv);
                   return (
                     <div key={inv.id} className="p-4 rounded-lg border">

@@ -48,26 +48,27 @@ export default function SignupPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const result = signup(values.name, values.email, values.password);
 
-    setTimeout(() => {
-       if (result.success) {
-        toast({
-          title: "Account Created",
-          description: "You have been successfully registered. Welcome to BharatInvest!",
-        });
-        router.push("/home");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Registration Failed",
-          description: result.message,
-        });
-      }
+    if (result.success) {
+      toast({
+        title: "Account Created",
+        description: "You have been successfully registered. Welcome to BharatInvest!",
+      });
+      router.push("/home");
+      router.refresh(); // Force a refresh to ensure layout re-evaluates auth
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: result.message,
+      });
       setIsLoading(false);
-    }, 1000);
+    }
   }
 
   return (

@@ -40,26 +40,29 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    
+    // Add a small delay for UX
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const result = login(values.email, values.password);
     
-    setTimeout(() => {
-      if (result.success) {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back to BharatInvest!",
-        });
-        router.push("/home");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: result.message,
-        });
-      }
+    if (result.success) {
+      toast({
+        title: "Login Successful",
+        description: "Welcome back to BharatInvest!",
+      });
+      router.push("/home");
+      router.refresh(); // Force a refresh to ensure layout re-evaluates auth
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: result.message,
+      });
       setIsLoading(false);
-    }, 1000);
+    }
   }
 
   return (

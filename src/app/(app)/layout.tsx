@@ -5,22 +5,25 @@ import ActivityNotification from '@/components/ActivityNotification';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useUser } from '@/hooks/use-user';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
+  const { user, loading } = useUser();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    const session = localStorage.getItem('fundflow_session');
-    if (!session) {
-      router.replace('/login');
-    } else {
-      setIsCheckingAuth(false);
+    // Rely on the useUser hook for auth state
+    if (!loading) {
+      if (!user) {
+        router.replace('/login');
+      } else {
+        setIsCheckingAuth(false);
+      }
     }
-  }, [router, pathname]);
+  }, [user, loading, router]);
 
-  if (isCheckingAuth) {
+  if (isCheckingAuth || loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

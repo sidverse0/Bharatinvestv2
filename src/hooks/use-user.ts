@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserData, UserInvestment, Transaction, TransactionType } from '@/types';
+import { UserData, UserInvestment, Transaction } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
 import { isToday, parseISO } from 'date-fns';
 
-const USERS_DB_KEY = 'bharatinvest_users'; // Stores { name: password }
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
 
-const getInitialUser = (): string | null => {
+const getSessionName = (): string | null => {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(SESSION_KEY);
 };
@@ -17,12 +16,16 @@ const getInitialUser = (): string | null => {
 export function useUser() {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState<string | null>(getInitialUser());
+  const [sessionName, setSessionName] = useState<string | null>(getSessionName());
 
+  // Function to reload user data from localStorage
   const loadUser = useCallback((currentName: string) => {
+    setLoading(true);
     const data = localStorage.getItem(`${USER_DATA_PREFIX}${currentName}`);
     if (data) {
-      const parsedData: UserData = JSON.parse(data);
+      let parsedData: UserData = JSON.parse(data);
+      
+      // Apply sign-up bonus on first login
       if(parsedData.isFirstLogin) {
         parsedData.balance += SIGNUP_BONUS;
         parsedData.transactions.unshift({
@@ -34,20 +37,34 @@ export function useUser() {
           description: 'Sign-up Bonus',
         });
         parsedData.isFirstLogin = false;
+        // Save the updated data back to localStorage immediately
         localStorage.setItem(`${USER_DATA_PREFIX}${currentName}`, JSON.stringify(parsedData));
       }
       setUser(parsedData);
+    } else {
+      setUser(null);
     }
     setLoading(false);
   }, []);
 
+  // Effect to load user data when session changes
   useEffect(() => {
-    if (name) {
-      loadUser(name);
+    if (sessionName) {
+      loadUser(sessionName);
     } else {
+      setUser(null);
       setLoading(false);
     }
-  }, [name, loadUser]);
+  }, [sessionName, loadUser]);
+
+  // Effect to listen for storage changes (e.g., login/logout in other tabs)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setSessionName(getSessionName());
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const updateUser = (data: UserData) => {
     setUser(data);
@@ -95,11 +112,6 @@ export function useUser() {
       if (isToday(parseISO(usedDate))) {
         return 'used_today';
       }
-      // This logic allows using a code again on a different day.
-      // The prompt says "valid only once per user & once per day" - this is ambiguous.
-      // I'm interpreting as "a given code can be used once per day".
-      // A stricter interpretation would be to never allow re-use.
-      // To enforce stricter "once per user ever", change this to: return 'used_before';
     }
     
     const newTransaction: Transaction = {
@@ -124,5 +136,5 @@ export function useUser() {
     return 'success';
   }, [user]);
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, reloadUser: () => name && loadUser(name) };
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, reloadUser: () => sessionName && loadUser(sessionName) };
 }
