@@ -37,15 +37,15 @@ export default function WalletPage() {
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Link href="/deposit" passHref>
-            <Button variant="default" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
+            <Button size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group bg-blue-600 hover:bg-blue-700 text-white">
               <ArrowDownToLine className="h-8 w-8 group-hover:animate-bounce" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="outline" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group border-2 border-primary/20 hover:bg-primary/5">
-              <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse text-primary" />
-              <span className="text-primary">Withdraw</span>
+            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group hover:bg-secondary/90">
+              <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse text-secondary-foreground" />
+              <span className="text-secondary-foreground">Withdraw</span>
             </Button>
           </Link>
         </div>
