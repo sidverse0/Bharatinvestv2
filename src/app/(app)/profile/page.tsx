@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/hooks/use-user';
@@ -10,7 +11,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp, AlertTriangle, Briefcase, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -127,6 +128,11 @@ export default function ProfilePage() {
     },
   ];
 
+  const activePlansCount = user.investments.filter(inv => !calculateTimeLeft(inv).isComplete).length;
+  const totalReturns = user.transactions
+    .filter(tx => tx.type === 'return')
+    .reduce((acc, tx) => acc + tx.amount, 0);
+
   return (
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
@@ -148,17 +154,12 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="p-4 grid grid-cols-2 gap-4">
              <div className="bg-background p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground flex items-center gap-2"><Wallet className="h-4 w-4" /> Current Balance</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency(user.balance)}</p>
+              <p className="text-sm text-muted-foreground flex items-center gap-2"><Briefcase className="h-4 w-4" /> Active Plans</p>
+              <p className="text-2xl font-bold text-primary">{activePlansCount}</p>
             </div>
              <div className="bg-background p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground">Referral Code</p>
-              <div className="flex items-center gap-2">
-                <p className="font-mono text-lg">{user.referralCode}</p>
-                <Button variant="ghost" size="icon" onClick={() => handleCopy(user.referralCode, 'Referral Code')}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground flex items-center gap-2"><PlusCircle className="h-4 w-4" /> Total Returns</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency(totalReturns)}</p>
             </div>
           </CardContent>
         </Card>

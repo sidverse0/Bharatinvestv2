@@ -49,17 +49,11 @@ export default function HomePage() {
                         <h1 className="text-xl font-bold">Welcome, {user.name}!</h1>
                     )}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                     <StatCard 
                         icon={<Wallet className="h-6 w-6 text-primary" />}
                         title="Balance"
                         value={loading || !user ? '...' : formatCurrencySimple(user.balance)}
-                        isLoading={loading}
-                    />
-                     <StatCard 
-                        icon={<TrendingUp className="h-6 w-6 text-primary" />}
-                        title="Today's Return"
-                        value={loading || !user ? '...' : formatCurrencySimple(user.todaysReturn)}
                         isLoading={loading}
                     />
                 </div>
