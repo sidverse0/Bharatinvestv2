@@ -59,6 +59,7 @@ export const signup = (name: string, email: string, password: string): { success
     lastLoginDate: new Date().toISOString(),
     lastCheckInDate: '',
     checkInStreak: 0,
+    claimedAchievements: [],
   };
   localStorage.setItem(`${USER_DATA_PREFIX}${name}`, JSON.stringify(newUser));
 

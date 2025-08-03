@@ -14,6 +14,10 @@ type PromoCodeResult =
   | { status: 'success'; amount: number }
   | { status: 'used_today' | 'used_before' | 'invalid'; amount?: never };
 
+type ClaimAchievementResult = 
+  | { success: true; amount: number }
+  | { success: false; amount?: never };
+
 const getSessionName = (): string | null => {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(SESSION_KEY);
@@ -66,6 +70,10 @@ export function useUser() {
       }
       if (typeof parsedData.checkInStreak === 'undefined') {
         parsedData.checkInStreak = 0;
+        dataChanged = true;
+      }
+      if (typeof parsedData.claimedAchievements === 'undefined') {
+        parsedData.claimedAchievements = [];
         dataChanged = true;
       }
 
@@ -370,5 +378,32 @@ export function useUser() {
 
   }, [user]);
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName), removeTransaction };
+  const claimAchievementReward = useCallback((achievementLabel: string): ClaimAchievementResult => {
+    if (!user || user.claimedAchievements.includes(achievementLabel)) {
+      return { success: false };
+    }
+
+    const rewardAmount = Math.floor(Math.random() * 10) + 1; // Random amount from 1 to 10
+
+    const newTransaction: Transaction = {
+      id: crypto.randomUUID(),
+      type: 'bonus',
+      amount: rewardAmount,
+      status: 'success',
+      date: new Date().toISOString(),
+      description: `Achievement: ${achievementLabel}`,
+    };
+
+    const updatedUser: UserData = {
+      ...user,
+      balance: user.balance + rewardAmount,
+      transactions: [newTransaction, ...user.transactions],
+      claimedAchievements: [...user.claimedAchievements, achievementLabel],
+    };
+    updateUser(updatedUser);
+    return { success: true, amount: rewardAmount };
+  }, [user]);
+
+
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName), removeTransaction, claimAchievementReward };
 }

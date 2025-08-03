@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Separator, Lock } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -47,32 +47,58 @@ interface BadgeProps {
   label: string;
   description: string;
   achieved: boolean;
+  isClaimed: boolean;
+  onClaim: (label: string) => void;
 }
 
-const AchievementBadge = ({ icon, label, description, achieved }: BadgeProps) => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className={cn(
-          "flex flex-col items-center justify-center gap-2 p-3 rounded-lg border text-center transition-all aspect-square",
-          achieved ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted text-muted-foreground opacity-60"
-        )}>
-          <div className={cn("rounded-full p-3", achieved ? "bg-primary/20" : "bg-muted-foreground/20")}>
-            {icon}
-          </div>
-          <p className="text-sm font-semibold">{label}</p>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{description}</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
+const AchievementBadge = ({ icon, label, description, achieved, isClaimed, onClaim }: BadgeProps) => {
+  const [claiming, setClaiming] = useState(false);
 
+  const handleClaim = () => {
+    if (!achieved || isClaimed || claiming) return;
+    setClaiming(true);
+    onClaim(label);
+    // No need to set claiming to false, as the component will re-render with isClaimed=true
+  };
+  
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={cn(
+            "flex flex-col items-center justify-between gap-2 p-3 rounded-lg border text-center transition-all aspect-square",
+            achieved ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted text-muted-foreground opacity-60"
+          )}>
+            <div className={cn("rounded-full p-3", achieved ? "bg-primary/20" : "bg-muted-foreground/20")}>
+              {icon}
+            </div>
+            <p className="text-sm font-semibold leading-tight">{label}</p>
+            <div className="h-9 mt-1">
+              {achieved && !isClaimed && (
+                 <Button size="sm" className="h-7 text-xs px-2" onClick={handleClaim} disabled={claiming}>
+                    <Gift className="mr-1 h-3 w-3" />
+                    {claiming ? 'Claiming...' : 'Claim'}
+                  </Button>
+              )}
+               {achieved && isClaimed && (
+                  <div className="flex items-center gap-1 text-xs font-semibold text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Claimed</span>
+                  </div>
+              )}
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{description}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 export default function ProfilePage() {
-  const { user, loading, applyPromoCode, reloadUser } = useUser();
+  const { user, loading, applyPromoCode, reloadUser, claimAchievementReward } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -136,6 +162,17 @@ export default function ProfilePage() {
     form.reset();
   };
 
+  const handleClaimAchievement = (label: string) => {
+    const result = claimAchievementReward(label);
+    if (result.success && result.amount) {
+      toast({
+        title: 'Reward Claimed!',
+        description: `You have received a bonus of ${formatCurrency(result.amount)}!`,
+      });
+      reloadUser();
+    }
+  };
+
   if (loading || !user) {
     return (
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
@@ -147,7 +184,7 @@ export default function ProfilePage() {
     );
   }
   
-  const achievementBadges: BadgeProps[] = [
+  const achievementBadges: Omit<BadgeProps, 'isClaimed' | 'onClaim'>[] = [
     {
       icon: <Medal className="h-7 w-7" />,
       label: "First Investment",
@@ -290,7 +327,12 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="p-4 bg-card grid grid-cols-3 gap-4">
             {achievementBadges.map(badge => (
-              <AchievementBadge key={badge.label} {...badge} />
+              <AchievementBadge 
+                key={badge.label} 
+                {...badge}
+                isClaimed={user.claimedAchievements.includes(badge.label)}
+                onClaim={handleClaimAchievement}
+              />
             ))}
           </CardContent>
         </Card>

@@ -50,9 +50,8 @@ export interface UserData {
   totalDeposits: number;
   loginStreak: number;
   lastLoginDate: string; // ISO date string
+  claimedAchievements: string[]; // List of claimed achievement labels
   // Daily Check-in
   lastCheckInDate: string;
   checkInStreak: number;
 }
-
-    
