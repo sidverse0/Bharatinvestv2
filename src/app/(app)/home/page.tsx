@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { IconButton } from '@/components/ui/icon-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -92,6 +93,19 @@ export default function HomePage() {
             ))}
           </div>
         </section>
+
+        <div className="mt-8 flex items-center justify-center">
+             <Card className="overflow-hidden p-2">
+                <Image
+                    src="https://files.catbox.moe/ax6knx.jpg"
+                    alt="Promotional Banner"
+                    width={400}
+                    height={150}
+                    className="object-contain rounded-md"
+                    data-ai-hint="promotional banner"
+                />
+            </Card>
+        </div>
       </div>
     </ClientOnly>
   );
