@@ -11,7 +11,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp, AlertTriangle, Briefcase, PlusCircle } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp, AlertTriangle, Briefcase, PlusCircle, Rocket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 const promoCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
@@ -101,7 +102,8 @@ export default function ProfilePage() {
   if (loading || !user) {
     return (
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
-        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -129,11 +131,6 @@ export default function ProfilePage() {
     },
   ];
 
-  const activePlansCount = user.investments.filter(inv => !calculateTimeLeft(inv).isComplete).length;
-  const totalReturns = user.transactions
-    .filter(tx => tx.type === 'return')
-    .reduce((acc, tx) => acc + tx.amount, 0);
-
   return (
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
@@ -154,17 +151,25 @@ export default function ProfilePage() {
                 <LogOut className="h-5 w-5" />
               </Button>
           </CardHeader>
-          <CardContent className="p-4 grid grid-cols-2 gap-4">
-             <div className="bg-background p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground flex items-center gap-2"><Briefcase className="h-4 w-4" /> Active Plans</p>
-              <p className="text-2xl font-bold text-primary">{activePlansCount}</p>
-            </div>
-             <div className="bg-background p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground flex items-center gap-2"><PlusCircle className="h-4 w-4" /> Total Returns</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency(totalReturns)}</p>
-            </div>
-          </CardContent>
         </Card>
+
+        <Link href="/my-investments" passHref>
+          <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-primary/10 rounded-lg text-primary">
+                    <Rocket className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <CardTitle>My Investments</CardTitle>
+                    <CardDescription>View your active and past investments</CardDescription>
+                  </div>
+                </div>
+                <Rocket className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+          </Card>
+        </Link>
+        
 
         <Card className="shadow-sm">
           <CardHeader>
@@ -224,34 +229,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-        
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" /> My Investments</CardTitle></CardHeader>
-          <CardContent>
-            {user.investments.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">You have no active investments.</p>
-            ) : (
-              <div className="space-y-4">
-                {user.investments.map(inv => {
-                  const { progress, timeLeftString } = calculateTimeLeft(inv);
-                  return (
-                    <div key={inv.id} className="p-4 rounded-lg border bg-muted/20">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="font-semibold">{inv.planName}</p>
-                        <p className="font-bold text-primary">{formatCurrency(inv.expectedReturn)}</p>
-                      </div>
-                      <Progress value={progress} className="mb-2 h-2" />
-                      <div className="flex justify-between items-center text-xs text-muted-foreground">
-                        <span>Invested: {formatCurrency(inv.amount)}</span>
-                        <span>{timeLeftString} left</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </ClientOnly>
   );
