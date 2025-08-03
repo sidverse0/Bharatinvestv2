@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem } from 'lucide-react';
+import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -178,8 +178,9 @@ export default function DepositPage() {
             
             <div className="flex flex-col items-center gap-4 mt-8">
                 <Image src="https://placehold.co/250x250.png" data-ai-hint="qr code" alt="QR Code" width={250} height={250} className="rounded-lg border-2 border-primary" />
-                <div className="text-center font-mono text-2xl p-3 bg-destructive/10 text-destructive rounded-md w-full">
-                    Time Remaining: {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+                <div className="flex items-center justify-center gap-2 text-center font-mono text-2xl p-3 bg-destructive/10 text-destructive rounded-md w-full ring-2 ring-destructive/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                    <Timer className="h-7 w-7" />
+                    <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
                 </div>
                 <p className="text-center text-muted-foreground text-base">Amount to Pay: <span className="font-bold text-foreground">{formatCurrency(selectedAmount!)}</span></p>
             </div>
