@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -35,6 +35,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
 
 const promoCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
@@ -323,6 +324,23 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="shadow-sm text-center">
+          <CardContent className="p-6 flex flex-col items-center gap-4">
+            <BharatInvestLogo className="h-16 w-16" />
+            <div className="flex items-center gap-2">
+              <h2 className="text-3xl font-bold text-primary">Bharat</h2>
+              <h2 className="text-3xl font-bold text-yellow-500">Invest</h2>
+            </div>
+            <p className="text-lg font-semibold text-muted-foreground">Roz Kamao, Safe Bachaao!</p>
+            <p className="text-sm font-medium text-foreground">- By Govt. Of India</p>
+            <div className="flex items-center gap-2 text-green-600 font-semibold mt-2">
+              <ShieldCheck className="h-6 w-6 animate-pulse" />
+              <span>100% secure, safe and protected</span>
+            </div>
+          </CardContent>
+        </Card>
+
       </div>
     </ClientOnly>
   );
