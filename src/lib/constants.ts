@@ -10,7 +10,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     returns: 410, 
     duration: 30, 
     badge: 'Popular',
-    image: 'https://placehold.co/400x200.png',
+    image: 'https://files.catbox.moe/5ydg1r.png',
   },
   { 
     id: 2, 
@@ -20,7 +20,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     returns: 680, 
     duration: 40, 
     badge: 'Hot',
-    image: 'https://placehold.co/400x200.png',
+    image: 'https://files.catbox.moe/qokkuq.jpg',
   },
   { 
     id: 3, 
@@ -30,7 +30,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     returns: 890, 
     duration: 45, 
     badge: 'Best Value',
-    image: 'https://placehold.co/400x200.png',
+    image: 'https://files.catbox.moe/m5fabe.jpg',
   },
   { 
     id: 4, 
@@ -39,7 +39,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 600, 
     returns: 1080, 
     duration: 50,
-    image: 'https://placehold.co/400x200.png',
+    image: 'https://files.catbox.moe/h148yz.jpg',
   },
   { 
     id: 5, 
@@ -48,7 +48,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 1000, 
     returns: 1550, 
     duration: 60,
-    image: 'https://placehold.co/400x200.png',
+    image: 'https://files.catbox.moe/x6t7ak.jpg',
   },
 ];
 
