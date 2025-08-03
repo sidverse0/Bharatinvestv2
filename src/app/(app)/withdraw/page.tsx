@@ -4,9 +4,9 @@
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt, User as UserIcon, Banknote } from 'lucide-react';
+import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -56,15 +56,9 @@ export default function WithdrawPage() {
       name: '',
       bankName: '',
       upiId: '',
-      amount: MIN_WITHDRAWAL,
+      amount: undefined,
     },
   });
-  
-  useEffect(() => {
-    if (user) {
-      form.setValue('name', user.name);
-    }
-  }, [user, form]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user) return;
@@ -201,7 +195,7 @@ export default function WithdrawPage() {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="Enter amount" {...field} />
+                        <Input type="number" placeholder={`Minimum ${formatCurrency(MIN_WITHDRAWAL)}`} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
