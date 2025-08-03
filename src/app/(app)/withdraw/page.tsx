@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt } from 'lucide-react';
+import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt, Lightbulb } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ import { useUser } from '@/hooks/use-user';
 import { useToast } from '@/hooks/use-toast';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Please enter your full name.'),
@@ -195,7 +196,7 @@ export default function WithdrawPage() {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder={`Minimum ${formatCurrency(MIN_WITHDRAWAL)}`} {...field} />
+                        <Input type="number" placeholder={`e.g. 500`} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -206,6 +207,12 @@ export default function WithdrawPage() {
                 </Button>
               </form>
             </Form>
+             <Alert className="mt-6 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 [&>svg]:text-yellow-600">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>.
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
       </div>
