@@ -75,7 +75,7 @@ const AchievementBadge = ({ icon, label, description, achieved, isClaimed, onCla
             <p className="text-sm font-semibold leading-tight">{label}</p>
             <div className="h-9 mt-1">
               {achieved && !isClaimed && (
-                 <Button size="sm" className="h-7 text-xs px-2" onClick={handleClaim} disabled={claiming}>
+                 <Button size="sm" variant="accent" className="h-7 text-xs px-2" onClick={handleClaim} disabled={claiming}>
                     <Gift className="mr-1 h-3 w-3" />
                     {claiming ? 'Claiming...' : 'Claim'}
                   </Button>
