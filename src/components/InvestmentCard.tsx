@@ -21,9 +21,11 @@ import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Clock, Flame, Star } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface InvestmentCardProps {
   plan: InvestmentPlan;
+  animationDelay?: number;
 }
 
 const PlanBadge = ({ badge }: { badge: string }) => {
@@ -44,7 +46,7 @@ const PlanBadge = ({ badge }: { badge: string }) => {
 };
 
 
-export default function InvestmentCard({ plan }: InvestmentCardProps) {
+export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentCardProps) {
   const { user, addInvestment } = useUser();
   const { toast } = useToast();
 
@@ -88,7 +90,13 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
 
 
   return (
-    <Card className="relative flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden">
+    <Card 
+        className={cn(
+            "relative flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden",
+            "animate-fade-in-up"
+        )}
+        style={{ animationDelay: `${animationDelay}ms`, animationFillMode: 'backwards' }}
+    >
       {plan.badge && <PlanBadge badge={plan.badge} />}
       
       <div className="relative h-32 w-full">

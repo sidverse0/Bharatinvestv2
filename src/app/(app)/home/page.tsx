@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/hooks/use-user';
@@ -7,10 +8,19 @@ import InvestmentCard from '@/components/InvestmentCard';
 import { formatCurrency } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
-import { Wallet, TrendingUp, User as UserIcon } from 'lucide-react';
+import { Wallet, TrendingUp, User as UserIcon, Flame } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const { user, loading } = useUser();
+  const [investedUsers, setInvestedUsers] = useState(1250);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setInvestedUsers(prev => prev + Math.floor(Math.random() * 3) + 1);
+    }, 5000); // increase count every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   const StatCard = ({ icon, title, value, isLoading, className }: { icon: React.ReactNode, title: string, value: string, isLoading: boolean, className?: string }) => (
     <div className={`bg-background/70 backdrop-blur-sm p-4 rounded-xl flex items-center gap-4 ${className}`}>
@@ -57,13 +67,17 @@ export default function HomePage() {
         </header>
 
         <section>
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-2">
             <h2 className="text-2xl font-bold">Investment Plans</h2>
             <p className="text-sm text-primary font-semibold">Choose a plan</p>
           </div>
+          <p className="text-sm text-muted-foreground mb-4 flex items-center gap-1">
+            <Flame className="h-4 w-4 text-red-500" /> 
+            <span className="font-semibold">{investedUsers.toLocaleString()}+ users</span> have invested!
+          </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {INVESTMENT_PLANS.map((plan) => (
-              <InvestmentCard key={plan.id} plan={plan} />
+            {INVESTMENT_PLANS.map((plan, index) => (
+              <InvestmentCard key={plan.id} plan={plan} animationDelay={index * 100} />
             ))}
           </div>
         </section>
