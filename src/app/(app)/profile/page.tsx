@@ -321,7 +321,7 @@ export default function ProfilePage() {
 
         <Card className="shadow-sm overflow-hidden">
           <CardHeader className="p-0 relative h-24 flex items-center justify-center text-center">
-             <Image src="https://files.catbox.moe/j09p2w.png" alt="Achievements Banner" layout="fill" objectFit="cover" className="z-0" data-ai-hint="achievement banner abstract" />
+             <Image src="https://files.catbox.moe/ku61kb.jpg" alt="Achievements Banner" layout="fill" objectFit="cover" className="z-0" data-ai-hint="achievement banner abstract" />
              <div className="absolute inset-0 bg-black/50 z-10"></div>
              <CardTitle className="text-3xl font-bold text-white z-20 flex items-center gap-2">🎉 Achievements</CardTitle>
           </CardHeader>
