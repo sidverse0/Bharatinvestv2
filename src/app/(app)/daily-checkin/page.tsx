@@ -27,18 +27,22 @@ const CheckInDay = ({ day, isClaimed, isToday, isFuture }: { day: number, isClai
     return (
         <div className={cn(
             "relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-300",
-            isClaimed && "border-green-500 bg-green-500/10 text-green-600",
+            isClaimed && "border-green-500 bg-green-500/10",
             isToday && !isClaimed && "border-primary bg-primary/10 animate-pulse",
             isFuture && "border-dashed bg-muted/50 text-muted-foreground opacity-70",
-            !isFuture && !isClaimed && !isToday && "border-red-500 bg-red-500/10 text-red-600"
+            !isFuture && !isClaimed && !isToday && "border-red-500 bg-red-500/10"
         )}>
-            {isClaimed && <CheckCircle className="absolute -top-2 -right-2 h-6 w-6 bg-background text-green-500 rounded-full" />}
+            {isClaimed && <CheckCircle className="absolute -top-3 -right-3 h-7 w-7 bg-background text-green-500 rounded-full" />}
             
             <p className="font-bold text-lg">Day {day}</p>
-            <Gift className="h-8 w-8" />
 
-            <div className="text-xs font-semibold">
-                {isClaimed ? "Claimed" : isToday ? "Claim Now" : isFuture ? "Locked" : "Missed"}
+            <Gift className={cn("h-10 w-10", 
+              isToday && !isClaimed && "text-accent",
+              isClaimed && "text-green-500",
+            )} />
+
+            <div className="text-xs font-semibold h-4">
+                {isClaimed ? <span className="text-green-600">Claimed</span> : isToday ? "Claim Now" : isFuture ? "Locked" : <span className="text-red-600">Missed</span>}
             </div>
         </div>
     )
@@ -129,30 +133,29 @@ export default function DailyCheckinPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
              </AlertDialog>
-            <div className="container mx-auto max-w-2xl p-4 space-y-6">
+            <div className="container mx-auto max-w-2xl p-4 space-y-8">
                  <header className="text-center">
                     <h1 className="text-3xl font-bold tracking-tight">Daily Check-in</h1>
                     <p className="text-muted-foreground">Claim a reward every day you check in!</p>
                 </header>
 
-                <Card>
-                    <CardContent className="p-4 grid grid-cols-3 sm:grid-cols-4 gap-4">
-                        {[...Array(7)].map((_, i) => {
-                            const day = i + 1;
-                            const isClaimed = user.checkInStreak > 0 && day <= (user.checkInStreak % 7 === 0 ? 7 : user.checkInStreak % 7) && (isToday(parseISO(user.lastCheckInDate)) || !canClaimToday);
-                            const isTodayDay = day === (user.checkInStreak % 7) + 1;
-                            const isFuture = day > (user.checkInStreak % 7) + 1;
-                            
-                            return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} />
-                        })}
-                    </CardContent>
-                </Card>
+                <div className="p-4 grid grid-cols-3 sm:grid-cols-4 gap-4">
+                    {[...Array(7)].map((_, i) => {
+                        const day = i + 1;
+                        const isClaimed = user.checkInStreak > 0 && day <= (user.checkInStreak % 7 === 0 ? 7 : user.checkInStreak % 7) && (isToday(parseISO(user.lastCheckInDate)) || !canClaimToday);
+                        const isTodayDay = day === (user.checkInStreak % 7) + 1;
+                        const isFuture = day > (user.checkInStreak % 7) + 1;
+                        
+                        return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} />
+                    })}
+                </div>
                 
                 <Button 
                     size="lg" 
                     className="w-full h-14 text-xl" 
                     onClick={handleClaim}
                     disabled={!canClaimToday || loading}
+                    variant="accent"
                 >
                     {canClaimToday 
                         ? 'Claim Today\'s Reward' 
