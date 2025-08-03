@@ -61,7 +61,7 @@ export default function WithdrawPage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema,>) => {
     if (!user) return;
     if (values.amount > user.balance) {
       form.setError('amount', { type: 'manual', message: 'Insufficient balance.' });
@@ -196,7 +196,7 @@ export default function WithdrawPage() {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder={`e.g. 500`} {...field} />
+                        <Input type="number" placeholder={`e.g. 500`} {...field} value={field.value ?? ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
