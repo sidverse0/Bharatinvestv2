@@ -18,19 +18,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { formatCurrency, openTelegramLink } from "@/lib/helpers";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Clock, TrendingUp, Zap, Star, BarChartBig } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
+import Image from "next/image";
 
 interface InvestmentCardProps {
   plan: InvestmentPlan;
 }
-
-const planIcons: { [key: number]: React.ReactNode } = {
-  1: <TrendingUp className="h-8 w-8 text-primary" />,
-  2: <Zap className="h-8 w-8 text-primary" />,
-  3: <Star className="h-8 w-8 text-primary" />,
-  4: <BarChartBig className="h-8 w-8 text-primary" />,
-  5: <TrendingUp className="h-8 w-8 text-primary" />,
-};
 
 export default function InvestmentCard({ plan }: InvestmentCardProps) {
   const { user, addInvestment } = useUser();
@@ -63,20 +56,31 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
       description: `You have invested ${formatCurrency(plan.amount)}.`,
     });
   };
+  
+  const planImages: { [key: number]: {src: string, hint: string} } = {
+    1: { src: 'https://placehold.co/400x200.png', hint: 'investment growth' },
+    2: { src: 'https://placehold.co/400x200.png', hint: 'financial security' },
+    3: { src: 'https://placehold.co/400x200.png', hint: 'savings success' },
+    4: { src: 'https://placehold.co/400x200.png', hint: 'money tree' },
+    5: { src: 'https://placehold.co/400x200.png', hint: 'market chart' },
+  };
+  
+  const image = planImages[plan.id] || { src: 'https://placehold.co/400x200.png', hint: 'finance' };
+
 
   return (
-    <Card className="flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg">
+    <Card className="flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden">
       {plan.badge && (
-        <Badge className="absolute -top-3 -right-3 bg-accent text-accent-foreground shadow-lg">{plan.badge}</Badge>
+        <Badge className="absolute top-3 right-3 z-10 bg-accent text-accent-foreground shadow-lg">{plan.badge}</Badge>
       )}
-      <CardHeader className="flex-row items-start justify-between">
-        <div>
+      
+      <div className="relative h-32 w-full">
+         <Image src={image.src} alt={`Investment plan ${plan.id}`} layout="fill" objectFit="cover" data-ai-hint={image.hint} />
+      </div>
+
+      <CardHeader>
           <CardDescription>Invest {formatCurrency(plan.amount)}</CardDescription>
           <CardTitle className="text-3xl font-bold text-primary">Get {formatCurrency(plan.returns)}</CardTitle>
-        </div>
-        <div className="p-2 bg-primary/10 rounded-full">
-           {planIcons[plan.id] || <TrendingUp className="h-8 w-8 text-primary" />}
-        </div>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex items-center gap-2 text-muted-foreground">
