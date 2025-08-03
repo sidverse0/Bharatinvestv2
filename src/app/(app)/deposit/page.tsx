@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer, Clock } from 'lucide-react';
+import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer, Clock, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -192,24 +192,28 @@ export default function DepositPage() {
     
     return (
        <div className="w-full max-w-sm text-center">
-            <div className="relative mb-4">
-                <CheckCircle className="h-24 w-24 text-green-500 mx-auto animate-pulse mb-6" />
+            <div className="relative mb-6">
+                <div className="mx-auto w-24 h-24 flex items-center justify-center rounded-full bg-green-500/10 mb-6 shadow-[0_0_20px] shadow-green-500/20">
+                    <CheckCircle className="h-20 w-20 text-green-500 animate-pulse" />
+                </div>
                 <h1 className="text-3xl font-bold tracking-tight">Waiting for Approval</h1>
                 <p className="text-muted-foreground mt-2">Your deposit will be automatically approved.</p>
                 <p className="text-sm font-semibold text-destructive mt-1">Please do not press back or close the app.</p>
             </div>
             
-            <Card className="bg-muted/50 p-4">
-                <div className="flex items-center justify-center gap-2 text-center font-mono text-2xl p-3 bg-background/50 text-foreground rounded-md w-full shadow-inner">
-                    <Clock className="h-7 w-7" />
-                    <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
-                </div>
-                 <p className="text-xs text-muted-foreground mt-3">Time until balance is updated</p>
-                 <Progress value={progress} className="w-full mt-2 h-2" />
+            <Card className="bg-muted/30 p-4">
+                <CardContent className="p-0">
+                    <div className="flex items-center justify-center gap-2 text-center font-mono text-3xl p-3 bg-background/50 text-foreground rounded-md w-full shadow-inner">
+                        <Clock className="h-8 w-8" />
+                        <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+                    </div>
+                     <p className="text-xs text-muted-foreground mt-3">Time until balance is updated</p>
+                     <Progress value={progress} className="w-full mt-2 h-2" />
+                </CardContent>
             </Card>
 
-            <Button size="lg" variant="outline" className="h-12 text-lg mt-8 w-full" onClick={() => router.push('/home')}>
-                Go to Home
+            <Button size="lg" className="h-12 text-lg mt-8 w-full" onClick={() => router.push('/home')}>
+                <Home className="mr-2" /> Go to Home
             </Button>
        </div>
     );
@@ -322,3 +326,5 @@ export default function DepositPage() {
     </ClientOnly>
   );
 }
+
+    
