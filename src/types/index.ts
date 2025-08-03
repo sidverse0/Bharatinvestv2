@@ -37,4 +37,9 @@ export interface UserData {
   transactions: Transaction[];
   usedPromoCodes: { [key: string]: string }; // code -> date used
   isFirstLogin: boolean;
+  // Achievement tracking
+  firstInvestmentMade: boolean;
+  totalDeposits: number;
+  loginStreak: number;
+  lastLoginDate: string; // ISO date string
 }

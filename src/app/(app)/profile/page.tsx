@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -18,10 +18,42 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { APP_LINK, REFERRAL_BONUS } from '@/lib/constants';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const promoCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
 });
+
+interface BadgeProps {
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+  achieved: boolean;
+}
+
+const AchievementBadge = ({ icon, label, description, achieved }: BadgeProps) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className={cn(
+          "flex flex-col items-center gap-2 p-3 rounded-lg border text-center transition-all",
+          achieved ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted text-muted-foreground opacity-60"
+        )}>
+          <div className={cn("rounded-full p-2", achieved ? "bg-primary/20" : "bg-muted-foreground/20")}>
+            {icon}
+          </div>
+          <p className="text-xs font-semibold">{label}</p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{description}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
+
 
 export default function ProfilePage() {
   const { user, loading, applyPromoCode, reloadUser } = useUser();
@@ -73,6 +105,27 @@ export default function ProfilePage() {
       </div>
     );
   }
+  
+  const achievementBadges: BadgeProps[] = [
+    {
+      icon: <Medal className="h-6 w-6" />,
+      label: "First Investment",
+      description: "Awarded for making your first investment.",
+      achieved: user.firstInvestmentMade,
+    },
+    {
+      icon: <Award className="h-6 w-6" />,
+      label: "₹1000 Deposited",
+      description: "Awarded for depositing a total of ₹1000 or more.",
+      achieved: user.totalDeposits >= 1000,
+    },
+    {
+      icon: <TrendingUp className="h-6 w-6" />,
+      label: "7-Day Streak",
+      description: `Awarded for logging in 7 days in a row. Current streak: ${user.loginStreak} day(s).`,
+      achieved: user.loginStreak >= 7,
+    },
+  ];
 
   return (
     <ClientOnly>
@@ -107,6 +160,17 @@ export default function ProfilePage() {
                 </Button>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">🎉 Achievements</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-3 gap-4">
+            {achievementBadges.map(badge => (
+              <AchievementBadge key={badge.label} {...badge} />
+            ))}
           </CardContent>
         </Card>
 

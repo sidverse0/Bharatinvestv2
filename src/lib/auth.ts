@@ -51,6 +51,10 @@ export const signup = (name: string, email: string, password: string): { success
     transactions: [],
     usedPromoCodes: {},
     isFirstLogin: true, // This flag will trigger the bonus in useUser hook
+    firstInvestmentMade: false,
+    totalDeposits: 0,
+    loginStreak: 0,
+    lastLoginDate: new Date().toISOString(),
   };
   localStorage.setItem(`${USER_DATA_PREFIX}${name}`, JSON.stringify(newUser));
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserData, UserInvestment, Transaction } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
-import { isToday, parseISO, differenceInMinutes } from 'date-fns';
+import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays } from 'date-fns';
 
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
@@ -33,7 +33,7 @@ export function useUser() {
       let parsedData: UserData = JSON.parse(data);
       let dataChanged = false;
 
-      // Apply sign-up bonus on first login
+      // Apply sign-up bonus on first login & set streak
       if(parsedData.isFirstLogin) {
         parsedData.balance += SIGNUP_BONUS;
         parsedData.transactions.unshift({
@@ -45,7 +45,24 @@ export function useUser() {
           description: 'Sign-up Bonus',
         });
         parsedData.isFirstLogin = false;
+        parsedData.lastLoginDate = new Date().toISOString();
+        parsedData.loginStreak = 1;
         dataChanged = true;
+      } else {
+         // Update login streak
+        const today = new Date();
+        const lastLogin = parseISO(parsedData.lastLoginDate);
+        const daysDiff = differenceInCalendarDays(today, lastLogin);
+
+        if (daysDiff === 1) {
+            parsedData.loginStreak += 1;
+            dataChanged = true;
+        } else if (daysDiff > 1) {
+            parsedData.loginStreak = 1; // Reset streak
+            dataChanged = true;
+        }
+        // If daysDiff is 0, they already logged in today, do nothing.
+        parsedData.lastLoginDate = today.toISOString();
       }
       
       // Auto-approve transactions older than 2 minutes
@@ -55,9 +72,9 @@ export function useUser() {
           dataChanged = true;
           if (tx.type === 'deposit') {
             parsedData.balance += tx.amount;
+            parsedData.totalDeposits = (parsedData.totalDeposits || 0) + tx.amount;
           } else if (tx.type === 'withdrawal') {
             // Balance is already deducted on request for withdrawals in this app's logic
-            // If it weren't, you would deduct here: `parsedData.balance -= tx.amount;`
           }
           return { ...tx, status: 'success' };
         }
@@ -117,11 +134,12 @@ export function useUser() {
       date: new Date().toISOString(),
       description: `Invested in ${investment.planName}`,
     };
-    const updatedUser = {
+    const updatedUser: UserData = {
       ...user,
       balance: user.balance - investment.amount,
       investments: [newInvestment, ...user.investments],
       transactions: [newTransaction, ...user.transactions],
+      firstInvestmentMade: true,
     };
     updateUser(updatedUser);
   }, [user]);
