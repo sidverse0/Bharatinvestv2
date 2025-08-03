@@ -46,6 +46,7 @@ export const signup = (name: string, email: string, password: string): { success
     name,
     email,
     balance: 0,
+    todaysReturn: 0,
     referralCode: `${name.substring(0, 4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`,
     investments: [],
     transactions: [],

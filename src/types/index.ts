@@ -32,6 +32,7 @@ export interface UserData {
   name: string;
   email: string;
   balance: number;
+  todaysReturn: number;
   referralCode: string;
   investments: UserInvestment[];
   transactions: Transaction[];

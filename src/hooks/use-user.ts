@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserData, UserInvestment, Transaction } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
-import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays } from 'date-fns';
+import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays } from 'date-fns';
 
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
@@ -80,6 +80,18 @@ export function useUser() {
         }
         return tx;
       });
+
+      // Calculate today's return
+      let todaysReturn = 0;
+      parsedData.investments.forEach(inv => {
+          const startDate = parseISO(inv.startDate);
+          const endDate = addDays(startDate, inv.duration);
+          if (isBefore(new Date(), endDate)) { // Only count active investments
+              todaysReturn += (inv.expectedReturn - inv.amount) / inv.duration;
+          }
+      });
+      parsedData.todaysReturn = todaysReturn;
+
 
       if(dataChanged) {
         // Save the updated data back to localStorage immediately
