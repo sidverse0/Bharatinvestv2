@@ -1,18 +1,29 @@
 'use client';
-import { generateActivityNotifications } from '@/ai/flows/generate-activity-notifications';
+import { ActivityNotificationsOutput, generateActivityNotifications } from '@/ai/flows/generate-activity-notifications';
+import { formatCurrency } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
-import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TrendingUp, ArrowDownToLine, ArrowUpFromLine, User } from 'lucide-react';
+
+const ActionIcon = ({ action, icon }: { action: string; icon: string; }) => {
+    switch (action) {
+        case 'invested': return <User className="h-5 w-5 text-blue-500" />;
+        case 'deposited': return <ArrowDownToLine className="h-5 w-5 text-green-500" />;
+        case 'withdrew': return <ArrowUpFromLine className="h-5 w-5 text-red-500" />;
+        default: return <span>{icon}</span>;
+    }
+}
+
 
 export default function ActivityNotification() {
-  const [notification, setNotification] = useState<string | null>(null);
+  const [notification, setNotification] = useState<ActivityNotificationsOutput | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const fetchNotification = async () => {
       try {
-        const { message } = await generateActivityNotifications();
-        setNotification(message);
+        const data = await generateActivityNotifications();
+        setNotification(data);
         setIsVisible(true);
         setTimeout(() => {
           setIsVisible(false);
@@ -26,7 +37,7 @@ export default function ActivityNotification() {
     // Initial notification after a delay
     const initialTimeout = setTimeout(fetchNotification, 8000);
 
-    const intervalId = setInterval(fetchNotification, 60000); // every 1 minute
+    const intervalId = setInterval(fetchNotification, 10000); // every 10 seconds
 
     return () => {
       clearTimeout(initialTimeout);
@@ -37,12 +48,22 @@ export default function ActivityNotification() {
   return (
     <div
       className={cn(
-        "fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-sm border p-2 px-4 shadow-lg transition-transform duration-500 ease-out",
+        "fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-full bg-card/80 backdrop-blur-sm border p-2 pl-3 pr-4 shadow-lg transition-transform duration-500 ease-out",
         isVisible ? 'translate-y-0' : '-translate-y-[150%]'
       )}
     >
-      <Zap className="h-4 w-4 text-accent" />
-      <p className="text-sm font-medium">{notification}</p>
+        {notification && (
+            <>
+                <div className="p-1.5 bg-background rounded-full">
+                    <ActionIcon action={notification.action} icon={notification.actionIcon} />
+                </div>
+                <p className="text-sm font-medium text-foreground">
+                    <span className="font-bold">{notification.name}</span>
+                    <span className="text-muted-foreground"> {notification.action} </span>
+                    <span className="font-bold text-green-600">{formatCurrency(notification.amount)}</span>
+                </p>
+            </>
+        )}
     </div>
   );
 }
