@@ -34,16 +34,16 @@ export default function WalletPage() {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-4">
           <Link href="/deposit" passHref>
-            <Button variant="default" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform">
-              <ArrowDownLeft className="h-8 w-8" />
+            <Button variant="default" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
+              <ArrowDownLeft className="h-8 w-8 group-hover:animate-bounce" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform">
-              <ArrowUpRight className="h-8 w-8" />
+            <Button variant="secondary" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
+              <ArrowUpRight className="h-8 w-8 group-hover:animate-ping" />
               Withdraw
             </Button>
           </Link>
@@ -52,3 +52,4 @@ export default function WalletPage() {
     </ClientOnly>
   );
 }
+
