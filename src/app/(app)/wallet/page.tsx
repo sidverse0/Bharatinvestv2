@@ -22,7 +22,7 @@ export default function WalletPage() {
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
-        <Card className="mb-6 text-center bg-gradient-to-br from-primary to-yellow-400 text-primary-foreground shadow-lg dark:from-primary/80 dark:to-yellow-500/80">
+        <Card className="mb-6 text-center bg-gradient-to-br from-green-500 to-primary text-primary-foreground shadow-lg dark:from-green-500/80 dark:to-primary/80">
           <CardHeader>
             <CardDescription className="text-primary-foreground/80">Current Balance</CardDescription>
              {loading || !user ? (
@@ -37,13 +37,13 @@ export default function WalletPage() {
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Link href="/deposit" passHref>
-            <Button size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
               <ArrowDownToLine className="h-8 w-8 group-hover:animate-bounce" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
               <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse" />
               <span>Withdraw</span>
             </Button>

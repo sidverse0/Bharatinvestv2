@@ -27,7 +27,7 @@ export default function HomePage() {
 
   const StatCard = ({ icon, title, value, isLoading, className }: { icon: React.ReactNode, title: string, value: string, isLoading: boolean, className?: string }) => (
     <div className={`bg-muted/40 p-4 rounded-xl flex items-center gap-4 ${className}`}>
-      <div className="p-3 bg-primary/10 rounded-full">
+      <div className="p-3 bg-primary/10 rounded-full text-primary">
         {icon}
       </div>
       <div className='flex-1'>
@@ -66,7 +66,7 @@ export default function HomePage() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                      <StatCard
-                        icon={<Wallet className="h-6 w-6 text-primary" />}
+                        icon={<Wallet className="h-6 w-6" />}
                         title="Balance"
                         value={loading || !user ? '...' : formatCurrencySimple(user.balance)}
                         isLoading={loading}
