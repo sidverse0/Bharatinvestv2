@@ -46,15 +46,17 @@ const CheckInDay = ({ day, isClaimed, isToday, isFuture }: { day: number, isClai
 
 export default function DailyCheckinPage() {
     const { user, claimDailyCheckIn, loading, reloadUser } = useUser();
+    
+    // Early return must happen before other hooks are called
+    if (loading || !user) {
+        return <ClientOnly />;
+    }
+    
     const [showConfetti, setShowConfetti] = useState(false);
     const [claimedAmount, setClaimedAmount] = useState(0);
     const [showClaimDialog, setShowClaimDialog] = useState(false);
     const [timeLeft, setTimeLeft] = useState<string | null>(null);
     const { toast } = useToast();
-
-    if (loading || !user) {
-        return <ClientOnly />;
-    }
     
     const canClaimToday = user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true;
     const currentDay = (user.checkInStreak % 7) + 1;
