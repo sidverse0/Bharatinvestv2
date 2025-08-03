@@ -97,7 +97,7 @@ export default function HomePage() {
         <div className="mt-8 flex items-center justify-center">
              <Card className="overflow-hidden p-2">
                 <Image
-                    src="https://files.catbox.moe/ax6knx.jpg"
+                    src="https://files.catbox.moe/62esq8.jpg"
                     alt="Promotional Banner"
                     width={400}
                     height={150}
