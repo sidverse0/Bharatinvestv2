@@ -64,6 +64,11 @@ export const PROMO_CODES: { [key: string]: number } = {
   VFUT: 7,
   QWRT: 8,
   GKCT: 10,
+  PBHY: 100,
+  QSTU: 200,
+  HFTV: 300,
+  JKTY: 400,
+  VCML: 500,
 };
 
 export const REFERRAL_BONUS = 100;

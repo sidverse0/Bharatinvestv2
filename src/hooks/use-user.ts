@@ -354,7 +354,7 @@ export function useUser() {
       amount: promoValue,
       status: 'success',
       date: new Date().toISOString(),
-      description: `Promo Code: ${code.toUpperCase()}`,
+      description: 'Promo Code',
     };
 
     const updatedUser = {
@@ -390,7 +390,7 @@ export function useUser() {
       amount: rewardAmount,
       status: 'success',
       date: new Date().toISOString(),
-      description: `Daily Check-in: Day ${newStreak}`,
+      description: 'Daily Check-in',
     };
 
     const updatedUser: UserData = {
@@ -418,7 +418,7 @@ export function useUser() {
       amount: rewardAmount,
       status: 'success',
       date: new Date().toISOString(),
-      description: `Achievement: ${achievementLabel}`,
+      description: 'Achievement',
     };
 
     const updatedUser: UserData = {
