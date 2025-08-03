@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserData, UserInvestment, Transaction, InvestmentPlan } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES, INVESTMENT_PLANS } from '@/lib/constants';
-import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays, startOfTomorrow, startOfToday } from 'date-fns';
+import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays, startOfTomorrow, startOfToday, differenceInHours } from 'date-fns';
 
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
@@ -91,19 +91,37 @@ export function useUser() {
         }
       }
       
-      // Auto-approve transactions older than 2 minutes
       const now = new Date();
       parsedData.transactions = parsedData.transactions.map(tx => {
-        if (tx.status === 'pending' && differenceInMinutes(now, parseISO(tx.date)) >= 2) {
-          dataChanged = true;
-          if (tx.type === 'deposit') {
+        if (tx.status !== 'pending') return tx;
+
+        const txDate = parseISO(tx.date);
+
+        // Auto-approve deposits older than 2 minutes
+        if (tx.type === 'deposit' && differenceInMinutes(now, txDate) >= 2) {
+            dataChanged = true;
             parsedData.balance += tx.amount;
             parsedData.totalDeposits = (parsedData.totalDeposits || 0) + tx.amount;
-          } else if (tx.type === 'withdrawal') {
-            // Balance is already deducted on request for withdrawals in this app's logic
-          }
-          return { ...tx, status: 'success' };
+            return { ...tx, status: 'success' };
         }
+        
+        // Auto-fail withdrawals older than 24 hours
+        if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 24) {
+            dataChanged = true;
+            // Refund the balance
+            parsedData.balance += tx.amount;
+            // Add a refund transaction for clarity
+            parsedData.transactions.unshift({
+                id: crypto.randomUUID(),
+                type: 'return',
+                amount: tx.amount,
+                status: 'success',
+                date: new Date().toISOString(),
+                description: 'Withdrawal request failed & refunded',
+            });
+            return { ...tx, status: 'failed' };
+        }
+
         return tx;
       });
 

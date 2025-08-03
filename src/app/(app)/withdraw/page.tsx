@@ -60,7 +60,7 @@ export default function WithdrawPage() {
       type: 'withdrawal',
       amount: values.amount,
       status: 'pending',
-      description: `Withdrawal to ${values.bankName}`
+      description: 'Withdrawal request'
     });
     
     setTimeout(() => {
