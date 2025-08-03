@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { signup } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters.").refine(s => !s.includes(' '), 'Name cannot contain spaces.'),

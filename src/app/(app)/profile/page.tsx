@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon, Medal, Award, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
