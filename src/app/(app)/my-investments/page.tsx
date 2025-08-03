@@ -81,7 +81,7 @@ export default function MyInvestmentsPage() {
                                 return (
                                     <Card key={inv.id} className="overflow-hidden shadow-sm">
                                         <div className="flex">
-                                            <Image src={inv.image} alt={inv.planName} width={120} height={120} className="object-cover w-28 h-auto" data-ai-hint="investment growth" />
+                                            <Image src={inv.image || 'https://placehold.co/400x200.png'} alt={inv.planName} width={120} height={120} className="object-cover w-28 h-auto" data-ai-hint="investment growth" />
                                             <div className="p-4 flex-grow">
                                                 <div className="flex justify-between items-start">
                                                     <div>
