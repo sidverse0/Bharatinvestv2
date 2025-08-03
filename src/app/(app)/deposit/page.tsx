@@ -267,9 +267,7 @@ export default function DepositPage() {
         const seconds = timeLeft % 60;
         return (
           <div>
-            <Button variant="ghost" size="sm" className="absolute -top-4 -left-2 md:relative md:top-auto md:left-auto md:-ml-4 md:mb-4" onClick={handleBack}>
-              <ChevronLeft className="h-4 w-4" /> Back
-            </Button>
+            
             <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-tight">Scan QR</h1>
                 <p className="text-muted-foreground mt-2">Scan the QR code and submit your transaction ID.</p>
@@ -315,12 +313,7 @@ export default function DepositPage() {
                 <Button type="submit" variant="accent" size="lg" className="w-full text-lg h-12" disabled={isLoading}>
                   {isLoading ? <Loader2 className="animate-spin" /> : "Submit for Approval"}
                 </Button>
-                 <Alert className="mt-4 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
-                  <Lightbulb className="h-4 w-4" />
-                  <AlertDescription>
-                    The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>.
-                  </AlertDescription>
-                </Alert>
+                 
               </form>
             </Form>
           </div>
