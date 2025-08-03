@@ -11,6 +11,15 @@ export const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+export const formatCurrencySimple = (amount: number) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export const calculateTimeLeft = (investment: UserInvestment): { daysLeft: number; progress: number; isComplete: boolean; timeLeftString: string } => {
   const startDate = new Date(investment.startDate);
   const endDate = addDays(startDate, investment.duration);

@@ -5,7 +5,7 @@ import { useUser } from '@/hooks/use-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { INVESTMENT_PLANS } from '@/lib/constants';
 import InvestmentCard from '@/components/InvestmentCard';
-import { formatCurrency } from '@/lib/helpers';
+import { formatCurrencySimple } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Wallet, TrendingUp, User as UserIcon, Flame } from 'lucide-react';
@@ -53,13 +53,13 @@ export default function HomePage() {
                     <StatCard 
                         icon={<Wallet className="h-6 w-6 text-primary" />}
                         title="Balance"
-                        value={loading || !user ? '...' : formatCurrency(user.balance)}
+                        value={loading || !user ? '...' : formatCurrencySimple(user.balance)}
                         isLoading={loading}
                     />
                      <StatCard 
                         icon={<TrendingUp className="h-6 w-6 text-primary" />}
                         title="Today's Return"
-                        value={loading || !user ? '...' : formatCurrency(user.todaysReturn)}
+                        value={loading || !user ? '...' : formatCurrencySimple(user.todaysReturn)}
                         isLoading={loading}
                     />
                 </div>
