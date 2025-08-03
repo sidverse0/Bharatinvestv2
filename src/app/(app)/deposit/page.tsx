@@ -81,6 +81,7 @@ export default function DepositPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TRANSACTION_WINDOW_SECONDS);
   const [approvalTimeLeft, setApprovalTimeLeft] = useState(APPROVAL_WINDOW_SECONDS);
+  const [showApprovalToast, setShowApprovalToast] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const approvalTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -93,6 +94,17 @@ export default function DepositPage() {
     resolver: zodResolver(formSchema),
     defaultValues: { utr: '', confirmUtr: '' },
   });
+  
+  useEffect(() => {
+    if (showApprovalToast) {
+       toast({
+        title: "Request Sent",
+        description: "Your deposit request has been sent to the admin for approval."
+      })
+      setShowApprovalToast(false); // Reset the trigger
+    }
+  }, [showApprovalToast, toast]);
+
 
   const stopTimer = (timerToStop: 'transaction' | 'approval' | 'both') => {
     if ((timerToStop === 'transaction' || timerToStop === 'both') && timerRef.current) {
@@ -169,10 +181,7 @@ export default function DepositPage() {
       setStep('pending_approval');
       startApprovalTimer();
       setIsLoading(false);
-      toast({
-        title: "Request Sent",
-        description: "Your deposit request has been sent to the admin for approval."
-      })
+      setShowApprovalToast(true);
     }, 1000);
   };
 
@@ -229,7 +238,7 @@ export default function DepositPage() {
               <ChevronLeft className="h-4 w-4" /> Back
             </Button>
             <div className="text-center">
-                <h1 className="text-3xl font-bold tracking-tight">Complete Your Deposit</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Scan QR</h1>
                 <p className="text-muted-foreground mt-2">Scan the QR code and submit your transaction ID.</p>
             </div>
             
@@ -313,5 +322,3 @@ export default function DepositPage() {
     </ClientOnly>
   );
 }
-
-    
