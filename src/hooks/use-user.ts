@@ -165,7 +165,7 @@ export function useUser() {
                     amount: dailyReturnValue,
                     status: 'success',
                     date: today.toISOString(),
-                    description: `Daily return from ${inv.planName}`,
+                    description: 'Investment Return',
                 });
                 parsedData.investments[index].lastPayoutDate = today.toISOString();
                 dataChanged = true;
@@ -255,7 +255,7 @@ export function useUser() {
       amount: dailyReturn,
       status: 'success',
       date: now,
-      description: `Instant return from ${investment.planName}`,
+      description: 'Investment Return',
     };
 
     const updatedUser: UserData = {
