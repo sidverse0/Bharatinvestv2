@@ -22,7 +22,7 @@ export default function WalletPage() {
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
-        <Card className="mb-6 text-center bg-gradient-to-br from-primary to-green-400 text-primary-foreground shadow-lg dark:from-primary/80 dark:to-green-500/80">
+        <Card className="mb-6 text-center bg-gradient-to-br from-primary to-yellow-400 text-primary-foreground shadow-lg dark:from-primary/80 dark:to-yellow-500/80">
           <CardHeader>
             <CardDescription className="text-primary-foreground/80">Current Balance</CardDescription>
              {loading || !user ? (
