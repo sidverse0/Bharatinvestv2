@@ -47,21 +47,18 @@ const CheckInDay = ({ day, isClaimed, isToday, isFuture }: { day: number, isClai
 export default function DailyCheckinPage() {
     const { user, claimDailyCheckIn, loading, reloadUser } = useUser();
     const { toast } = useToast();
-    
-    // Early return must happen before other hooks are called
-    if (loading || !user) {
-        return <ClientOnly />;
-    }
-    
     const [showConfetti, setShowConfetti] = useState(false);
     const [claimedAmount, setClaimedAmount] = useState(0);
     const [showClaimDialog, setShowClaimDialog] = useState(false);
     const [timeLeft, setTimeLeft] = useState<string | null>(null);
     
-    const canClaimToday = user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true;
-    const currentDay = (user.checkInStreak % 7) + 1;
-
+    // All hooks are now at the top level and unconditional
+    
+    const canClaimToday = user ? (user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true) : false;
+    
     useEffect(() => {
+        if (!user) return; // Guard clause
+
         let timer: NodeJS.Timeout | null = null;
         if (!canClaimToday) {
             const calculateTimeLeft = () => {
@@ -92,7 +89,7 @@ export default function DailyCheckinPage() {
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [canClaimToday, reloadUser]);
+    }, [canClaimToday, reloadUser, user]);
 
     const handleClaim = () => {
         if (!canClaimToday) {
@@ -110,7 +107,10 @@ export default function DailyCheckinPage() {
              toast({ variant: 'destructive', title: 'Error', description: 'Could not claim reward. Please try again later.' });
         }
     }
-
+    
+    if (loading || !user) {
+        return <ClientOnly />;
+    }
 
     return (
         <ClientOnly>
