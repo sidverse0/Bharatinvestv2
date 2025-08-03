@@ -6,14 +6,14 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer, Clock, Home } from 'lucide-react';
+import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer, Clock, Home, Lightbulb } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { DEPOSIT_AMOUNTS } from '@/lib/constants';
+import { DEPOSIT_AMOUNTS, MIN_WITHDRAWAL } from '@/lib/constants';
 import { formatCurrency } from '@/lib/helpers';
 import { useUser } from '@/hooks/use-user';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
 const formSchema = z.object({
@@ -60,7 +61,7 @@ const DepositAmountButton = ({ amount, onSelect }: { amount: number, onSelect: (
     <Button 
       variant="outline" 
       size="lg" 
-      className="h-24 text-lg relative flex flex-col items-center justify-center transition-all hover:scale-105" 
+      className="h-24 text-lg relative flex flex-col items-center justify-center transition-all hover:scale-105 hover:bg-primary/10 hover:border-primary/50" 
       onClick={() => onSelect(amount)}
     >
       {tag && (
@@ -193,8 +194,8 @@ export default function DepositPage() {
     return (
        <div className="w-full max-w-sm text-center">
             <div className="relative mb-6">
-                <div className="mx-auto w-24 h-24 flex items-center justify-center rounded-full bg-green-500/10 mb-6 shadow-[0_0_20px] shadow-green-500/20">
-                    <CheckCircle className="h-20 w-20 text-green-500 animate-pulse" />
+                <div className="mx-auto w-24 h-24 flex items-center justify-center rounded-full bg-primary/10 mb-6 shadow-[0_0_20px] shadow-primary/20">
+                    <CheckCircle className="h-20 w-20 text-primary animate-pulse" />
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight">Waiting for Approval</h1>
                 <p className="text-muted-foreground mt-2">Your deposit will be automatically approved.</p>
@@ -286,6 +287,12 @@ export default function DepositPage() {
                 <Button type="submit" size="lg" className="w-full text-lg h-12" disabled={isLoading}>
                   {isLoading ? <Loader2 className="animate-spin" /> : "Submit for Approval"}
                 </Button>
+                 <Alert className="mt-4 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
+                  <Lightbulb className="h-4 w-4" />
+                  <AlertDescription>
+                    The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>.
+                  </AlertDescription>
+                </Alert>
               </form>
             </Form>
           </div>

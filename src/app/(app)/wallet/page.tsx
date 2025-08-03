@@ -22,7 +22,7 @@ export default function WalletPage() {
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
-        <Card className="mb-6 text-center bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg">
+        <Card className="mb-6 text-center bg-gradient-to-br from-primary to-green-400 text-primary-foreground shadow-lg dark:from-primary/80 dark:to-green-500/80">
           <CardHeader>
             <CardDescription className="text-primary-foreground/80">Current Balance</CardDescription>
              {loading || !user ? (
@@ -37,15 +37,15 @@ export default function WalletPage() {
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Link href="/deposit" passHref>
-            <Button size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group bg-blue-600 hover:bg-blue-700 text-white">
+            <Button size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group bg-primary hover:bg-primary/90 text-primary-foreground">
               <ArrowDownToLine className="h-8 w-8 group-hover:animate-bounce" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group hover:bg-secondary/90">
-              <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse text-secondary-foreground" />
-              <span className="text-secondary-foreground">Withdraw</span>
+            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group bg-accent hover:bg-accent/90 text-accent-foreground">
+              <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse" />
+              <span>Withdraw</span>
             </Button>
           </Link>
         </div>
