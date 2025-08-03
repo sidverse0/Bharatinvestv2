@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const promoCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
@@ -140,9 +141,10 @@ export default function ProfilePage() {
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="bg-muted/30 p-4 flex flex-row items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-primary/20 p-3 rounded-full">
-                  <UserIcon className="h-8 w-8 text-primary" />
-                </div>
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src="https://files.catbox.moe/5uph06.png" alt={user.name} />
+                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                </Avatar>
                 <div>
                   <CardTitle className="text-2xl">{user.name}</CardTitle>
                   <CardDescription>{user.email}</CardDescription>
@@ -254,3 +256,5 @@ export default function ProfilePage() {
     </ClientOnly>
   );
 }
+
+    
