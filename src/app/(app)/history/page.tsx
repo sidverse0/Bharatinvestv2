@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useUser } from '@/hooks/use-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/helpers';
-import { ArrowDownLeft, ArrowUpRight, PiggyBank, Receipt, Gift } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, PiggyBank, Receipt, Gift, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,6 +23,8 @@ const TransactionIcon = ({ type }: { type: TransactionType }) => {
       return <Gift className="h-5 w-5 text-yellow-500" />;
     case 'promo':
       return <Receipt className="h-5 w-5 text-purple-600" />;
+    case 'return':
+        return <TrendingUp className="h-5 w-5 text-indigo-500" />;
     default:
       return null;
   }

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserData, UserInvestment, Transaction, InvestmentPlan } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES, INVESTMENT_PLANS } from '@/lib/constants';
-import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays } from 'date-fns';
+import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays, startOfTomorrow, startOfToday } from 'date-fns';
 
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
@@ -107,14 +107,40 @@ export function useUser() {
         return tx;
       });
 
-      // Calculate today's return
+      // Calculate and distribute daily returns
       let todaysReturn = 0;
-      parsedData.investments.forEach(inv => {
-          const startDate = parseISO(inv.startDate);
-          const endDate = addDays(startDate, inv.duration);
-          if (isBefore(new Date(), endDate)) { // Only count active investments
-              todaysReturn += (inv.expectedReturn - inv.amount) / inv.duration;
-          }
+      parsedData.investments.forEach((inv, index) => {
+        if (!inv.lastPayoutDate) {
+          inv.lastPayoutDate = inv.startDate;
+          dataChanged = true;
+        }
+        
+        const startDate = parseISO(inv.startDate);
+        const endDate = addDays(startDate, inv.duration);
+        const lastPayoutDate = parseISO(inv.lastPayoutDate);
+        const today = new Date();
+        
+        // Is the investment still active?
+        if (isBefore(today, endDate)) {
+            const dailyReturnValue = (inv.expectedReturn - inv.amount) / inv.duration;
+            
+            // Payout if it's a new day since last payout
+            if (!isToday(lastPayoutDate)) {
+                parsedData.balance += dailyReturnValue;
+                parsedData.transactions.unshift({
+                    id: crypto.randomUUID(),
+                    type: 'return',
+                    amount: dailyReturnValue,
+                    status: 'success',
+                    date: today.toISOString(),
+                    description: `Daily return from ${inv.planName}`,
+                });
+                parsedData.investments[index].lastPayoutDate = today.toISOString();
+                dataChanged = true;
+            }
+
+            todaysReturn += dailyReturnValue;
+        }
       });
       parsedData.todaysReturn = todaysReturn;
 
@@ -158,9 +184,15 @@ export function useUser() {
   }, [sessionName, loadUser]);
 
 
-  const addInvestment = useCallback((investment: Omit<UserInvestment, 'id'>) => {
+  const addInvestment = useCallback((investment: Omit<UserInvestment, 'id' | 'lastPayoutDate'>) => {
     if (!user) return;
-    const newInvestment: UserInvestment = { ...investment, id: crypto.randomUUID() };
+    const now = new Date().toISOString();
+    const newInvestment: UserInvestment = { 
+      ...investment, 
+      id: crypto.randomUUID(),
+      startDate: now,
+      lastPayoutDate: now,
+    };
     const newTransaction: Transaction = {
       id: crypto.randomUUID(),
       type: 'investment',

@@ -17,11 +17,12 @@ export interface UserInvestment {
   amount: number;
   expectedReturn: number;
   startDate: string; // ISO date string
+  lastPayoutDate: string; // ISO date string
   duration: number; // in days
   image: string;
 }
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo';
+export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return';
 export type TransactionStatus = 'pending' | 'success' | 'failed';
 
 export interface Transaction {
