@@ -1,3 +1,4 @@
+
 'use client';
 
 import { UserData } from "@/types";
@@ -33,7 +34,7 @@ export const signup = (name: string, email: string, password: string): { success
   }
   
   // Check if name exists
-  const nameExists = Object.values(users).some((user: any) => user.name.toLowerCase() === name.toLowerCase());
+  const nameExists = Object.values(users).some((user: any) => user && user.name && user.name.toLowerCase() === name.toLowerCase());
   if (nameExists) {
     return { success: false, message: 'Name already exists. Please choose a different name.' };
   }
