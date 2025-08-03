@@ -19,9 +19,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { formatCurrency, calculateTimeLeft } from "@/lib/helpers";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Calendar, TrendingUp, Wallet, Zap, Flame, Star, Percent } from "lucide-react";
+import { ArrowRight, Calendar, TrendingUp, Wallet, Zap, Flame, Star, Percent, PackageX, Hourglass } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Progress } from "./ui/progress";
+import { useEffect, useState } from "react";
 
 interface InvestmentCardProps {
   plan: InvestmentPlan;
@@ -60,6 +62,37 @@ const InfoRow = ({ icon, value, iconClassName }: { icon: React.ReactNode, value:
 export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentCardProps) {
   const { user, addInvestment } = useUser();
   const { toast } = useToast();
+  const [stockProgress, setStockProgress] = useState(0);
+  const [isOutOfStock, setIsOutOfStock] = useState(false);
+
+  useEffect(() => {
+    const CYCLE_DURATION = 48 * 60 * 60 * 1000; // 48 hours in ms
+    const OUT_OF_STOCK_DURATION = 4 * 60 * 60 * 1000; // 4 hours in ms
+    const TOTAL_CYCLE = CYCLE_DURATION + OUT_OF_STOCK_DURATION;
+    
+    // Use plan ID to create a deterministic but unique start time for each plan's cycle
+    const cycleStartTime = Math.floor(Date.now() / TOTAL_CYCLE) * TOTAL_CYCLE - (plan.id * (CYCLE_DURATION / 10));
+
+    const updateProgress = () => {
+      const now = Date.now();
+      const timeIntoCycle = (now - cycleStartTime) % TOTAL_CYCLE;
+
+      if (timeIntoCycle < CYCLE_DURATION) {
+        const progress = (timeIntoCycle / CYCLE_DURATION) * 100;
+        setStockProgress(progress);
+        setIsOutOfStock(false);
+      } else {
+        setStockProgress(100);
+        setIsOutOfStock(true);
+      }
+    };
+    
+    updateProgress();
+    const interval = setInterval(updateProgress, 1000 * 60); // Update every minute
+
+    return () => clearInterval(interval);
+
+  }, [plan.id]);
 
   const handleInvest = () => {
     if (!user) {
@@ -119,11 +152,23 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0">
+       <div className="px-4 pb-2 space-y-2">
+            <div className="flex justify-between items-center text-xs">
+                {isOutOfStock ? (
+                    <span className="font-semibold text-destructive flex items-center gap-1"><Hourglass className="h-3 w-3 animate-spin" /> Renewing...</span>
+                ) : (
+                    <span className="font-medium text-muted-foreground">Availability</span>
+                )}
+                <span className="font-semibold text-primary">{isOutOfStock ? '0' : (100 - stockProgress).toFixed(0)}% left</span>
+            </div>
+            <Progress value={isOutOfStock ? 100 : stockProgress} className={cn("h-2", isOutOfStock && "[&>div]:bg-destructive")} />
+        </div>
+
+      <CardFooter className="p-4 pt-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="accent" className="w-full font-bold h-11">
-                Invest Now <ArrowRight className="ml-2 h-4 w-4" />
+            <Button variant="accent" className="w-full font-bold h-11" disabled={isOutOfStock}>
+                {isOutOfStock ? <><PackageX className="mr-2 h-4 w-4" /> Out of Stock</> : <>Invest Now <ArrowRight className="ml-2 h-4 w-4" /></>}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
