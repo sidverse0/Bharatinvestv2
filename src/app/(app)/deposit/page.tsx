@@ -151,6 +151,7 @@ export default function DepositPage() {
   const startApprovalTimer = () => {
     stopTimer('both');
     setApprovalTimeLeft(APPROVAL_WINDOW_SECONDS);
+    playSuccessSound();
     approvalTimerRef.current = setInterval(() => {
         setApprovalTimeLeft((prev) => {
             if (prev <= 1) {
@@ -204,7 +205,6 @@ export default function DepositPage() {
       startApprovalTimer();
       setIsLoading(false);
       setShowApprovalToast(true);
-      playSuccessSound();
     }, 1000);
   };
 
