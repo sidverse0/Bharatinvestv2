@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { formatCurrency, calculateTimeLeft } from '@/lib/helpers';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Briefcase, PlusCircle, Calendar, TrendingUp, CheckCircle, BarChart, Rocket } from 'lucide-react';
+import { Briefcase, PlusCircle, Calendar, TrendingUp, CheckCircle, BarChart, Rocket, Sun } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -39,10 +39,7 @@ export default function MyInvestmentsPage() {
     }
     
     const activePlansCount = user.investments.filter(inv => !calculateTimeLeft(inv).isComplete).length;
-    const totalReturns = user.transactions
-        .filter(tx => tx.type === 'return')
-        .reduce((acc, tx) => acc + tx.amount, 0);
-
+    
     return (
         <ClientOnly>
             <div className="container mx-auto max-w-2xl p-4 space-y-6">
@@ -59,9 +56,9 @@ export default function MyInvestmentsPage() {
                         isLoading={loading}
                     />
                      <StatCard 
-                        icon={<PlusCircle className="h-5 w-5" />} 
-                        title="Total Returns" 
-                        value={formatCurrency(totalReturns)} 
+                        icon={<Sun className="h-5 w-5" />} 
+                        title="Today's Returns" 
+                        value={formatCurrency(user.todaysReturn)} 
                         isLoading={loading}
                     />
                 </div>
