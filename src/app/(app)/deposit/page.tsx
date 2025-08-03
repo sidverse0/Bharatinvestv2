@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -109,17 +109,19 @@ export default function DepositPage() {
     }
   }, [showApprovalToast, toast]);
 
+  const stableRemoveTransaction = useCallback(removeTransaction, []);
+  
   // This is the cleanup effect. It runs when the component unmounts.
   useEffect(() => {
     return () => {
       // If we have a pending transaction ID and we are in the approval step, it means the user is navigating away.
       if (pendingTxId && step === 'pending_approval') {
-        removeTransaction(pendingTxId);
+        stableRemoveTransaction(pendingTxId);
         // Also clear timers to be safe
         stopTimer('both');
       }
     };
-  }, [pendingTxId, step, removeTransaction]);
+  }, [pendingTxId, step, stableRemoveTransaction]);
 
 
   const stopTimer = (timerToStop: 'transaction' | 'approval' | 'both') => {
@@ -270,7 +272,7 @@ export default function DepositPage() {
             
             <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-tight">Scan QR</h1>
-                <p className="text-muted-foreground mt-2"></p>
+                
             </div>
             
             <div className="flex flex-col items-center gap-4 mt-8">
