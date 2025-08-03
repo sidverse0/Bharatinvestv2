@@ -6,10 +6,11 @@ import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt } from 'lucide-react';
+import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt, User as UserIcon, Banknote } from 'lucide-react';
+import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MIN_WITHDRAWAL } from '@/lib/constants';
@@ -17,6 +18,7 @@ import { formatCurrency } from '@/lib/helpers';
 import { useUser } from '@/hooks/use-user';
 import { useToast } from '@/hooks/use-toast';
 import { ClientOnly } from '@/components/ClientOnly';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Please enter your full name.'),
@@ -25,9 +27,25 @@ const formSchema = z.object({
   amount: z.coerce.number().min(MIN_WITHDRAWAL, `Minimum withdrawal amount is ${formatCurrency(MIN_WITHDRAWAL)}.`),
 });
 
+interface WithdrawalDetails {
+  amount: number;
+  name: string;
+  upiId: string;
+  date: Date;
+}
+
+const ReceiptRow = ({ label, value }: { label: string; value: string }) => (
+    <div className="flex justify-between items-center text-sm">
+        <p className="text-muted-foreground">{label}</p>
+        <p className="font-medium text-right">{value}</p>
+    </div>
+);
+
+
 export default function WithdrawPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [withdrawalDetails, setWithdrawalDetails] = useState<WithdrawalDetails | null>(null);
   const { user, addTransaction } = useUser();
   const { toast } = useToast();
   const router = useRouter();
@@ -62,6 +80,13 @@ export default function WithdrawPage() {
       status: 'pending',
       description: 'Withdrawal request'
     });
+
+    setWithdrawalDetails({
+        amount: values.amount,
+        name: values.name,
+        upiId: values.upiId,
+        date: new Date(),
+    });
     
     setTimeout(() => {
       setIsLoading(false);
@@ -73,26 +98,36 @@ export default function WithdrawPage() {
     }, 1000);
   };
 
-  if (isSuccess) {
+  if (isSuccess && withdrawalDetails) {
     return (
        <ClientOnly>
          <div className="container mx-auto max-w-md p-4 flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] sm:min-h-[calc(100vh-6rem)]">
-            <Card className="w-full text-center animate-fade-in-up">
-                <CardHeader className="items-center">
-                    <CheckCircle className="h-20 w-20 text-green-500 mb-4" />
+            <Card className="w-full animate-fade-in-up">
+                <CardHeader className="items-center text-center">
+                    <CheckCircle className="h-16 w-16 text-green-500 mb-2" />
                     <CardTitle className="text-2xl">Request Submitted!</CardTitle>
                     <CardDescription className="text-base px-4">
                         Your balance will be credited to your account within 24 hours.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-3">
+                <CardContent className="space-y-4">
+                    <div className="p-4 rounded-lg bg-muted/50 space-y-3">
+                        <ReceiptRow label="Amount" value={formatCurrency(withdrawalDetails.amount)} />
+                        <Separator />
+                        <ReceiptRow label="Recipient Name" value={withdrawalDetails.name} />
+                        <ReceiptRow label="UPI ID" value={withdrawalDetails.upiId} />
+                         <Separator />
+                        <ReceiptRow label="Date & Time" value={format(withdrawalDetails.date, 'dd MMM yyyy, hh:mm a')} />
+                    </div>
+                </CardContent>
+                <CardFooter className="flex flex-col gap-3">
                     <Button size="lg" className="w-full h-12 text-lg" onClick={() => router.push('/wallet')}>
                         <ArrowLeft className="mr-2" /> Back to Wallet
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={() => router.push('/history')}>
                         <Receipt className="mr-2" /> View History
                     </Button>
-                </CardContent>
+                </CardFooter>
             </Card>
         </div>
        </ClientOnly>
