@@ -24,6 +24,7 @@ import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters.").refine(s => !s.includes(' '), 'Name cannot contain spaces.'),
+  email: z.string().email("Please enter a valid email address."),
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
@@ -41,6 +42,7 @@ export default function SignupPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      email: "",
       password: "",
       confirmPassword: "",
     },
@@ -48,7 +50,7 @@ export default function SignupPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const result = signup(values.name, values.password);
+    const result = signup(values.name, values.email, values.password);
 
     setTimeout(() => {
        if (result.success) {
@@ -85,6 +87,19 @@ export default function SignupPage() {
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="chooseaname" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="you@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

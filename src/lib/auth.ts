@@ -1,10 +1,9 @@
 'use client';
 
 import { UserData } from "@/types";
-import { SIGNUP_BONUS } from "./constants";
 
-const USERS_DB_KEY = 'bharatinvest_users';
-const SESSION_KEY = 'bharatinvest_session';
+const USERS_DB_KEY = 'bharatinvest_users'; // Stores { email: { pass: string, name: string }}
+const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in user name
 const USER_DATA_PREFIX = 'bharatinvest_data_';
 
 // Helper to get users from localStorage
@@ -25,18 +24,25 @@ const setSession = (name: string) => {
 };
 
 // Signup function
-export const signup = (name: string, password: string): { success: boolean; message: string } => {
+export const signup = (name: string, email: string, password: string): { success: boolean; message: string } => {
   const users = getUsers();
-  if (users[name]) {
-    return { success: false, message: 'Name already exists.' };
+  if (users[email]) {
+    return { success: false, message: 'Email already exists.' };
   }
   
-  users[name] = password;
+  // Check if name exists
+  const nameExists = Object.values(users).some((user: any) => user.name === name);
+  if (nameExists) {
+    return { success: false, message: 'Name already exists.' };
+  }
+
+  users[email] = { password, name };
   saveUsers(users);
 
   // Create initial user data
   const newUser: UserData = {
     name,
+    email,
     balance: 0,
     referralCode: `${name.substring(0, 4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`,
     investments: [],
@@ -51,12 +57,12 @@ export const signup = (name: string, password: string): { success: boolean; mess
 };
 
 // Login function
-export const login = (name: string, password: string): { success: boolean; message: string } => {
+export const login = (email: string, password: string): { success: boolean; message: string } => {
   const users = getUsers();
-  if (!users[name] || users[name] !== password) {
-    return { success: false, message: 'Invalid name or password.' };
+  if (!users[email] || users[email].password !== password) {
+    return { success: false, message: 'Invalid email or password.' };
   }
-  setSession(name);
+  setSession(users[email].name);
   return { success: true, message: 'Login successful!' };
 };
 

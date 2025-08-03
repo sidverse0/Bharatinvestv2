@@ -30,6 +30,7 @@ export interface Transaction {
 
 export interface UserData {
   name: string;
+  email: string;
   balance: number;
   referralCode: string;
   investments: UserInvestment[];
