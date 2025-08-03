@@ -101,7 +101,6 @@ export default function InvestmentSuccessPage() {
                             <ReceiptRow label="Duration" value={`${investment?.duration} days`} />
                         </div>
                         <Separator />
-                        <ReceiptRow label="Transaction ID" value={transaction.id} />
                         <ReceiptRow label="Date" value={format(new Date(transaction.date), 'dd MMM yyyy, hh:mm a')} />
                     </CardContent>
                     <CardFooter className="flex-col gap-2">
