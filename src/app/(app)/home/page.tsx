@@ -5,11 +5,14 @@ import { useUser } from '@/hooks/use-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { INVESTMENT_PLANS } from '@/lib/constants';
 import InvestmentCard from '@/components/InvestmentCard';
-import { formatCurrencySimple } from '@/lib/helpers';
+import { formatCurrency, formatCurrencySimple } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Wallet, TrendingUp, User as UserIcon, Flame } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { IconButton } from '@/components/ui/icon-button';
+import { TelegramIcon } from '@/components/icons/TelegramIcon';
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -27,7 +30,7 @@ export default function HomePage() {
       <div className="p-3 bg-primary/10 rounded-full">
         {icon}
       </div>
-      <div>
+      <div className='flex-1'>
         <p className="text-sm text-muted-foreground">{title}</p>
         {isLoading ? <Skeleton className="h-6 w-24 mt-1" /> : <p className="text-xl font-bold">{value}</p>}
       </div>
@@ -39,18 +42,25 @@ export default function HomePage() {
       <div className="container mx-auto max-w-4xl p-4">
         <header className="mb-8">
             <div className="bg-card p-4 rounded-2xl shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                     <div className="p-2 bg-muted rounded-full">
-                        <UserIcon className="h-5 w-5 text-primary" />
+                <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-full">
+                          <UserIcon className="h-5 w-5 text-primary" />
+                      </div>
+                      {loading || !user ? (
+                          <Skeleton className="h-7 w-32" />
+                      ) : (
+                          <h1 className="text-xl font-bold">Welcome, {user.name}!</h1>
+                      )}
                     </div>
-                    {loading || !user ? (
-                        <Skeleton className="h-7 w-32" />
-                    ) : (
-                        <h1 className="text-xl font-bold">Welcome, {user.name}!</h1>
-                    )}
+                    <Link href="https://t.me/your_agent_username" target="_blank" rel="noopener noreferrer">
+                      <IconButton variant="ghost" aria-label="Contact Agent on Telegram">
+                        <TelegramIcon className="h-6 w-6 text-blue-500" />
+                      </IconButton>
+                    </Link>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
-                    <StatCard 
+                     <StatCard
                         icon={<Wallet className="h-6 w-6 text-primary" />}
                         title="Balance"
                         value={loading || !user ? '...' : formatCurrencySimple(user.balance)}
@@ -66,7 +76,7 @@ export default function HomePage() {
             <p className="text-sm text-primary font-semibold">Choose a plan</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4 flex items-center gap-1">
-            <Flame className="h-4 w-4 text-red-500" /> 
+            <Flame className="h-4 w-4 text-red-500" />
             <span className="font-semibold">{investedUsers.toLocaleString()}+ users</span> have invested!
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
