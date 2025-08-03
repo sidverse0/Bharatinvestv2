@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/hooks/use-user';
 import { formatCurrency } from '@/lib/helpers';
@@ -38,14 +38,14 @@ export default function WalletPage() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Link href="/deposit" passHref>
             <Button variant="default" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
-              <ArrowDownLeft className="h-8 w-8 group-hover:animate-bounce" />
+              <ArrowDownToLine className="h-8 w-8 group-hover:animate-bounce" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
-              <ArrowUpRight className="h-8 w-8 group-hover:animate-ping" />
-              Withdraw
+            <Button variant="outline" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group border-2 border-primary/20 hover:bg-primary/5">
+              <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse text-primary" />
+              <span className="text-primary">Withdraw</span>
             </Button>
           </Link>
         </div>
