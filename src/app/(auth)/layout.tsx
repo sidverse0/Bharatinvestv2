@@ -7,8 +7,9 @@ export default function AuthLayout({
 }) {
   return (
     <main className="flex h-screen flex-col items-center justify-center bg-gray-50 p-6">
-      <div className="flex flex-col items-center gap-6 w-full max-w-sm">
+      <div className="flex flex-col items-center gap-4 w-full max-w-sm">
         <BharatInvestLogo className="h-12 w-auto text-primary" />
+        <h1 className="text-3xl font-bold text-gray-800">BharatInvest</h1>
         {children}
       </div>
     </main>

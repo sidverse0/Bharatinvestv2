@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 export const BharatInvestLogo = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 240 50"
+    viewBox="0 0 60 50"
     className={cn("text-primary", className)}
     {...props}
   >
@@ -15,8 +15,5 @@ export const BharatInvestLogo = ({ className, ...props }: React.SVGProps<SVGSVGE
     </defs>
     <path d="M 10 25 C 10 15, 20 10, 30 10 S 50 15, 50 25 S 40 40, 30 40 S 10 35, 10 25 Z" fill="url(#logo-gradient)" />
     <path d="M 30 10 Q 40 25, 30 40" stroke="hsl(var(--background))" strokeWidth="3" fill="none" />
-    <text x="60" y="35" fontFamily="Inter, sans-serif" fontSize="30" fontWeight="bold" fill="hsl(225 40% 15%)">
-      BharatInvest
-    </text>
   </svg>
 );

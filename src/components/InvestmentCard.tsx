@@ -88,7 +88,7 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
 
 
   return (
-    <Card className="flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden">
+    <Card className="relative flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden">
       {plan.badge && <PlanBadge badge={plan.badge} />}
       
       <div className="relative h-32 w-full">
