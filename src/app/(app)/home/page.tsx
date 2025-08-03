@@ -70,7 +70,7 @@ export default function HomePage() {
                      <StatCard
                         icon={<Wallet className="h-6 w-6 text-accent-foreground" />}
                         title="Balance"
-                        value={loading || !user ? '...' : formatCurrencySimple(user.balance)}
+                        value={loading || !user ? '...' : formatCurrency(user.balance)}
                         isLoading={loading}
                         iconBgClass="bg-accent"
                     />
