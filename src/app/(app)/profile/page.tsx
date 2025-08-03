@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Separator } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Separator, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -346,12 +346,12 @@ export default function ProfilePage() {
                     </div>
                      <div className="h-6 w-px bg-border" />
                     <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5" />
+                        <BadgeCheck className="h-5 w-5" />
                         <span>100% Safe</span>
                     </div>
                      <div className="h-6 w-px bg-border" />
                     <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5" />
+                        <Lock className="h-5 w-5" />
                         <span>100% Protected</span>
                     </div>
                 </div>
