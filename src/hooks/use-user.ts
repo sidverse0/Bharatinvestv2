@@ -231,31 +231,43 @@ export function useUser() {
   const addInvestment = useCallback((investment: Omit<UserInvestment, 'id' | 'startDate' | 'lastPayoutDate'>) => {
     if (!user) return;
     const now = new Date().toISOString();
+    const dailyReturn = (investment.expectedReturn - investment.amount) / investment.duration;
+
     const newInvestment: UserInvestment = { 
       ...investment, 
       id: crypto.randomUUID(),
       startDate: now,
       lastPayoutDate: now,
     };
-    const newTransaction: Transaction = {
+    
+    const investmentTransaction: Transaction = {
       id: crypto.randomUUID(),
       type: 'investment',
       amount: investment.amount,
       status: 'success',
-      date: new Date().toISOString(),
+      date: now,
       description: investment.planName,
     };
+
+    const instantReturnTransaction: Transaction = {
+      id: crypto.randomUUID(),
+      type: 'return',
+      amount: dailyReturn,
+      status: 'success',
+      date: now,
+      description: `Instant return from ${investment.planName}`,
+    };
+
     const updatedUser: UserData = {
       ...user,
-      balance: user.balance - investment.amount,
+      balance: user.balance - investment.amount + dailyReturn,
       investments: [newInvestment, ...user.investments],
-      transactions: [newTransaction, ...user.transactions],
+      transactions: [instantReturnTransaction, investmentTransaction, ...user.transactions],
       firstInvestmentMade: true,
     };
     updateUser(updatedUser);
     
-    // Store transaction ID in session storage for the success page
-    sessionStorage.setItem('last_investment_tx', newTransaction.id);
+    sessionStorage.setItem('last_investment_tx', investmentTransaction.id);
     router.push('/investment-success');
 
   }, [user, router]);
