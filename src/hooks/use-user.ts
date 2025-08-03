@@ -301,10 +301,21 @@ export function useUser() {
   const removeTransaction = useCallback((txId: string) => {
     setUser(currentUser => {
       if (!currentUser) return null;
+      
+      const txToRemove = currentUser.transactions.find(tx => tx.id === txId);
+      
       const updatedUser = {
         ...currentUser,
         transactions: currentUser.transactions.filter(tx => tx.id !== txId),
       };
+
+      if (txToRemove && txToRemove.type === 'deposit' && txToRemove.status === 'pending') {
+          // No need to adjust balance as it wasn't added for pending deposits
+      } else if (txToRemove && txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
+          // Refund the balance that was deducted
+          updatedUser.balance += txToRemove.amount;
+      }
+
       // Also update localStorage
       localStorage.setItem(`${USER_DATA_PREFIX}${currentUser.name}`, JSON.stringify(updatedUser));
       return updatedUser;
