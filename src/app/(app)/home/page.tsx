@@ -8,11 +8,10 @@ import InvestmentCard from '@/components/InvestmentCard';
 import { formatCurrency, formatCurrencySimple } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
-import { Wallet, TrendingUp, User as UserIcon, Flame } from 'lucide-react';
+import { Wallet, TrendingUp, User as UserIcon, Flame, Headset } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { IconButton } from '@/components/ui/icon-button';
-import { TelegramIcon } from '@/components/icons/TelegramIcon';
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -54,8 +53,8 @@ export default function HomePage() {
                       )}
                     </div>
                     <Link href="https://t.me/your_agent_username" target="_blank" rel="noopener noreferrer">
-                      <IconButton variant="ghost" aria-label="Contact Agent on Telegram">
-                        <TelegramIcon className="h-6 w-6 text-blue-500" />
+                      <IconButton variant="ghost" aria-label="Contact Support">
+                        <Headset className="h-6 w-6 text-primary" />
                       </IconButton>
                     </Link>
                 </div>
