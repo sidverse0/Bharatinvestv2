@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Separator } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -334,14 +334,33 @@ export default function ProfilePage() {
             </div>
             <p className="text-lg font-semibold text-muted-foreground">Roz Kamao, Safe Bachaao!</p>
             <p className="text-sm font-medium text-foreground">- By Govt. Of India</p>
-            <div className="flex items-center gap-2 text-green-600 font-semibold mt-2">
-              <ShieldCheck className="h-6 w-6 animate-pulse" />
-              <span>100% secure, safe and protected</span>
-            </div>
           </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+            <CardContent className="p-3">
+                <div className="flex items-center justify-around text-green-600 font-semibold text-sm">
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5" />
+                        <span>100% secure</span>
+                    </div>
+                     <div className="h-6 w-px bg-border" />
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5" />
+                        <span>100% Safe</span>
+                    </div>
+                     <div className="h-6 w-px bg-border" />
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5" />
+                        <span>100% Protected</span>
+                    </div>
+                </div>
+            </CardContent>
         </Card>
 
       </div>
     </ClientOnly>
   );
 }
+
+    
