@@ -52,7 +52,7 @@ export default function WalletPage() {
 
         <div className="flex-grow flex items-end justify-center">
             <Image
-                src="https://files.catbox.moe/lkm1pz.jpg"
+                src="https://files.catbox.moe/7z87l0.jpg"
                 alt="Wallet illustration"
                 width={300}
                 height={200}
