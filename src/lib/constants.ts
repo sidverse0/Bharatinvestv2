@@ -67,5 +67,4 @@ export const PROMO_CODES: { [key: string]: number } = {
 export const REFERRAL_BONUS = 100;
 export const SIGNUP_BONUS = 50;
 
-export const TELEGRAM_ADMIN_USERNAME = "your_telegram_admin_username"; // IMPORTANT: Replace with actual username
 export const APP_LINK = "https://bharatinvest.app/download";

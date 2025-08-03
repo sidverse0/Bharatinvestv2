@@ -16,7 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency, openTelegramLink } from "@/lib/helpers";
+import { formatCurrency, calculateTimeLeft } from "@/lib/helpers";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Calendar, TrendingUp, Wallet, Zap, Flame, Star, Percent } from "lucide-react";
@@ -66,6 +66,17 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
       toast({ variant: 'destructive', title: 'Error', description: 'Please log in to invest.' });
       return;
     }
+    
+    const isAlreadyInvested = user.investments.some(inv => {
+      const { isComplete } = calculateTimeLeft(inv);
+      return inv.planId === plan.id && !isComplete;
+    });
+
+    if (isAlreadyInvested) {
+      toast({ variant: 'destructive', title: 'Already Active', description: 'You already have an active investment in this plan.' });
+      return;
+    }
+
     if (user.balance < plan.amount) {
       toast({ variant: 'destructive', title: 'Insufficient Balance', description: 'Please deposit funds to invest.' });
       return;
@@ -79,14 +90,6 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
       startDate: new Date().toISOString(),
       duration: plan.duration,
       image: plan.image,
-    });
-    
-    const message = `NEW INVESTMENT\n\nUser: ${user.name}\nPlan: ${plan.title} (${formatCurrency(plan.amount)} -> ${formatCurrency(plan.returns)})\nDuration: ${plan.duration} days`;
-    openTelegramLink(message);
-
-    toast({
-      title: 'Investment Successful!',
-      description: `You have invested ${formatCurrency(plan.amount)} in ${plan.title}.`,
     });
   };
   

@@ -2,8 +2,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserData, UserInvestment, Transaction } from '@/types';
-import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
+import { useRouter } from 'next/navigation';
+import { UserData, UserInvestment, Transaction, InvestmentPlan } from '@/types';
+import { SIGNUP_BONUS, PROMO_CODES, INVESTMENT_PLANS } from '@/lib/constants';
 import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays } from 'date-fns';
 
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
@@ -18,6 +19,7 @@ export function useUser() {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionName, setSessionName] = useState<string | null>(getSessionName());
+  const router = useRouter();
 
   const updateUser = (data: UserData) => {
     setUser(data);
@@ -26,7 +28,6 @@ export function useUser() {
     }
   };
 
-  // Function to reload user data from localStorage
   const loadUser = useCallback((currentName: string) => {
     setLoading(true);
     const data = localStorage.getItem(`${USER_DATA_PREFIX}${currentName}`);
@@ -130,7 +131,6 @@ export function useUser() {
     setLoading(false);
   }, []);
 
-  // Effect to load user data when session changes
   useEffect(() => {
     if (sessionName) {
       loadUser(sessionName);
@@ -140,7 +140,6 @@ export function useUser() {
     }
   }, [sessionName, loadUser]);
 
-  // Effect to listen for storage changes (e.g., login/logout in other tabs)
   useEffect(() => {
     const handleStorageChange = () => {
       setSessionName(getSessionName());
@@ -149,7 +148,6 @@ export function useUser() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
   
-  // Periodic check for transaction status
   useEffect(() => {
     const interval = setInterval(() => {
         if (sessionName) {
@@ -179,14 +177,18 @@ export function useUser() {
       firstInvestmentMade: true,
     };
     updateUser(updatedUser);
-  }, [user]);
+    
+    // Store transaction ID in session storage for the success page
+    sessionStorage.setItem('last_investment_tx', newTransaction.id);
+    router.push('/investment-success');
+
+  }, [user, router]);
 
   const addTransaction = useCallback((tx: Omit<Transaction, 'id' | 'date'>) => {
     if (!user) return;
     const newTransaction: Transaction = { ...tx, id: crypto.randomUUID(), date: new Date().toISOString() };
     
     let newBalance = user.balance;
-    // For withdrawals, deduct from balance immediately upon request
     if (newTransaction.type === 'withdrawal') {
         newBalance -= newTransaction.amount;
     }
@@ -207,8 +209,6 @@ export function useUser() {
 
     const usedDate = user.usedPromoCodes[code.toUpperCase()];
     if (usedDate) {
-        // This logic allows using a code again if it wasn't used today.
-        // To make it one-time only, just `return 'used_before';`
         if (isToday(parseISO(usedDate))) {
             return 'used_today';
         }

@@ -38,7 +38,3 @@ export const calculateTimeLeft = (investment: UserInvestment): { daysLeft: numbe
   return { daysLeft, progress, isComplete: false, timeLeftString };
 };
 
-export const openTelegramLink = (message: string) => {
-  const telegramUrl = `https://t.me/your_telegram_admin_username?text=${encodeURIComponent(message)}`;
-  window.open(telegramUrl, '_blank');
-};

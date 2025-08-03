@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -12,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MIN_WITHDRAWAL } from '@/lib/constants';
-import { formatCurrency, openTelegramLink } from '@/lib/helpers';
+import { formatCurrency } from '@/lib/helpers';
 import { useUser } from '@/hooks/use-user';
 import { useToast } from '@/hooks/use-toast';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -43,10 +44,7 @@ export default function WithdrawPage() {
       return;
     }
     setIsLoading(true);
-
-    const message = `WITHDRAWAL REQUEST\n\nUser: ${user.name}\nAmount: ${formatCurrency(values.amount)}\nUPI ID: ${values.upiId}`;
     
-    // NOTE: The balance is now deducted immediately upon request in useUser hook.
     addTransaction({
       type: 'withdrawal',
       amount: values.amount,
@@ -54,8 +52,6 @@ export default function WithdrawPage() {
       description: `Withdrawal to ${values.upiId}`
     });
     
-    openTelegramLink(message);
-
     setTimeout(() => {
       setIsLoading(false);
       toast({

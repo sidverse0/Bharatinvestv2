@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { DEPOSIT_AMOUNTS } from '@/lib/constants';
-import { formatCurrency, openTelegramLink } from '@/lib/helpers';
+import { formatCurrency } from '@/lib/helpers';
 import { useUser } from '@/hooks/use-user';
 import { useToast } from '@/hooks/use-toast';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -131,8 +131,6 @@ export default function DepositPage() {
     if (!selectedAmount || !user) return;
     setIsLoading(true);
     stopTimer();
-
-    const message = `DEPOSIT REQUEST\n\nUser: ${user.name}\nAmount: ${formatCurrency(selectedAmount)}\nUTR: ${values.utr}`;
     
     addTransaction({
       type: 'deposit',
@@ -140,8 +138,6 @@ export default function DepositPage() {
       status: 'pending',
       description: `Deposit request`
     });
-
-    openTelegramLink(message);
     
     setTimeout(() => {
       setStep('pending_approval');
@@ -230,7 +226,6 @@ export default function DepositPage() {
               <h1 className="text-3xl font-bold tracking-tight">Waiting for Approval</h1>
               <p className="text-muted-foreground mt-2 max-w-sm">Your request has been sent. Please wait for the admin to confirm your deposit.</p>
               <div className="mt-8 flex flex-col gap-4 w-full">
-                 <Button size="lg" className="h-12 text-lg" onClick={() => openTelegramLink(`Hi, I've submitted a deposit request for ${formatCurrency(selectedAmount!)}.`)}>Contact Admin</Button>
                 <Button size="lg" variant="outline" className="h-12 text-lg" onClick={() => router.push('/home')}>Go to Home</Button>
               </div>
           </div>
@@ -245,11 +240,10 @@ export default function DepositPage() {
                 </div>
                 <AlertDialogTitle className="text-center text-2xl">Time's Up!</AlertDialogTitle>
                 <AlertDialogDescription className="text-center">
-                  The 5-minute window for this transaction has expired. Please try again. If you already paid, contact your agent.
+                  The 5-minute window for this transaction has expired. Please try again.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className='sm:justify-center'>
-                 <Button variant="outline" onClick={() => openTelegramLink('Hi, my deposit timer ran out.')}>Contact Agent</Button>
                 <AlertDialogAction onClick={handleBack}>Go Back</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -266,7 +260,3 @@ export default function DepositPage() {
     </ClientOnly>
   );
 }
-
-    
-
-    
