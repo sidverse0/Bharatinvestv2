@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -136,12 +136,18 @@ export default function ProfilePage() {
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="bg-muted/30 p-4 flex flex-row items-center justify-between">
               <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src="https://files.catbox.moe/5uph06.png" alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-16 w-16 border-2 border-primary/50">
+                    <AvatarImage src="https://files.catbox.moe/5uph06.png" alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <Crown className="absolute -top-2 -right-2 h-6 w-6 text-yellow-500 transform -rotate-12" />
+                </div>
                 <div>
-                  <CardTitle className="text-2xl">{user.name}</CardTitle>
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    {user.name}
+                    <BadgeCheck className="h-6 w-6 text-blue-500" />
+                  </CardTitle>
                   <CardDescription>{user.email}</CardDescription>
                 </div>
               </div>
