@@ -373,12 +373,16 @@ export function useUser() {
    const claimDailyCheckIn = useCallback((): {success: boolean, amount?: number} => {
     if (!user) return {success: false};
     
-    const canClaim = user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true;
+    const canClaim = user.lastCheckInDate ? differenceInHours(new Date(), parseISO(user.lastCheckInDate)) >= 24 : true;
     if (!canClaim) return {success: false};
 
     const rewardAmount = Math.floor(Math.random() * 5) + 1; // 1 to 5
     
-    const newStreak = user.checkInStreak + 1;
+    const today = new Date();
+    const lastCheckin = user.lastCheckInDate ? parseISO(user.lastCheckInDate) : new Date(0);
+    const daysDiff = differenceInCalendarDays(today, lastCheckin);
+
+    const newStreak = daysDiff === 1 ? user.checkInStreak + 1 : 1;
 
     const newTransaction: Transaction = {
       id: crypto.randomUUID(),

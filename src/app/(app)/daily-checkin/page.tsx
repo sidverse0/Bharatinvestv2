@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Check, CheckCircle, Gift, Star, X, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { isToday, parseISO, differenceInSeconds, startOfTomorrow } from 'date-fns';
+import { isToday, parseISO, differenceInSeconds, startOfTomorrow, addHours, differenceInHours } from 'date-fns';
 import { formatCurrency } from '@/lib/helpers';
 import Confetti from 'react-confetti';
 import { useToast } from '@/hooks/use-toast';
@@ -56,21 +56,22 @@ export default function DailyCheckinPage() {
     const [showClaimDialog, setShowClaimDialog] = useState(false);
     const [timeLeft, setTimeLeft] = useState<string | null>(null);
     
-    const canClaimToday = user ? (user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true) : false;
-    
+    const canClaimToday = user ? (user.lastCheckInDate ? differenceInHours(new Date(), parseISO(user.lastCheckInDate)) >= 24 : true) : false;
+    const isTodayCheckedIn = user?.lastCheckInDate ? isToday(parseISO(user.lastCheckInDate)) : false;
+
     useEffect(() => {
-        if (!user) return; // Guard clause
+        if (!user || !user.lastCheckInDate) return;
 
         let timer: NodeJS.Timeout | null = null;
         if (!canClaimToday) {
             const calculateTimeLeft = () => {
                 const now = new Date();
-                const tomorrow = startOfTomorrow();
-                const secondsLeft = differenceInSeconds(tomorrow, now);
+                const nextClaimTime = addHours(parseISO(user.lastCheckInDate as string), 24);
+                const secondsLeft = differenceInSeconds(nextClaimTime, now);
 
                 if (secondsLeft <= 0) {
                     setTimeLeft(null);
-                    reloadUser(); // Refresh user data to re-enable claim
+                    reloadUser();
                     if (timer) clearInterval(timer);
                     return;
                 }
@@ -82,7 +83,7 @@ export default function DailyCheckinPage() {
                 setTimeLeft(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
             };
 
-            calculateTimeLeft(); // Initial call
+            calculateTimeLeft();
             timer = setInterval(calculateTimeLeft, 1000);
         } else {
             setTimeLeft(null);
@@ -95,7 +96,7 @@ export default function DailyCheckinPage() {
 
     const handleClaim = () => {
         if (!canClaimToday) {
-             toast({ variant: 'destructive', title: 'Already Claimed', description: 'You have already claimed your reward for today.' });
+             toast({ variant: 'destructive', title: 'Already Claimed', description: 'You can claim your next reward in 24 hours.' });
             return;
         }
 
@@ -113,6 +114,8 @@ export default function DailyCheckinPage() {
     if (loading || !user) {
         return <ClientOnly />;
     }
+
+    const currentStreakDay = isTodayCheckedIn ? (user.checkInStreak % 7 === 0 ? 7 : user.checkInStreak % 7) : (user.checkInStreak % 7);
 
     return (
         <ClientOnly>
@@ -142,9 +145,9 @@ export default function DailyCheckinPage() {
                 <div className="p-4 grid grid-cols-3 sm:grid-cols-4 gap-4">
                     {[...Array(7)].map((_, i) => {
                         const day = i + 1;
-                        const isClaimed = user.checkInStreak > 0 && day <= (user.checkInStreak % 7 === 0 ? 7 : user.checkInStreak % 7) && (isToday(parseISO(user.lastCheckInDate)) || !canClaimToday);
-                        const isTodayDay = day === (user.checkInStreak % 7) + 1;
-                        const isFuture = day > (user.checkInStreak % 7) + 1;
+                        const isClaimed = day <= currentStreakDay;
+                        const isTodayDay = day === currentStreakDay + 1;
+                        const isFuture = day > currentStreakDay + 1;
                         
                         return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} />
                     })}
@@ -158,11 +161,11 @@ export default function DailyCheckinPage() {
                     variant="accent"
                 >
                     {canClaimToday 
-                        ? 'Claim Today\'s Reward' 
+                        ? 'Claim' 
                         : (
                             <div className="flex items-center gap-2">
                                 <Clock className="h-6 w-6" />
-                                <span>Next claim in {timeLeft}</span>
+                                <span>{timeLeft}</span>
                             </div>
                         )
                     }
