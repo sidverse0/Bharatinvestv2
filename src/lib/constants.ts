@@ -1,8 +1,9 @@
+
 import { InvestmentPlan } from "@/types";
 
 export const INVESTMENT_PLANS: InvestmentPlan[] = [
   { id: 1, amount: 100, returns: 410, duration: 30, badge: 'Popular' },
-  { id: 2, amount: 200, returns: 680, duration: 40 },
+  { id: 2, amount: 200, returns: 680, duration: 40, badge: 'Hot' },
   { id: 3, amount: 400, returns: 890, duration: 45, badge: 'Best Value' },
   { id: 4, amount: 600, returns: 1080, duration: 50 },
   { id: 5, amount: 1000, returns: 1550, duration: 60 },

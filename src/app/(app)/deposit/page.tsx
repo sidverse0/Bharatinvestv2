@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -5,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { CheckCircle, ChevronLeft, Loader2, AlertTriangle } from 'lucide-react';
+import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 
 const formSchema = z.object({
   utr: z.string().min(12, 'UTR/Transaction ID must be at least 12 characters.'),
@@ -39,6 +41,31 @@ const formSchema = z.object({
 type Step = 'select_amount' | 'submit_utr' | 'pending_approval' | 'times_up';
 
 const FIVE_MINUTES = 5 * 60;
+
+const DepositAmountButton = ({ amount, onSelect }: { amount: number, onSelect: (amount: number) => void}) => {
+  const tags: {[key: number]: {label: string, icon: React.ReactNode}} = {
+    100: { label: 'Popular', icon: <Star className="h-3 w-3" /> },
+    400: { label: 'Hot', icon: <Flame className="h-3 w-3" /> },
+  }
+  const tag = tags[amount];
+
+  return (
+    <Button 
+      variant="outline" 
+      size="lg" 
+      className="h-20 text-lg relative flex flex-col items-center justify-center" 
+      onClick={() => onSelect(amount)}
+    >
+      {tag && (
+        <Badge className="absolute -top-2 -right-2 bg-accent text-accent-foreground flex items-center gap-1">
+          {tag.icon} {tag.label}
+        </Badge>
+      )}
+      <span>{formatCurrency(amount)}</span>
+    </Button>
+  );
+};
+
 
 export default function DepositPage() {
   const [step, setStep] = useState<Step>('select_amount');
@@ -130,9 +157,7 @@ export default function DepositPage() {
             <p className="text-muted-foreground mt-2">Choose one of the preset amounts to deposit.</p>
             <div className="grid grid-cols-2 gap-4 mt-8">
               {DEPOSIT_AMOUNTS.map((amount) => (
-                <Button key={amount} variant="outline" size="lg" className="h-20 text-lg" onClick={() => handleAmountSelect(amount)}>
-                  {formatCurrency(amount)}
-                </Button>
+                <DepositAmountButton key={amount} amount={amount} onSelect={handleAmountSelect} />
               ))}
             </div>
           </div>

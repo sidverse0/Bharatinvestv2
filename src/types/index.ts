@@ -1,9 +1,10 @@
+
 export interface InvestmentPlan {
   id: number;
   amount: number;
   returns: number;
   duration: number; // in days
-  badge?: 'Popular' | 'Best Value';
+  badge?: 'Popular' | 'Best Value' | 'Hot';
 }
 
 export interface UserInvestment {
