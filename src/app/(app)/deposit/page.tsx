@@ -158,7 +158,6 @@ export default function DepositPage() {
                 setPendingTxId(null); // Clear the pending tx ID as it's now "approved"
                 reloadUser(); // Force user data refresh
                 toast({ title: 'Deposit Approved!', description: 'Your balance has been updated.' });
-                playSuccessSound();
                 router.replace('/history');
                 return 0;
             }
@@ -205,6 +204,7 @@ export default function DepositPage() {
       startApprovalTimer();
       setIsLoading(false);
       setShowApprovalToast(true);
+      playSuccessSound();
     }, 1000);
   };
 
