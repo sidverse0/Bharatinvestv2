@@ -50,15 +50,17 @@ export default function WalletPage() {
           </Link>
         </div>
 
-        <div className="flex-grow flex items-end justify-center">
-            <Image
-                src="https://files.catbox.moe/7z87l0.jpg"
-                alt="Wallet illustration"
-                width={300}
-                height={200}
-                className="object-contain"
-                data-ai-hint="payment success"
-            />
+        <div className="flex-grow flex items-center justify-center">
+             <Card className="overflow-hidden p-2">
+                <Image
+                    src="https://files.catbox.moe/3gwusu.png"
+                    alt="Payment processors"
+                    width={300}
+                    height={100}
+                    className="object-contain rounded-md"
+                    data-ai-hint="payment logos"
+                />
+            </Card>
         </div>
       </div>
     </ClientOnly>
