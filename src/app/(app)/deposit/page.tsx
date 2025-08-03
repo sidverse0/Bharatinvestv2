@@ -138,7 +138,7 @@ export default function DepositPage() {
       type: 'deposit',
       amount: selectedAmount,
       status: 'pending',
-      description: `Deposit request, UTR: ${values.utr}`
+      description: `Deposit request`
     });
 
     openTelegramLink(message);
@@ -266,5 +266,7 @@ export default function DepositPage() {
     </ClientOnly>
   );
 }
+
+    
 
     
