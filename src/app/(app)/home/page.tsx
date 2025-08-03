@@ -60,7 +60,7 @@ export default function HomePage() {
                           <h1 className="text-xl font-bold">Welcome, {user.name}!</h1>
                       )}
                     </div>
-                    <Link href="https://t.me/your_agent_username" target="_blank" rel="noopener noreferrer">
+                    <Link href="https://t.me/Pvt_s1n" target="_blank" rel="noopener noreferrer">
                       <IconButton variant="ghost" aria-label="Contact Support">
                         <Headset className="h-6 w-6 text-primary" />
                       </IconButton>
