@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer } from 'lucide-react';
+import { CheckCircle, ChevronLeft, Loader2, AlertTriangle, Star, Flame, Award, Shield, Gem, Timer, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
+
 
 const formSchema = z.object({
   utr: z.string().min(12, 'UTR/Transaction ID must be at least 12 characters.'),
@@ -41,7 +43,8 @@ const formSchema = z.object({
 
 type Step = 'select_amount' | 'submit_utr' | 'pending_approval' | 'times_up';
 
-const FIVE_MINUTES = 5 * 60;
+const TRANSACTION_WINDOW_SECONDS = 5 * 60; // 5 minutes
+const APPROVAL_WINDOW_SECONDS = 2 * 60; // 2 minutes
 
 const DepositAmountButton = ({ amount, onSelect }: { amount: number, onSelect: (amount: number) => void}) => {
   const tags: {[key: number]: {label: string, bonus: string, icon: React.ReactNode, color: string }} = {
@@ -76,11 +79,13 @@ export default function DepositPage() {
   const [step, setStep] = useState<Step>('select_amount');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(FIVE_MINUTES);
+  const [timeLeft, setTimeLeft] = useState(TRANSACTION_WINDOW_SECONDS);
+  const [approvalTimeLeft, setApprovalTimeLeft] = useState(APPROVAL_WINDOW_SECONDS);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const approvalTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { user, addTransaction } = useUser();
+  const { user, addTransaction, reloadUser } = useUser();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -89,20 +94,24 @@ export default function DepositPage() {
     defaultValues: { utr: '', confirmUtr: '' },
   });
 
-  const stopTimer = () => {
-    if (timerRef.current) {
+  const stopTimer = (timerToStop: 'transaction' | 'approval' | 'both') => {
+    if ((timerToStop === 'transaction' || timerToStop === 'both') && timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    if ((timerToStop === 'approval' || timerToStop === 'both') && approvalTimerRef.current) {
+        clearInterval(approvalTimerRef.current);
+        approvalTimerRef.current = null;
+    }
   };
 
-  const startTimer = () => {
-    stopTimer();
-    setTimeLeft(FIVE_MINUTES);
+  const startTransactionTimer = () => {
+    stopTimer('both');
+    setTimeLeft(TRANSACTION_WINDOW_SECONDS);
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          stopTimer();
+          stopTimer('transaction');
           setStep('times_up');
           return 0;
         }
@@ -111,18 +120,35 @@ export default function DepositPage() {
     }, 1000);
   };
   
+  const startApprovalTimer = () => {
+    stopTimer('both');
+    setApprovalTimeLeft(APPROVAL_WINDOW_SECONDS);
+    approvalTimerRef.current = setInterval(() => {
+        setApprovalTimeLeft((prev) => {
+            if (prev <= 1) {
+                stopTimer('approval');
+                reloadUser(); // Force user data refresh
+                toast({ title: 'Deposit Approved!', description: 'Your balance has been updated.' });
+                router.replace('/history');
+                return 0;
+            }
+            return prev - 1;
+        });
+    }, 1000);
+  };
+  
   useEffect(() => {
-    return () => stopTimer(); // Cleanup timer on component unmount
+    return () => stopTimer('both'); // Cleanup timers on component unmount
   }, []);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
     setStep('submit_utr');
-    startTimer();
+    startTransactionTimer();
   };
 
   const handleBack = () => {
-    stopTimer();
+    stopTimer('transaction');
     setStep('select_amount');
     form.reset();
   }
@@ -130,7 +156,7 @@ export default function DepositPage() {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!selectedAmount || !user) return;
     setIsLoading(true);
-    stopTimer();
+    stopTimer('transaction');
     
     addTransaction({
       type: 'deposit',
@@ -141,12 +167,43 @@ export default function DepositPage() {
     
     setTimeout(() => {
       setStep('pending_approval');
+      startApprovalTimer();
       setIsLoading(false);
       toast({
         title: "Request Sent",
         description: "Your deposit request has been sent to the admin for approval."
       })
     }, 1000);
+  };
+
+  const renderApprovalTimer = () => {
+    const minutes = Math.floor(approvalTimeLeft / 60);
+    const seconds = approvalTimeLeft % 60;
+    const progress = (APPROVAL_WINDOW_SECONDS - approvalTimeLeft) / APPROVAL_WINDOW_SECONDS * 100;
+    
+    return (
+       <div className="w-full max-w-sm text-center">
+            <div className="relative mb-4">
+                <CheckCircle className="h-24 w-24 text-green-500 mx-auto animate-pulse mb-6" />
+                <h1 className="text-3xl font-bold tracking-tight">Waiting for Approval</h1>
+                <p className="text-muted-foreground mt-2">Your deposit will be automatically approved.</p>
+                <p className="text-sm font-semibold text-destructive mt-1">Please do not press back or close the app.</p>
+            </div>
+            
+            <Card className="bg-muted/50 p-4">
+                <div className="flex items-center justify-center gap-2 text-center font-mono text-2xl p-3 bg-background/50 text-foreground rounded-md w-full shadow-inner">
+                    <Clock className="h-7 w-7" />
+                    <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+                </div>
+                 <p className="text-xs text-muted-foreground mt-3">Time until balance is updated</p>
+                 <Progress value={progress} className="w-full mt-2 h-2" />
+            </Card>
+
+            <Button size="lg" variant="outline" className="h-12 text-lg mt-8 w-full" onClick={() => router.push('/home')}>
+                Go to Home
+            </Button>
+       </div>
+    );
   };
   
   const renderStep = () => {
@@ -223,12 +280,7 @@ export default function DepositPage() {
       case 'pending_approval':
         return (
           <div className="text-center flex flex-col items-center justify-center min-h-[60vh]">
-              <CheckCircle className="h-24 w-24 text-green-500 animate-pulse mb-6" />
-              <h1 className="text-3xl font-bold tracking-tight">Waiting for Approval</h1>
-              <p className="text-muted-foreground mt-2 max-w-sm">Your request has been sent. Please wait for the admin to confirm your deposit.</p>
-              <div className="mt-8 flex flex-col gap-4 w-full">
-                <Button size="lg" variant="outline" className="h-12 text-lg" onClick={() => router.push('/home')}>Go to Home</Button>
-              </div>
+              {renderApprovalTimer()}
           </div>
         );
       case 'times_up':
@@ -261,3 +313,5 @@ export default function DepositPage() {
     </ClientOnly>
   );
 }
+
+    
