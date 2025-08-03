@@ -70,8 +70,7 @@ export default function SignupPage() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">Create an Account</CardTitle>
-        <CardDescription>Join BharatInvest today and get a welcome bonus!</CardDescription>
+        <CardTitle className="text-2xl">Create an Account!</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -83,7 +82,7 @@ export default function SignupPage() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="chooseaname" {...field} />
+                    <Input placeholder="Name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

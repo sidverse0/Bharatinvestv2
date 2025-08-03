@@ -68,8 +68,7 @@ export default function LoginPage() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
-        <CardDescription>Enter your credentials to access your account.</CardDescription>
+        <CardTitle className="text-2xl">Welcome Back!</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

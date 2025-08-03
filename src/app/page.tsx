@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
 
 // This is the root page. It will check for an active session
@@ -21,11 +20,13 @@ export default function RootPage() {
 
   // Display a loader while the redirection is happening.
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-background text-center">
-      <BharatInvestLogo className="h-16 w-16" />
-      <Loader2 className="h-8 w-8 animate-spin text-primary mt-8" />
-      <p className="mt-4 text-lg font-semibold text-foreground">Securing your session...</p>
-      <p className="text-sm text-muted-foreground">Please wait a moment.</p>
-    </div>
+    <div className="flex h-screen w-full flex-col items-center justify-center bg-background text-center p-4">
+        <div className="relative flex h-24 w-24 items-center justify-center">
+            <div className="loading-spinner"></div>
+            <BharatInvestLogo className="h-16 w-16" />
+        </div>
+        <p className="mt-6 text-xl font-bold text-foreground animate-fade-in-up">Securing your session...</p>
+        <p className="text-muted-foreground animate-fade-in-up animation-delay-[150ms]">Please wait a moment.</p>
+      </div>
   );
 }
