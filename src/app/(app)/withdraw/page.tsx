@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useSound } from '@/hooks/use-sound';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Please enter your full name.'),
@@ -50,6 +51,7 @@ export default function WithdrawPage() {
   const { user, addTransaction } = useUser();
   const { toast } = useToast();
   const router = useRouter();
+  const playSuccessSound = useSound('https://files.catbox.moe/6fv876.wav');
 
   const form = useForm<z.infer<typeof formSchema,>>({
     resolver: zodResolver(formSchema),
@@ -86,6 +88,7 @@ export default function WithdrawPage() {
     setTimeout(() => {
       setIsLoading(false);
       setIsSuccess(true);
+      playSuccessSound();
       toast({
         title: "Request Sent",
         description: "Your withdrawal request has been sent for approval."

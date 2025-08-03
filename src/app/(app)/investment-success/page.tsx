@@ -13,6 +13,7 @@ import { CheckCircle, Home, Receipt } from 'lucide-react';
 import { Transaction } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { useSound } from '@/hooks/use-sound';
 
 const ReceiptRow = ({ label, value, className = '' }: { label: string, value: string, className?: string }) => (
     <div className="flex justify-between items-center">
@@ -25,6 +26,8 @@ export default function InvestmentSuccessPage() {
     const router = useRouter();
     const { user, loading } = useUser();
     const [transaction, setTransaction] = useState<Transaction | null>(null);
+    const playSuccessSound = useSound('https://files.catbox.moe/6fv876.wav');
+
 
     useEffect(() => {
         if (loading || !user) return;
@@ -38,6 +41,7 @@ export default function InvestmentSuccessPage() {
         const foundTx = user.transactions.find(t => t.id === txId);
         if (foundTx) {
             setTransaction(foundTx);
+            playSuccessSound();
         } else {
             router.replace('/history');
         }
@@ -47,7 +51,7 @@ export default function InvestmentSuccessPage() {
             sessionStorage.removeItem('last_investment_tx');
         }
 
-    }, [user, loading, router]);
+    }, [user, loading, router, playSuccessSound]);
 
     const renderSkeleton = () => (
         <Card className="w-full max-w-md mx-auto">

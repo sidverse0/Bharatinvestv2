@@ -32,6 +32,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useSound } from '@/hooks/use-sound';
 
 
 const formSchema = z.object({
@@ -84,6 +85,7 @@ export default function DepositPage() {
   const [approvalTimeLeft, setApprovalTimeLeft] = useState(APPROVAL_WINDOW_SECONDS);
   const [showApprovalToast, setShowApprovalToast] = useState(false);
   const [pendingTxId, setPendingTxId] = useState<string | null>(null);
+  const playSuccessSound = useSound('https://files.catbox.moe/6fv876.wav');
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const approvalTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -156,6 +158,7 @@ export default function DepositPage() {
                 setPendingTxId(null); // Clear the pending tx ID as it's now "approved"
                 reloadUser(); // Force user data refresh
                 toast({ title: 'Deposit Approved!', description: 'Your balance has been updated.' });
+                playSuccessSound();
                 router.replace('/history');
                 return 0;
             }
