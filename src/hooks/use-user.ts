@@ -114,38 +114,47 @@ export function useUser() {
       }
       
       const now = new Date();
-      parsedData.transactions = parsedData.transactions.map(tx => {
-        if (tx.status !== 'pending') return tx;
+      const newTransactions: Transaction[] = [];
+      const unprocessedTransactions = [...parsedData.transactions]; // Create a mutable copy
+
+      unprocessedTransactions.forEach(tx => {
+        if (tx.status !== 'pending') {
+          newTransactions.push(tx);
+          return;
+        }
 
         const txDate = parseISO(tx.date);
 
         // Auto-approve deposits older than 2 minutes
         if (tx.type === 'deposit' && differenceInMinutes(now, txDate) >= 2) {
-            dataChanged = true;
-            parsedData.balance += tx.amount;
-            parsedData.totalDeposits = (parsedData.totalDeposits || 0) + tx.amount;
-            return { ...tx, status: 'success' };
+          dataChanged = true;
+          parsedData.balance += tx.amount;
+          parsedData.totalDeposits = (parsedData.totalDeposits || 0) + tx.amount;
+          newTransactions.push({ ...tx, status: 'success' });
         }
         
-        // Auto-fail withdrawals older than 24 hours
-        if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 24) {
-            dataChanged = true;
-            // Refund the balance
-            parsedData.balance += tx.amount;
-            // Add a refund transaction for clarity
-            parsedData.transactions.unshift({
-                id: crypto.randomUUID(),
-                type: 'return',
-                amount: tx.amount,
-                status: 'success',
-                date: new Date().toISOString(),
-                description: 'Withdrawal request failed & refunded',
-            });
-            return { ...tx, status: 'failed' };
+        // Auto-fail withdrawals older than 48 hours
+        else if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 48) {
+          dataChanged = true;
+          // Refund the balance
+          parsedData.balance += tx.amount;
+          // Add a refund transaction for clarity
+          newTransactions.unshift({
+            id: crypto.randomUUID(),
+            type: 'return',
+            amount: tx.amount,
+            status: 'success',
+            date: new Date().toISOString(),
+            description: 'Withdrawal request failed & refunded',
+          });
+          newTransactions.push({ ...tx, status: 'failed' });
+        } else {
+          // Keep it as is if no condition is met
+          newTransactions.push(tx);
         }
-
-        return tx;
       });
+      parsedData.transactions = newTransactions;
+
 
       // Calculate and distribute daily returns
       let todaysReturn = 0;
@@ -303,20 +312,20 @@ export function useUser() {
       if (!currentUser) return null;
       
       const txToRemove = currentUser.transactions.find(tx => tx.id === txId);
+      if (!txToRemove) return currentUser; // No change if tx not found
       
       const updatedUser = {
         ...currentUser,
         transactions: currentUser.transactions.filter(tx => tx.id !== txId),
       };
 
-      if (txToRemove && txToRemove.type === 'deposit' && txToRemove.status === 'pending') {
+      if (txToRemove.type === 'deposit' && txToRemove.status === 'pending') {
           // No need to adjust balance as it wasn't added for pending deposits
-      } else if (txToRemove && txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
+      } else if (txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
           // Refund the balance that was deducted
           updatedUser.balance += txToRemove.amount;
       }
 
-      // Also update localStorage
       localStorage.setItem(`${USER_DATA_PREFIX}${currentUser.name}`, JSON.stringify(updatedUser));
       return updatedUser;
     });
