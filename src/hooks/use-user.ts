@@ -434,3 +434,5 @@ export function useUser() {
 
   return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName), removeTransaction, claimAchievementReward };
 }
+
+    
