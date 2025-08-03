@@ -260,7 +260,7 @@ export function useUser() {
 
   }, [user, router]);
 
-  const addTransaction = useCallback((tx: Omit<Transaction, 'id' | 'date'>) => {
+  const addTransaction = useCallback((tx: Omit<Transaction, 'id' | 'date'>): string | undefined => {
     if (!user) return;
     const newTransaction: Transaction = { ...tx, id: crypto.randomUUID(), date: new Date().toISOString() };
     
@@ -273,6 +273,17 @@ export function useUser() {
       ...user,
       balance: newBalance,
       transactions: [newTransaction, ...user.transactions],
+    };
+    updateUser(updatedUser);
+    return newTransaction.id;
+  }, [user]);
+
+  const removeTransaction = useCallback((txId: string) => {
+    if (!user) return;
+
+    const updatedUser = {
+      ...user,
+      transactions: user.transactions.filter(tx => tx.id !== txId),
     };
     updateUser(updatedUser);
   }, [user]);
@@ -347,5 +358,5 @@ export function useUser() {
 
   }, [user]);
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName) };
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName), removeTransaction };
 }

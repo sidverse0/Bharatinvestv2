@@ -83,11 +83,12 @@ export default function DepositPage() {
   const [timeLeft, setTimeLeft] = useState(TRANSACTION_WINDOW_SECONDS);
   const [approvalTimeLeft, setApprovalTimeLeft] = useState(APPROVAL_WINDOW_SECONDS);
   const [showApprovalToast, setShowApprovalToast] = useState(false);
+  const [pendingTxId, setPendingTxId] = useState<string | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const approvalTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { user, addTransaction, reloadUser } = useUser();
+  const { user, addTransaction, reloadUser, removeTransaction } = useUser();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -105,6 +106,18 @@ export default function DepositPage() {
       setShowApprovalToast(false); // Reset the trigger
     }
   }, [showApprovalToast, toast]);
+
+  // This is the cleanup effect. It runs when the component unmounts.
+  useEffect(() => {
+    return () => {
+      // If we have a pending transaction ID and we are in the approval step, it means the user is navigating away.
+      if (pendingTxId && step === 'pending_approval') {
+        removeTransaction(pendingTxId);
+        // Also clear timers to be safe
+        stopTimer('both');
+      }
+    };
+  }, [pendingTxId, step, removeTransaction]);
 
 
   const stopTimer = (timerToStop: 'transaction' | 'approval' | 'both') => {
@@ -140,6 +153,7 @@ export default function DepositPage() {
         setApprovalTimeLeft((prev) => {
             if (prev <= 1) {
                 stopTimer('approval');
+                setPendingTxId(null); // Clear the pending tx ID as it's now "approved"
                 reloadUser(); // Force user data refresh
                 toast({ title: 'Deposit Approved!', description: 'Your balance has been updated.' });
                 router.replace('/history');
@@ -151,7 +165,8 @@ export default function DepositPage() {
   };
   
   useEffect(() => {
-    return () => stopTimer('both'); // Cleanup timers on component unmount
+    // A general cleanup for all timers when the component unmounts for any reason.
+    return () => stopTimer('both');
   }, []);
 
   const handleAmountSelect = (amount: number) => {
@@ -171,12 +186,16 @@ export default function DepositPage() {
     setIsLoading(true);
     stopTimer('transaction');
     
-    addTransaction({
+    const txId = addTransaction({
       type: 'deposit',
       amount: selectedAmount,
       status: 'pending',
       description: `Deposit request`
     });
+    
+    if (txId) {
+      setPendingTxId(txId);
+    }
     
     setTimeout(() => {
       setStep('pending_approval');
@@ -213,7 +232,13 @@ export default function DepositPage() {
                 </CardContent>
             </Card>
 
-            <Button size="lg" className="h-12 text-lg mt-8 w-full" onClick={() => router.push('/home')}>
+            <Button size="lg" className="h-12 text-lg mt-8 w-full" onClick={() => {
+                if (pendingTxId) {
+                    removeTransaction(pendingTxId);
+                    setPendingTxId(null);
+                }
+                router.push('/home')
+            }}>
                 <Home className="mr-2" /> Go to Home
             </Button>
        </div>
