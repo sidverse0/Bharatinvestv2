@@ -199,7 +199,7 @@ export function useUser() {
       amount: investment.amount,
       status: 'success',
       date: new Date().toISOString(),
-      description: `Invested in ${investment.planName}`,
+      description: investment.planName,
     };
     const updatedUser: UserData = {
       ...user,

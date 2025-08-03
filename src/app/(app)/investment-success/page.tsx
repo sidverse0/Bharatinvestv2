@@ -82,7 +82,7 @@ export default function InvestmentSuccessPage() {
         );
     }
     
-    const investment = user?.investments.find(inv => inv.planName === transaction.description.replace('Invested in ', ''));
+    const investment = user?.investments.find(inv => inv.planName === transaction.description);
 
     return (
         <ClientOnly>
@@ -117,4 +117,3 @@ export default function InvestmentSuccessPage() {
         </ClientOnly>
     );
 }
-
