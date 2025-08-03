@@ -125,90 +125,85 @@ export default function DepositPage() {
     switch (step) {
       case 'select_amount':
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Deposit Amount</CardTitle>
-              <CardDescription>Choose one of the preset amounts to deposit.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold tracking-tight">Select Deposit Amount</h1>
+            <p className="text-muted-foreground mt-2">Choose one of the preset amounts to deposit.</p>
+            <div className="grid grid-cols-2 gap-4 mt-8">
               {DEPOSIT_AMOUNTS.map((amount) => (
-                <Button key={amount} variant="outline" size="lg" className="h-16" onClick={() => handleAmountSelect(amount)}>
+                <Button key={amount} variant="outline" size="lg" className="h-20 text-lg" onClick={() => handleAmountSelect(amount)}>
                   {formatCurrency(amount)}
                 </Button>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         );
       case 'submit_utr':
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         return (
-          <Card>
-            <CardHeader>
-              <Button variant="ghost" size="sm" className="absolute left-2 top-2" onClick={handleBack}>
-                <ChevronLeft className="h-4 w-4" /> Back
-              </Button>
-              <CardTitle className="text-center pt-8">Complete Your Deposit</CardTitle>
-              <CardDescription className="text-center">Scan the QR code and submit your transaction ID.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-center">
+          <div className="relative">
+            <Button variant="ghost" size="sm" className="absolute -left-2 -top-4" onClick={handleBack}>
+              <ChevronLeft className="h-4 w-4" /> Back
+            </Button>
+            <div className="text-center">
+                <h1 className="text-3xl font-bold tracking-tight">Complete Your Deposit</h1>
+                <p className="text-muted-foreground mt-2">Scan the QR code and submit your transaction ID.</p>
+            </div>
+            
+            <div className="flex flex-col items-center gap-4 mt-8">
                 <Image src="https://placehold.co/250x250.png" data-ai-hint="qr code" alt="QR Code" width={250} height={250} className="rounded-lg border-2 border-primary" />
-              </div>
-              <div className="text-center font-mono text-xl p-2 bg-muted rounded-md">
-                Time Remaining: {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-              </div>
-              <p className="text-center text-muted-foreground text-sm">Amount: <span className="font-bold text-foreground">{formatCurrency(selectedAmount!)}</span></p>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="utr"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>UTR / Transaction ID</FormLabel>
-                        <FormControl>
-                          <Input className="font-code text-center" placeholder="Enter 12-digit UTR" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="confirmUtr"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm UTR</FormLabel>
-                        <FormControl>
-                          <Input className="font-code text-center" placeholder="Re-enter UTR" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="animate-spin" /> : "Submit for Approval"}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+                <div className="text-center font-mono text-2xl p-3 bg-destructive/10 text-destructive rounded-md w-full">
+                    Time Remaining: {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+                </div>
+                <p className="text-center text-muted-foreground text-base">Amount to Pay: <span className="font-bold text-foreground">{formatCurrency(selectedAmount!)}</span></p>
+            </div>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-8">
+                <FormField
+                  control={form.control}
+                  name="utr"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UTR / Transaction ID</FormLabel>
+                      <FormControl>
+                        <Input className="font-code text-center text-base" placeholder="Enter 12-digit UTR" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="confirmUtr"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm UTR</FormLabel>
+                      <FormControl>
+                        <Input className="font-code text-center text-base" placeholder="Re-enter UTR" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" size="lg" className="w-full text-lg h-12" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="animate-spin" /> : "Submit for Approval"}
+                </Button>
+              </form>
+            </Form>
+          </div>
         );
       case 'pending_approval':
         return (
-          <Card className="text-center">
-            <CardHeader>
-              <CardTitle>Waiting for Approval</CardTitle>
-              <CardDescription>Your request has been sent. Please wait for the admin to confirm your deposit.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-6">
-              <CheckCircle className="h-24 w-24 text-green-500 animate-pulse" />
-              <p className="text-muted-foreground">You can contact the admin on Telegram for a faster response.</p>
-              <Button onClick={() => openTelegramLink(`Hi, I've submitted a deposit request for ${formatCurrency(selectedAmount!)}.`)}>Contact Admin</Button>
-              <Button variant="outline" onClick={() => router.push('/home')}>Go to Home</Button>
-            </CardContent>
-          </Card>
+          <div className="text-center flex flex-col items-center justify-center min-h-[60vh]">
+              <CheckCircle className="h-24 w-24 text-green-500 animate-pulse mb-6" />
+              <h1 className="text-3xl font-bold tracking-tight">Waiting for Approval</h1>
+              <p className="text-muted-foreground mt-2 max-w-sm">Your request has been sent. Please wait for the admin to confirm your deposit.</p>
+              <div className="mt-8 flex flex-col gap-4 w-full">
+                 <Button size="lg" className="h-12 text-lg" onClick={() => openTelegramLink(`Hi, I've submitted a deposit request for ${formatCurrency(selectedAmount!)}.`)}>Contact Admin</Button>
+                <Button size="lg" variant="outline" className="h-12 text-lg" onClick={() => router.push('/home')}>Go to Home</Button>
+              </div>
+          </div>
         );
       case 'times_up':
         return (
@@ -235,7 +230,7 @@ export default function DepositPage() {
 
   return (
     <ClientOnly>
-      <div className="container mx-auto max-w-md p-4">
+      <div className="container mx-auto max-w-md p-4 pt-8">
         {renderStep()}
       </div>
     </ClientOnly>
