@@ -39,7 +39,7 @@ export default function HomePage() {
 
   return (
     <ClientOnly>
-      <div className="container mx-auto max-w-4xl p-4">
+      <div className="container mx-auto max-w-2xl p-4">
         <header className="mb-8">
             <div className="bg-card p-4 rounded-2xl shadow-sm">
                 <div className="flex items-center justify-between gap-3 mb-4">

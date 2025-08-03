@@ -74,7 +74,7 @@ export default function HistoryPage() {
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4">
         <header className="mb-6 text-center">
-          <h1 className="text-4xl font-bold tracking-tighter">Transaction History</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">Transaction History</h1>
           <p className="text-muted-foreground">A record of all your activities.</p>
         </header>
 
@@ -116,5 +116,3 @@ export default function HistoryPage() {
     </ClientOnly>
   );
 }
-
-    

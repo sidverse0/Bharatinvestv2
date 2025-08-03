@@ -233,8 +233,8 @@ export default function DepositPage() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         return (
-          <div className="relative">
-            <Button variant="ghost" size="sm" className="absolute -left-2 -top-4" onClick={handleBack}>
+          <div>
+            <Button variant="ghost" size="sm" className="absolute -top-4 -left-2 md:relative md:top-auto md:left-auto md:-ml-4 md:mb-4" onClick={handleBack}>
               <ChevronLeft className="h-4 w-4" /> Back
             </Button>
             <div className="text-center">
@@ -288,7 +288,7 @@ export default function DepositPage() {
         );
       case 'pending_approval':
         return (
-          <div className="text-center flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="text-center flex flex-col items-center justify-center min-h-[calc(100vh-10rem)]">
               {renderApprovalTimer()}
           </div>
         );

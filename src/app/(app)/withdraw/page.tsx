@@ -76,7 +76,7 @@ export default function WithdrawPage() {
   if (isSuccess) {
     return (
        <ClientOnly>
-         <div className="container mx-auto max-w-md p-4 flex flex-col items-center justify-center min-h-[80vh]">
+         <div className="container mx-auto max-w-md p-4 flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] sm:min-h-[calc(100vh-6rem)]">
             <Card className="w-full text-center animate-fade-in-up">
                 <CardHeader className="items-center">
                     <CheckCircle className="h-20 w-20 text-green-500 mb-4" />

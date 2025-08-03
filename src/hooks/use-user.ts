@@ -97,6 +97,7 @@ export function useUser() {
         // If daysDiff is 0, they already logged in today, do nothing.
         if (daysDiff > 0) {
           parsedData.lastLoginDate = today.toISOString();
+          dataChanged = true;
         }
       }
       
@@ -319,11 +320,11 @@ export function useUser() {
 
     const newTransaction: Transaction = {
       id: crypto.randomUUID(),
-      type: 'bonus',
+      type: 'check-in',
       amount: rewardAmount,
       status: 'success',
       date: new Date().toISOString(),
-      description: `Daily Check-in: Day ${user.checkInStreak + 1}`,
+      description: `Daily Check-in: Day ${newStreak}`,
     };
 
     const updatedUser: UserData = {

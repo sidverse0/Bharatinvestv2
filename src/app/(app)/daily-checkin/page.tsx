@@ -52,8 +52,6 @@ export default function DailyCheckinPage() {
     const [showClaimDialog, setShowClaimDialog] = useState(false);
     const [timeLeft, setTimeLeft] = useState<string | null>(null);
     
-    // All hooks are now at the top level and unconditional
-    
     const canClaimToday = user ? (user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true) : false;
     
     useEffect(() => {
@@ -141,9 +139,8 @@ export default function DailyCheckinPage() {
                     <CardContent className="p-4 grid grid-cols-3 sm:grid-cols-4 gap-4">
                         {[...Array(7)].map((_, i) => {
                             const day = i + 1;
-                            const isClaimed = day <= (user.checkInStreak % 7) && !canClaimToday;
+                            const isClaimed = user.checkInStreak > 0 && day <= (user.checkInStreak % 7 === 0 ? 7 : user.checkInStreak % 7) && (isToday(parseISO(user.lastCheckInDate)) || !canClaimToday);
                             const isTodayDay = day === (user.checkInStreak % 7) + 1;
-                             const wasMissed = day < (user.checkInStreak % 7) + 1 && canClaimToday && user.checkInStreak > 0
                             const isFuture = day > (user.checkInStreak % 7) + 1;
                             
                             return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} />

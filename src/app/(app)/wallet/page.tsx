@@ -16,9 +16,9 @@ export default function WalletPage() {
 
   return (
     <ClientOnly>
-      <div className="container mx-auto max-w-2xl p-4 flex flex-col h-[calc(100vh-64px)]">
+      <div className="container mx-auto max-w-2xl p-4 flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-6rem)]">
         <header className="mb-6 text-center">
-          <h1 className="text-4xl font-bold tracking-tighter">My Wallet</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">My Wallet</h1>
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
