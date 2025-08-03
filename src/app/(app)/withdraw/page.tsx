@@ -105,7 +105,7 @@ export default function WithdrawPage() {
                     <CheckCircle className="h-16 w-16 text-green-500 mb-2" />
                     <CardTitle className="text-2xl">Request Submitted!</CardTitle>
                     <CardDescription className="text-base px-4">
-                        Your balance will be credited to your account within 24 hours.
+                        Your balance will be credited to your account within 48 hours.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
