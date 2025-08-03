@@ -9,19 +9,20 @@ import { useUser } from '@/hooks/use-user';
 import { formatCurrency } from '@/lib/helpers';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 
 export default function WalletPage() {
   const { user, loading } = useUser();
 
   return (
     <ClientOnly>
-      <div className="container mx-auto max-w-2xl p-4">
-        <header className="mb-8 text-center">
+      <div className="container mx-auto max-w-2xl p-4 flex flex-col h-[calc(100vh-64px)]">
+        <header className="mb-6 text-center">
           <h1 className="text-4xl font-bold tracking-tighter">My Wallet</h1>
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
-        <Card className="mb-8 text-center bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg">
+        <Card className="mb-6 text-center bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg">
           <CardHeader>
             <CardDescription className="text-primary-foreground/80">Current Balance</CardDescription>
              {loading || !user ? (
@@ -34,22 +35,32 @@ export default function WalletPage() {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           <Link href="/deposit" passHref>
-            <Button variant="default" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
+            <Button variant="default" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
               <ArrowDownLeft className="h-8 w-8 group-hover:animate-bounce" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
+            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
               <ArrowUpRight className="h-8 w-8 group-hover:animate-ping" />
               Withdraw
             </Button>
           </Link>
         </div>
+
+        <div className="flex-grow flex items-end justify-center">
+            <Image
+                src="https://files.catbox.moe/lkm1pz.jpg"
+                alt="Wallet illustration"
+                width={300}
+                height={200}
+                className="object-contain"
+                data-ai-hint="payment success"
+            />
+        </div>
       </div>
     </ClientOnly>
   );
 }
-
