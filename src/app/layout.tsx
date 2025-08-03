@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'FundFlow',
+  title: 'BharatInvest',
   description: 'Your trusted investment partner.',
 };
 

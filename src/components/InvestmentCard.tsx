@@ -47,7 +47,7 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
       duration: plan.duration,
     });
     
-    const message = `NEW INVESTMENT\n\nUser: ${user.username}\nPlan: ${formatCurrency(plan.amount)} -> ${formatCurrency(plan.returns)}\nDuration: ${plan.duration} days`;
+    const message = `NEW INVESTMENT\n\nUser: ${user.name}\nPlan: ${formatCurrency(plan.amount)} -> ${formatCurrency(plan.returns)}\nDuration: ${plan.duration} days`;
     openTelegramLink(message);
 
     toast({

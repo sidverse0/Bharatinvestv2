@@ -29,7 +29,7 @@ export interface Transaction {
 }
 
 export interface UserData {
-  username: string;
+  name: string;
   balance: number;
   referralCode: string;
   investments: UserInvestment[];

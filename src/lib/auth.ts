@@ -3,9 +3,9 @@
 import { UserData } from "@/types";
 import { SIGNUP_BONUS } from "./constants";
 
-const USERS_DB_KEY = 'fundflow_users';
-const SESSION_KEY = 'fundflow_session';
-const USER_DATA_PREFIX = 'fundflow_data_';
+const USERS_DB_KEY = 'bharatinvest_users';
+const SESSION_KEY = 'bharatinvest_session';
+const USER_DATA_PREFIX = 'bharatinvest_data_';
 
 // Helper to get users from localStorage
 const getUsers = () => {
@@ -20,43 +20,43 @@ const saveUsers = (users: any) => {
 };
 
 // Helper to set session
-const setSession = (username: string) => {
-  localStorage.setItem(SESSION_KEY, username);
+const setSession = (name: string) => {
+  localStorage.setItem(SESSION_KEY, name);
 };
 
 // Signup function
-export const signup = (username: string, password: string): { success: boolean; message: string } => {
+export const signup = (name: string, password: string): { success: boolean; message: string } => {
   const users = getUsers();
-  if (users[username]) {
-    return { success: false, message: 'Username already exists.' };
+  if (users[name]) {
+    return { success: false, message: 'Name already exists.' };
   }
   
-  users[username] = password;
+  users[name] = password;
   saveUsers(users);
 
   // Create initial user data
   const newUser: UserData = {
-    username,
+    name,
     balance: 0,
-    referralCode: `${username.substring(0, 4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`,
+    referralCode: `${name.substring(0, 4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`,
     investments: [],
     transactions: [],
     usedPromoCodes: {},
     isFirstLogin: true,
   };
-  localStorage.setItem(`${USER_DATA_PREFIX}${username}`, JSON.stringify(newUser));
+  localStorage.setItem(`${USER_DATA_PREFIX}${name}`, JSON.stringify(newUser));
 
-  setSession(username);
+  setSession(name);
   return { success: true, message: 'Signup successful!' };
 };
 
 // Login function
-export const login = (username: string, password: string): { success: boolean; message: string } => {
+export const login = (name: string, password: string): { success: boolean; message: string } => {
   const users = getUsers();
-  if (!users[username] || users[username] !== password) {
-    return { success: false, message: 'Invalid username or password.' };
+  if (!users[name] || users[name] !== password) {
+    return { success: false, message: 'Invalid name or password.' };
   }
-  setSession(username);
+  setSession(name);
   return { success: true, message: 'Login successful!' };
 };
 

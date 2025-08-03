@@ -47,7 +47,7 @@ export default function DepositPage() {
     if (!selectedAmount || !user) return;
     setIsLoading(true);
 
-    const message = `DEPOSIT REQUEST\n\nUser: ${user.username}\nAmount: ${formatCurrency(selectedAmount)}\nUTR: ${values.utr}`;
+    const message = `DEPOSIT REQUEST\n\nUser: ${user.name}\nAmount: ${formatCurrency(selectedAmount)}\nUTR: ${values.utr}`;
     
     addTransaction({
       type: 'deposit',

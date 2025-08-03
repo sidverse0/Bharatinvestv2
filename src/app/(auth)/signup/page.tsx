@@ -23,7 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters.").refine(s => !s.includes(' '), 'Username cannot contain spaces.'),
+  name: z.string().min(3, "Name must be at least 3 characters.").refine(s => !s.includes(' '), 'Name cannot contain spaces.'),
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
@@ -40,7 +40,7 @@ export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
       password: "",
       confirmPassword: "",
     },
@@ -48,13 +48,13 @@ export default function SignupPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const result = signup(values.username, values.password);
+    const result = signup(values.name, values.password);
 
     setTimeout(() => {
        if (result.success) {
         toast({
           title: "Account Created",
-          description: "You have been successfully registered. Welcome to FundFlow!",
+          description: "You have been successfully registered. Welcome to BharatInvest!",
         });
         router.push("/home");
       } else {
@@ -72,19 +72,19 @@ export default function SignupPage() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl">Create an Account</CardTitle>
-        <CardDescription>Join FundFlow today and get a welcome bonus!</CardDescription>
+        <CardDescription>Join BharatInvest today and get a welcome bonus!</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="chooseausername" {...field} />
+                    <Input placeholder="chooseaname" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

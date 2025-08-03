@@ -5,9 +5,9 @@ import { UserData, UserInvestment, Transaction, TransactionType } from '@/types'
 import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
 import { isToday, parseISO } from 'date-fns';
 
-const USERS_DB_KEY = 'fundflow_users'; // Stores { username: password }
-const SESSION_KEY = 'fundflow_session'; // Stores current logged-in username
-const USER_DATA_PREFIX = 'fundflow_data_'; // Prefix for user-specific data
+const USERS_DB_KEY = 'bharatinvest_users'; // Stores { name: password }
+const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
+const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
 
 const getInitialUser = (): string | null => {
   if (typeof window === 'undefined') return null;
@@ -17,10 +17,10 @@ const getInitialUser = (): string | null => {
 export function useUser() {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState<string | null>(getInitialUser());
+  const [name, setName] = useState<string | null>(getInitialUser());
 
-  const loadUser = useCallback((name: string) => {
-    const data = localStorage.getItem(`${USER_DATA_PREFIX}${name}`);
+  const loadUser = useCallback((currentName: string) => {
+    const data = localStorage.getItem(`${USER_DATA_PREFIX}${currentName}`);
     if (data) {
       const parsedData: UserData = JSON.parse(data);
       if(parsedData.isFirstLogin) {
@@ -34,7 +34,7 @@ export function useUser() {
           description: 'Sign-up Bonus',
         });
         parsedData.isFirstLogin = false;
-        localStorage.setItem(`${USER_DATA_PREFIX}${name}`, JSON.stringify(parsedData));
+        localStorage.setItem(`${USER_DATA_PREFIX}${currentName}`, JSON.stringify(parsedData));
       }
       setUser(parsedData);
     }
@@ -42,16 +42,16 @@ export function useUser() {
   }, []);
 
   useEffect(() => {
-    if (username) {
-      loadUser(username);
+    if (name) {
+      loadUser(name);
     } else {
       setLoading(false);
     }
-  }, [username, loadUser]);
+  }, [name, loadUser]);
 
   const updateUser = (data: UserData) => {
     setUser(data);
-    localStorage.setItem(`${USER_DATA_PREFIX}${data.username}`, JSON.stringify(data));
+    localStorage.setItem(`${USER_DATA_PREFIX}${data.name}`, JSON.stringify(data));
   };
 
   const addInvestment = useCallback((investment: Omit<UserInvestment, 'id'>) => {
@@ -124,5 +124,5 @@ export function useUser() {
     return 'success';
   }, [user]);
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, reloadUser: () => username && loadUser(username) };
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, reloadUser: () => name && loadUser(name) };
 }

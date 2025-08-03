@@ -44,7 +44,7 @@ export default function WithdrawPage() {
     }
     setIsLoading(true);
 
-    const message = `WITHDRAWAL REQUEST\n\nUser: ${user.username}\nAmount: ${formatCurrency(values.amount)}\nUPI ID: ${values.upiId}`;
+    const message = `WITHDRAWAL REQUEST\n\nUser: ${user.name}\nAmount: ${formatCurrency(values.amount)}\nUPI ID: ${values.upiId}`;
     
     addTransaction({
       type: 'withdrawal',

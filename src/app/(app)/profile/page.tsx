@@ -80,7 +80,7 @@ export default function ProfilePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-2xl">{user?.username}</CardTitle>
+              <CardTitle className="text-2xl">{user?.name}</CardTitle>
               <CardDescription>Your personal dashboard</CardDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">

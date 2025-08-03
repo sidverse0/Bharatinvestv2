@@ -23,7 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters."),
+  name: z.string().min(3, "Name must be at least 3 characters."),
   password: z.string().min(6, "Password must be at least 6 characters."),
 });
 
@@ -35,20 +35,20 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
       password: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const result = login(values.username, values.password);
+    const result = login(values.name, values.password);
     
     setTimeout(() => {
       if (result.success) {
         toast({
           title: "Login Successful",
-          description: "Welcome back to FundFlow!",
+          description: "Welcome back to BharatInvest!",
         });
         router.push("/home");
       } else {
@@ -73,12 +73,12 @@ export default function LoginPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="yourusername" {...field} />
+                    <Input placeholder="yourname" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
