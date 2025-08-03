@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Lock, CheckCircle, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -323,7 +323,7 @@ export default function ProfilePage() {
           <CardHeader className="p-0 relative h-24 flex items-center justify-center text-center">
              <Image src="https://files.catbox.moe/claqn3.jpg" alt="Achievements Banner" layout="fill" objectFit="cover" className="z-0" data-ai-hint="achievement banner abstract" />
              <div className="absolute inset-0 bg-black/50 z-10"></div>
-             <CardTitle className="text-3xl font-bold text-white z-20 flex items-center gap-2">🎉 Achievements</CardTitle>
+             <CardTitle className="text-3xl font-bold text-white z-20 flex items-center gap-2"><Trophy className="h-8 w-8" /> Achievements</CardTitle>
           </CardHeader>
           <CardContent className="p-4 bg-card grid grid-cols-3 gap-4">
             {achievementBadges.map(badge => (
