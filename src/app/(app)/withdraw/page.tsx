@@ -196,7 +196,7 @@ export default function WithdrawPage() {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder={`e.g. 500`} {...field} value={field.value ?? ''} />
+                        <Input type="number" placeholder={`e.g. 500`} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
