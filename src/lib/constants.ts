@@ -39,6 +39,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 600, 
     returns: 1080, 
     duration: 50,
+    badge: 'Popular',
     image: 'https://files.catbox.moe/h148yz.jpg',
   },
   { 
@@ -48,6 +49,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 1000, 
     returns: 1550, 
     duration: 60,
+    badge: 'Hot',
     image: 'https://files.catbox.moe/x6t7ak.jpg',
   },
 ];
