@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserData, UserInvestment, Transaction } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
-import { isToday, parseISO } from 'date-fns';
+import { isToday, parseISO, differenceInMinutes } from 'date-fns';
 
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
@@ -18,13 +18,21 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
   const [sessionName, setSessionName] = useState<string | null>(getSessionName());
 
+  const updateUser = (data: UserData) => {
+    setUser(data);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`${USER_DATA_PREFIX}${data.name}`, JSON.stringify(data));
+    }
+  };
+
   // Function to reload user data from localStorage
   const loadUser = useCallback((currentName: string) => {
     setLoading(true);
     const data = localStorage.getItem(`${USER_DATA_PREFIX}${currentName}`);
     if (data) {
       let parsedData: UserData = JSON.parse(data);
-      
+      let dataChanged = false;
+
       // Apply sign-up bonus on first login
       if(parsedData.isFirstLogin) {
         parsedData.balance += SIGNUP_BONUS;
@@ -37,10 +45,31 @@ export function useUser() {
           description: 'Sign-up Bonus',
         });
         parsedData.isFirstLogin = false;
+        dataChanged = true;
+      }
+      
+      // Auto-approve transactions older than 2 minutes
+      const now = new Date();
+      parsedData.transactions = parsedData.transactions.map(tx => {
+        if (tx.status === 'pending' && differenceInMinutes(now, parseISO(tx.date)) >= 2) {
+          dataChanged = true;
+          if (tx.type === 'deposit') {
+            parsedData.balance += tx.amount;
+          } else if (tx.type === 'withdrawal') {
+            // Balance is already deducted on request for withdrawals in this app's logic
+            // If it weren't, you would deduct here: `parsedData.balance -= tx.amount;`
+          }
+          return { ...tx, status: 'success' };
+        }
+        return tx;
+      });
+
+      if(dataChanged) {
         // Save the updated data back to localStorage immediately
         localStorage.setItem(`${USER_DATA_PREFIX}${currentName}`, JSON.stringify(parsedData));
       }
       setUser(parsedData);
+
     } else {
       setUser(null);
     }
@@ -65,11 +94,17 @@ export function useUser() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+  
+  // Periodic check for transaction status
+  useEffect(() => {
+    const interval = setInterval(() => {
+        if (sessionName) {
+            loadUser(sessionName)
+        }
+    }, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [sessionName, loadUser]);
 
-  const updateUser = (data: UserData) => {
-    setUser(data);
-    localStorage.setItem(`${USER_DATA_PREFIX}${data.name}`, JSON.stringify(data));
-  };
 
   const addInvestment = useCallback((investment: Omit<UserInvestment, 'id'>) => {
     if (!user) return;
@@ -94,8 +129,16 @@ export function useUser() {
   const addTransaction = useCallback((tx: Omit<Transaction, 'id' | 'date'>) => {
     if (!user) return;
     const newTransaction: Transaction = { ...tx, id: crypto.randomUUID(), date: new Date().toISOString() };
+    
+    let newBalance = user.balance;
+    // For withdrawals, deduct from balance immediately upon request
+    if (newTransaction.type === 'withdrawal') {
+        newBalance -= newTransaction.amount;
+    }
+
     const updatedUser = {
       ...user,
+      balance: newBalance,
       transactions: [newTransaction, ...user.transactions],
     };
     updateUser(updatedUser);
@@ -109,9 +152,11 @@ export function useUser() {
 
     const usedDate = user.usedPromoCodes[code.toUpperCase()];
     if (usedDate) {
-      if (isToday(parseISO(usedDate))) {
-        return 'used_today';
-      }
+        // This logic allows using a code again if it wasn't used today.
+        // To make it one-time only, just `return 'used_before';`
+        if (isToday(parseISO(usedDate))) {
+            return 'used_today';
+        }
     }
     
     const newTransaction: Transaction = {

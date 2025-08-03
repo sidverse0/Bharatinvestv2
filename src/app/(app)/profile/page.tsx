@@ -5,12 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { formatCurrency, calculateTimeLeft, openTelegramLink } from '@/lib/helpers';
+import { formatCurrency, calculateTimeLeft } from '@/lib/helpers';
 import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, AlertCircle } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, BarChart, User as UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -20,7 +20,7 @@ import { APP_LINK, REFERRAL_BONUS } from '@/lib/constants';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const promoCodeSchema = z.object({
-  code: z.string().min(4, "Code must be 4 characters.").max(4, "Code must be 4 characters."),
+  code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
 });
 
 export default function ProfilePage() {
@@ -67,7 +67,7 @@ export default function ProfilePage() {
   if (loading || !user) {
     return (
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
-        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-40 w-full" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -77,22 +77,28 @@ export default function ProfilePage() {
   return (
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl">{user.name}</CardTitle>
-              <CardDescription>Your personal dashboard</CardDescription>
-            </div>
-            <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
-              <LogOut className="h-5 w-5" />
-            </Button>
+        
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-muted/30 p-4 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/20 p-3 rounded-full">
+                  <UserIcon className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">{user.name}</CardTitle>
+                  <CardDescription>{user.email}</CardDescription>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
+                <LogOut className="h-5 w-5" />
+              </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-             <div>
-              <p className="text-sm text-muted-foreground">Current Balance</p>
+          <CardContent className="p-4 grid grid-cols-2 gap-4">
+             <div className="bg-card p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground flex items-center gap-2"><Wallet className="h-4 w-4" /> Current Balance</p>
               <p className="text-2xl font-bold text-primary">{formatCurrency(user.balance)}</p>
             </div>
-             <div>
+             <div className="bg-card p-4 rounded-lg">
               <p className="text-sm text-muted-foreground">Referral Code</p>
               <div className="flex items-center gap-2">
                 <p className="font-mono text-lg">{user.referralCode}</p>
@@ -104,54 +110,56 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Refer & Earn</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">Refer your friends and earn a <span className="font-bold text-primary">{formatCurrency(REFERRAL_BONUS)}</span> bonus for each successful referral!</p>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full">Share Your Link</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Share and Earn!</DialogTitle>
-                  <DialogDescription>Share this link with your friends. When they sign up, contact your agent to claim your bonus.</DialogDescription>
-                </DialogHeader>
-                <div className="flex items-center space-x-2">
-                    <Input id="link" defaultValue={APP_LINK} readOnly />
-                    <Button type="submit" size="sm" className="px-3" onClick={() => handleCopy(APP_LINK, "App Link")}>
-                        <span className="sr-only">Copy</span>
-                        <Copy className="h-4 w-4" />
-                    </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Refer & Earn</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Refer friends and earn a <span className="font-bold text-primary">{formatCurrency(REFERRAL_BONUS)}</span> bonus for each referral!</p>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full">Share Your Link</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Share and Earn!</DialogTitle>
+                    <DialogDescription>Share this link with your friends. When they sign up, contact your agent to claim your bonus.</DialogDescription>
+                  </DialogHeader>
+                  <div className="flex items-center space-x-2">
+                      <Input id="link" defaultValue={APP_LINK} readOnly />
+                      <Button type="submit" size="sm" className="px-3" onClick={() => handleCopy(APP_LINK, "App Link")}>
+                          <span className="sr-only">Copy</span>
+                          <Copy className="h-4 w-4" />
+                      </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5"/> Apply Promo Code</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onPromoSubmit)} className="flex items-start gap-2">
-                <FormField control={form.control} name="code" render={({ field }) => (
-                  <FormItem className="flex-grow">
-                    <FormControl><Input className="font-code text-center tracking-widest" placeholder="CODE" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <Button type="submit">Apply</Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5"/> Apply Promo Code</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onPromoSubmit)} className="flex items-start gap-2">
+                  <FormField control={form.control} name="code" render={({ field }) => (
+                    <FormItem className="flex-grow">
+                      <FormControl><Input className="font-code text-center tracking-widest" placeholder="CODE" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <Button type="submit">Apply</Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
         
         <Card>
-          <CardHeader><CardTitle>My Investments</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" /> My Investments</CardTitle></CardHeader>
           <CardContent>
             {user.investments.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">You have no active investments.</p>
@@ -160,7 +168,7 @@ export default function ProfilePage() {
                 {user.investments.map(inv => {
                   const { progress, timeLeftString } = calculateTimeLeft(inv);
                   return (
-                    <div key={inv.id} className="p-4 rounded-lg border">
+                    <div key={inv.id} className="p-4 rounded-lg border bg-muted/20">
                       <div className="flex justify-between items-center mb-2">
                         <p className="font-semibold">{inv.planName}</p>
                         <p className="font-bold text-primary">{formatCurrency(inv.expectedReturn)}</p>

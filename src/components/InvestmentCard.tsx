@@ -18,11 +18,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { formatCurrency, openTelegramLink } from "@/lib/helpers";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, Clock, TrendingUp, Zap, Star, BarChartBig } from "lucide-react";
 
 interface InvestmentCardProps {
   plan: InvestmentPlan;
 }
+
+const planIcons: { [key: number]: React.ReactNode } = {
+  1: <TrendingUp className="h-8 w-8 text-accent" />,
+  2: <Zap className="h-8 w-8 text-accent" />,
+  3: <Star className="h-8 w-8 text-accent" />,
+  4: <BarChartBig className="h-8 w-8 text-accent" />,
+  5: <TrendingUp className="h-8 w-8 text-accent" />,
+};
 
 export default function InvestmentCard({ plan }: InvestmentCardProps) {
   const { user, addInvestment } = useUser();
@@ -57,13 +65,18 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
   };
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col bg-card/70 hover:bg-card/90 transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg">
       {plan.badge && (
-        <Badge className="absolute -top-3 -right-3 bg-accent text-accent-foreground">{plan.badge}</Badge>
+        <Badge className="absolute -top-3 -right-3 bg-accent text-accent-foreground shadow-lg">{plan.badge}</Badge>
       )}
-      <CardHeader>
-        <CardDescription>Invest {formatCurrency(plan.amount)}</CardDescription>
-        <CardTitle className="text-3xl font-bold text-primary">Get {formatCurrency(plan.returns)}</CardTitle>
+      <CardHeader className="flex-row items-start justify-between">
+        <div>
+          <CardDescription>Invest {formatCurrency(plan.amount)}</CardDescription>
+          <CardTitle className="text-3xl font-bold text-primary">Get {formatCurrency(plan.returns)}</CardTitle>
+        </div>
+        <div className="p-2 bg-muted rounded-full">
+           {planIcons[plan.id] || <TrendingUp className="h-8 w-8 text-accent" />}
+        </div>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex items-center gap-2 text-muted-foreground">

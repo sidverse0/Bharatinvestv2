@@ -46,24 +46,24 @@ export default function WithdrawPage() {
 
     const message = `WITHDRAWAL REQUEST\n\nUser: ${user.name}\nAmount: ${formatCurrency(values.amount)}\nUPI ID: ${values.upiId}`;
     
-    // Open telegram link first, then add transaction and redirect
-    openTelegramLink(message);
-    
+    // NOTE: The balance is now deducted immediately upon request in useUser hook.
     addTransaction({
       type: 'withdrawal',
       amount: values.amount,
       status: 'pending',
       description: `Withdrawal to ${values.upiId}`
     });
+    
+    openTelegramLink(message);
 
     setTimeout(() => {
       setIsLoading(false);
       toast({
         title: "Request Sent",
-        description: "Your withdrawal request has been sent to the admin for approval."
+        description: "Your withdrawal request has been sent for approval. It may take a few minutes."
       });
       router.push('/history');
-    }, 500); // Reduce timeout
+    }, 500);
   };
 
   return (

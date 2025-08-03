@@ -16,33 +16,33 @@ export default function WalletPage() {
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4">
         <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tighter">Wallet</h1>
+          <h1 className="text-4xl font-bold tracking-tighter">My Wallet</h1>
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
-        <Card className="mb-8">
+        <Card className="mb-8 text-center bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20 shadow-lg">
           <CardHeader>
             <CardDescription>Current Balance</CardDescription>
              {loading || !user ? (
-                <Skeleton className="h-10 w-48 rounded-md" />
+                <Skeleton className="h-12 w-56 mx-auto rounded-md" />
               ) : (
-                <CardTitle className="text-4xl font-bold tracking-tighter text-primary">
+                <CardTitle className="text-5xl font-extrabold tracking-tighter text-primary">
                   {formatCurrency(user.balance)}
                 </CardTitle>
               )}
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <Link href="/deposit" passHref>
-            <Button variant="outline" size="lg" className="h-24 w-full text-lg">
-              <ArrowDownLeft className="mr-2 h-6 w-6" />
+            <Button variant="default" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg">
+              <ArrowDownLeft className="h-8 w-8" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="outline" size="lg" className="h-24 w-full text-lg">
-              <ArrowUpRight className="mr-2 h-6 w-6" />
+            <Button variant="secondary" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg">
+              <ArrowUpRight className="h-8 w-8" />
               Withdraw
             </Button>
           </Link>

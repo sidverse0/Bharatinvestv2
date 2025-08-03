@@ -30,9 +30,9 @@ const TransactionIcon = ({ type }: { type: TransactionType }) => {
 const StatusBadge = ({ status }: { status: Transaction['status'] }) => {
   switch (status) {
     case 'pending':
-      return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400">Pending</Badge>;
+      return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-none">Pending</Badge>;
     case 'success':
-      return <Badge variant="secondary" className="bg-green-500/20 text-green-400">Success</Badge>;
+      return <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-none">Success</Badge>;
     case 'failed':
       return <Badge variant="destructive">Failed</Badge>;
     default:
@@ -84,8 +84,8 @@ export default function HistoryPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {user.transactions.map((tx) => (
-              <Card key={tx.id}>
+            {user.transactions.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((tx) => (
+              <Card key={tx.id} className="bg-card/50">
                 <CardContent className="p-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-muted rounded-full">
