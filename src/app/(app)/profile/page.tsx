@@ -217,7 +217,7 @@ export default function ProfilePage() {
                   <DialogHeader>
                     <DialogTitle>Share and Earn!</DialogTitle>
                     <DialogDescription>Share this link with your friends. When they sign up, contact your agent to claim your bonus.</DialogDescription>
-                  </Header>
+                  </DialogHeader>
                   <div className="flex items-center space-x-2">
                       <Input id="link" defaultValue={APP_LINK} readOnly />
                       <Button type="submit" size="sm" className="px-3" onClick={() => handleCopy(APP_LINK, "App Link")}>
