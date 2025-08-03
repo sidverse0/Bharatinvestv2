@@ -1,3 +1,4 @@
+
 'use client';
 import { ActivityNotificationsOutput, generateActivityNotifications } from '@/ai/flows/generate-activity-notifications';
 import { formatCurrency } from '@/lib/helpers';
@@ -37,7 +38,7 @@ export default function ActivityNotification() {
     // Initial notification after a delay
     const initialTimeout = setTimeout(fetchNotification, 8000);
 
-    const intervalId = setInterval(fetchNotification, 10000); // every 10 seconds
+    const intervalId = setInterval(fetchNotification, 60000); // every 1 minute
 
     return () => {
       clearTimeout(initialTimeout);
