@@ -25,11 +25,11 @@ interface InvestmentCardProps {
 }
 
 const planIcons: { [key: number]: React.ReactNode } = {
-  1: <TrendingUp className="h-8 w-8 text-accent" />,
-  2: <Zap className="h-8 w-8 text-accent" />,
-  3: <Star className="h-8 w-8 text-accent" />,
-  4: <BarChartBig className="h-8 w-8 text-accent" />,
-  5: <TrendingUp className="h-8 w-8 text-accent" />,
+  1: <TrendingUp className="h-8 w-8 text-primary" />,
+  2: <Zap className="h-8 w-8 text-primary" />,
+  3: <Star className="h-8 w-8 text-primary" />,
+  4: <BarChartBig className="h-8 w-8 text-primary" />,
+  5: <TrendingUp className="h-8 w-8 text-primary" />,
 };
 
 export default function InvestmentCard({ plan }: InvestmentCardProps) {
@@ -65,7 +65,7 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
   };
 
   return (
-    <Card className="flex flex-col bg-card/70 hover:bg-card/90 transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg">
+    <Card className="flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg">
       {plan.badge && (
         <Badge className="absolute -top-3 -right-3 bg-accent text-accent-foreground shadow-lg">{plan.badge}</Badge>
       )}
@@ -74,8 +74,8 @@ export default function InvestmentCard({ plan }: InvestmentCardProps) {
           <CardDescription>Invest {formatCurrency(plan.amount)}</CardDescription>
           <CardTitle className="text-3xl font-bold text-primary">Get {formatCurrency(plan.returns)}</CardTitle>
         </div>
-        <div className="p-2 bg-muted rounded-full">
-           {planIcons[plan.id] || <TrendingUp className="h-8 w-8 text-accent" />}
+        <div className="p-2 bg-primary/10 rounded-full">
+           {planIcons[plan.id] || <TrendingUp className="h-8 w-8 text-primary" />}
         </div>
       </CardHeader>
       <CardContent className="flex-grow">

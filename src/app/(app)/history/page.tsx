@@ -13,15 +13,15 @@ import { Transaction, TransactionType } from '@/types';
 const TransactionIcon = ({ type }: { type: TransactionType }) => {
   switch (type) {
     case 'deposit':
-      return <ArrowDownLeft className="h-5 w-5 text-green-500" />;
+      return <ArrowDownLeft className="h-5 w-5 text-green-600" />;
     case 'withdrawal':
-      return <ArrowUpRight className="h-5 w-5 text-red-500" />;
+      return <ArrowUpRight className="h-5 w-5 text-red-600" />;
     case 'investment':
-      return <PiggyBank className="h-5 w-5 text-blue-500" />;
+      return <PiggyBank className="h-5 w-5 text-blue-600" />;
     case 'bonus':
       return <Gift className="h-5 w-5 text-yellow-500" />;
     case 'promo':
-      return <Receipt className="h-5 w-5 text-purple-500" />;
+      return <Receipt className="h-5 w-5 text-purple-600" />;
     default:
       return null;
   }
@@ -30,9 +30,9 @@ const TransactionIcon = ({ type }: { type: TransactionType }) => {
 const StatusBadge = ({ status }: { status: Transaction['status'] }) => {
   switch (status) {
     case 'pending':
-      return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-none">Pending</Badge>;
+      return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-600 border-yellow-300">Pending</Badge>;
     case 'success':
-      return <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-none">Success</Badge>;
+      return <Badge variant="secondary" className="bg-green-500/20 text-green-600 border-green-300">Success</Badge>;
     case 'failed':
       return <Badge variant="destructive">Failed</Badge>;
     default:
@@ -97,7 +97,7 @@ export default function HistoryPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-bold ${tx.type === 'withdrawal' || tx.type === 'investment' ? 'text-red-400' : 'text-green-400'}`}>
+                    <p className={`font-bold ${tx.type === 'withdrawal' || tx.type === 'investment' ? 'text-red-600' : 'text-green-600'}`}>
                       {tx.type === 'withdrawal' || tx.type === 'investment' ? '-' : '+'} {formatCurrency(tx.amount)}
                     </p>
                     <StatusBadge status={tx.status} />

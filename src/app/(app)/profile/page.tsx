@@ -48,7 +48,7 @@ export default function ProfilePage() {
     const result = applyPromoCode(values.code);
     switch (result) {
       case 'success':
-        toast({ title: 'Success!', description: 'Promo code applied successfully.' });
+        toast({ title: 'Success!', description: 'Promo code applied successfully.', className: 'bg-green-500 text-white' });
         reloadUser();
         break;
       case 'used_today':
@@ -78,7 +78,7 @@ export default function ProfilePage() {
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
         
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden shadow-sm">
           <CardHeader className="bg-muted/30 p-4 flex flex-row items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="bg-primary/20 p-3 rounded-full">
@@ -94,11 +94,11 @@ export default function ProfilePage() {
               </Button>
           </CardHeader>
           <CardContent className="p-4 grid grid-cols-2 gap-4">
-             <div className="bg-card p-4 rounded-lg">
+             <div className="bg-background p-4 rounded-lg border">
               <p className="text-sm text-muted-foreground flex items-center gap-2"><Wallet className="h-4 w-4" /> Current Balance</p>
               <p className="text-2xl font-bold text-primary">{formatCurrency(user.balance)}</p>
             </div>
-             <div className="bg-card p-4 rounded-lg">
+             <div className="bg-background p-4 rounded-lg border">
               <p className="text-sm text-muted-foreground">Referral Code</p>
               <div className="flex items-center gap-2">
                 <p className="font-mono text-lg">{user.referralCode}</p>
@@ -111,7 +111,7 @@ export default function ProfilePage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+          <Card className="shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Refer & Earn</CardTitle>
             </CardHeader>
@@ -138,7 +138,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5"/> Apply Promo Code</CardTitle>
             </CardHeader>
@@ -158,7 +158,7 @@ export default function ProfilePage() {
           </Card>
         </div>
         
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader><CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" /> My Investments</CardTitle></CardHeader>
           <CardContent>
             {user.investments.length === 0 ? (

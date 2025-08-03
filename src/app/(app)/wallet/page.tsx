@@ -20,13 +20,13 @@ export default function WalletPage() {
           <p className="text-muted-foreground">Manage your funds with ease.</p>
         </header>
 
-        <Card className="mb-8 text-center bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20 shadow-lg">
+        <Card className="mb-8 text-center bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg">
           <CardHeader>
-            <CardDescription>Current Balance</CardDescription>
+            <CardDescription className="text-primary-foreground/80">Current Balance</CardDescription>
              {loading || !user ? (
-                <Skeleton className="h-12 w-56 mx-auto rounded-md" />
+                <Skeleton className="h-12 w-56 mx-auto rounded-md bg-white/20" />
               ) : (
-                <CardTitle className="text-5xl font-extrabold tracking-tighter text-primary">
+                <CardTitle className="text-5xl font-extrabold tracking-tighter">
                   {formatCurrency(user.balance)}
                 </CardTitle>
               )}
@@ -35,13 +35,13 @@ export default function WalletPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <Link href="/deposit" passHref>
-            <Button variant="default" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg">
+            <Button variant="default" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform">
               <ArrowDownLeft className="h-8 w-8" />
               Deposit
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg">
+            <Button variant="secondary" size="lg" className="h-28 w-full text-xl flex-col gap-2 shadow-lg hover:scale-105 transition-transform">
               <ArrowUpRight className="h-8 w-8" />
               Withdraw
             </Button>

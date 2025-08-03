@@ -15,13 +15,13 @@ export default function HomePage() {
     <ClientOnly>
       <div className="container mx-auto max-w-4xl p-4">
         <header className="mb-6">
-          <Card className="bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20 shadow-lg">
+          <Card className="bg-gradient-to-br from-primary/90 to-primary border-primary/20 shadow-lg text-primary-foreground">
             <CardHeader>
-              <CardDescription>Current Balance</CardDescription>
+              <CardDescription className="text-primary-foreground/80">Current Balance</CardDescription>
               {loading || !user ? (
-                <Skeleton className="h-10 w-48 rounded-md" />
+                <Skeleton className="h-10 w-48 rounded-md bg-white/20" />
               ) : (
-                <CardTitle className="text-5xl font-extrabold tracking-tighter text-primary">
+                <CardTitle className="text-5xl font-extrabold tracking-tighter">
                   {formatCurrency(user.balance)}
                 </CardTitle>
               )}
