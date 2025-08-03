@@ -12,6 +12,7 @@ import { Wallet, TrendingUp, User as UserIcon, Flame, Headset } from 'lucide-rea
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { IconButton } from '@/components/ui/icon-button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -43,9 +44,14 @@ export default function HomePage() {
             <div className="bg-card p-4 rounded-2xl shadow-sm">
                 <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-muted rounded-full">
-                          <UserIcon className="h-5 w-5 text-primary" />
-                      </div>
+                      {loading || !user ? (
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                      ) : (
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src="https://files.catbox.moe/5uph06.png" alt={user.name} />
+                          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      )}
                       {loading || !user ? (
                           <Skeleton className="h-7 w-32" />
                       ) : (
@@ -88,4 +94,3 @@ export default function HomePage() {
     </ClientOnly>
   );
 }
-
