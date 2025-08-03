@@ -75,7 +75,7 @@ export default function HomePage() {
             <Flame className="h-4 w-4 text-red-500" /> 
             <span className="font-semibold">{investedUsers.toLocaleString()}+ users</span> have invested!
           </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {INVESTMENT_PLANS.map((plan, index) => (
               <InvestmentCard key={plan.id} plan={plan} animationDelay={index * 100} />
             ))}

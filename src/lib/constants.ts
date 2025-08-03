@@ -9,7 +9,8 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 100, 
     returns: 410, 
     duration: 30, 
-    badge: 'Popular' 
+    badge: 'Popular',
+    image: 'https://placehold.co/400x200.png',
   },
   { 
     id: 2, 
@@ -18,7 +19,8 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 200, 
     returns: 680, 
     duration: 40, 
-    badge: 'Hot' 
+    badge: 'Hot',
+    image: 'https://placehold.co/400x200.png',
   },
   { 
     id: 3, 
@@ -27,7 +29,8 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 400, 
     returns: 890, 
     duration: 45, 
-    badge: 'Best Value' 
+    badge: 'Best Value',
+    image: 'https://placehold.co/400x200.png',
   },
   { 
     id: 4, 
@@ -35,7 +38,8 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     description: "Get a piece of the property market with our diversified real estate plan.",
     amount: 600, 
     returns: 1080, 
-    duration: 50 
+    duration: 50,
+    image: 'https://placehold.co/400x200.png',
   },
   { 
     id: 5, 
@@ -43,7 +47,8 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     description: "High-risk, high-reward investment in the next generation of tech innovators.",
     amount: 1000, 
     returns: 1550, 
-    duration: 60 
+    duration: 60,
+    image: 'https://placehold.co/400x200.png',
   },
 ];
 

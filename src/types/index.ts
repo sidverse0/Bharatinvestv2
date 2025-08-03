@@ -7,6 +7,7 @@ export interface InvestmentPlan {
   returns: number;
   duration: number; // in days
   badge?: 'Popular' | 'Best Value' | 'Hot';
+  image: string;
 }
 
 export interface UserInvestment {
@@ -17,6 +18,7 @@ export interface UserInvestment {
   expectedReturn: number;
   startDate: string; // ISO date string
   duration: number; // in days
+  image: string;
 }
 
 export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo';

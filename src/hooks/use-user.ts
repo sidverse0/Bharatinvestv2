@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -34,7 +35,7 @@ export function useUser() {
       let dataChanged = false;
 
       // Ensure all fields from UserData are present
-      if (typeof parsedData.lastLoginDate === 'undefined') {
+      if (typeof parsedData.lastLoginDate === 'undefined' || !parsedData.lastLoginDate) {
         parsedData.lastLoginDate = new Date().toISOString();
         dataChanged = true;
       }
