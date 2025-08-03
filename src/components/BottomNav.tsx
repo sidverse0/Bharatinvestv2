@@ -21,7 +21,7 @@ export default function BottomNav() {
       <div className="container mx-auto h-full max-w-2xl">
         <div className="flex h-full items-center justify-around">
           {navItems.map((item) => {
-            const isActive = pathname.startsWith(item.href) && (item.href !== '/home' || pathname === '/home');
+            const isActive = item.href === '/home' ? pathname === item.href : pathname.startsWith(item.href);
             const Icon = item.icon;
             return (
               <Link key={item.href} href={item.href} className="relative flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-colors w-16 text-center">
