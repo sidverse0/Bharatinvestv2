@@ -10,14 +10,13 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { APP_LINK, REFERRAL_BONUS } from '@/lib/constants';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,6 +74,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showPromoSuccessDialog, setShowPromoSuccessDialog] = useState(false);
+  const [promoAmount, setPromoAmount] = useState(0);
 
    useEffect(() => {
     const theme = localStorage.getItem('theme');
@@ -116,20 +117,19 @@ export default function ProfilePage() {
 
   const onPromoSubmit = (values: z.infer<typeof promoCodeSchema>) => {
     const result = applyPromoCode(values.code);
-    switch (result) {
-      case 'success':
-        toast({ title: 'Success!', description: 'Promo code applied successfully.', className: 'bg-green-500 text-white' });
+    
+    if (result.status === 'success') {
+        setPromoAmount(result.amount);
+        setShowPromoSuccessDialog(true);
         reloadUser();
-        break;
-      case 'used_today':
-        toast({ variant: 'destructive', title: 'Error', description: 'You have already used this promo code today.' });
-        break;
-      case 'used_before':
-         toast({ variant: 'destructive', title: 'Error', description: 'You have already used this promo code.' });
-        break;
-      case 'invalid':
-        toast({ variant: 'destructive', title: 'Error', description: 'Invalid promo code. Please ask your agent for a valid one.' });
-        break;
+    } else {
+        let description = 'Invalid promo code. Please ask your agent for a valid one.';
+        if (result.status === 'used_today') {
+            description = 'You have already used a promo code today.';
+        } else if (result.status === 'used_before') {
+            description = 'You have already used this promo code before.';
+        }
+        toast({ variant: 'destructive', title: 'Error', description });
     }
     form.reset();
   };
@@ -187,6 +187,23 @@ export default function ProfilePage() {
 
   return (
     <ClientOnly>
+       <AlertDialog open={showPromoSuccessDialog} onOpenChange={setShowPromoSuccessDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader className="items-center">
+              <div className="p-4 rounded-full bg-yellow-400/20 text-yellow-500 mb-4">
+                  <Star className="h-12 w-12" />
+              </div>
+              <AlertDialogTitle className="text-2xl">Success!</AlertDialogTitle>
+              <AlertDialogDescription>
+                You have received a bonus of <span className="font-bold text-primary">{formatCurrency(promoAmount)}</span>!
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction className="w-full">Awesome!</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+       </AlertDialog>
+
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
         
         <Card className="overflow-hidden shadow-sm">

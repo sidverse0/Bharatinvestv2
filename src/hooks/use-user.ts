@@ -10,6 +10,10 @@ import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBef
 const SESSION_KEY = 'bharatinvest_session'; // Stores current logged-in name
 const USER_DATA_PREFIX = 'bharatinvest_data_'; // Prefix for user-specific data
 
+type PromoCodeResult = 
+  | { status: 'success'; amount: number }
+  | { status: 'used_today' | 'used_before' | 'invalid'; amount?: never };
+
 const getSessionName = (): string | null => {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(SESSION_KEY);
@@ -273,17 +277,21 @@ export function useUser() {
     updateUser(updatedUser);
   }, [user]);
 
-  const applyPromoCode = useCallback((code: string): 'success' | 'used_today' | 'used_before' | 'invalid' => {
-    if (!user) return 'invalid';
+  const applyPromoCode = useCallback((code: string): PromoCodeResult => {
+    if (!user) return { status: 'invalid' };
     
     const promoValue = PROMO_CODES[code.toUpperCase()];
-    if (!promoValue) return 'invalid';
+    if (!promoValue) return { status: 'invalid' };
 
     const usedDate = user.usedPromoCodes[code.toUpperCase()];
     if (usedDate) {
-        if (isToday(parseISO(usedDate))) {
-            return 'used_today';
-        }
+      return { status: 'used_before' };
+    }
+    
+    // Check if any promo code was used today
+    const anyUsedToday = Object.values(user.usedPromoCodes).some(date => isToday(parseISO(date)));
+    if(anyUsedToday) {
+      return { status: 'used_today' };
     }
     
     const newTransaction: Transaction = {
@@ -305,7 +313,7 @@ export function useUser() {
       },
     };
     updateUser(updatedUser);
-    return 'success';
+    return { status: 'success', amount: promoValue };
   }, [user]);
 
    const claimDailyCheckIn = useCallback((): {success: boolean, amount?: number} => {
