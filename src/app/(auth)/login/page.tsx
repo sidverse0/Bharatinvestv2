@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +21,10 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { login } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, Gift } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SIGNUP_BONUS } from "@/lib/constants";
+import { formatCurrency } from "@/lib/helpers";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -71,6 +75,12 @@ export default function LoginPage() {
         <CardTitle className="text-2xl">Welcome Back!</CardTitle>
       </CardHeader>
       <CardContent>
+        <Alert className="mb-6 bg-green-500/10 border-green-500/30 text-green-700 dark:text-green-300 [&>svg]:text-green-600 dark:[&>svg]:text-green-400">
+          <Gift className="h-4 w-4" />
+          <AlertDescription>
+            New users get a <strong className="font-bold">{formatCurrency(SIGNUP_BONUS)} bonus</strong> on sign-up!
+          </AlertDescription>
+        </Alert>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

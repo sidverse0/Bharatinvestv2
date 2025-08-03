@@ -51,7 +51,7 @@ export default function WithdrawPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<typeof formSchema,>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
@@ -207,7 +207,7 @@ export default function WithdrawPage() {
                 </Button>
               </form>
             </Form>
-             <Alert className="mt-6 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 [&>svg]:text-yellow-600">
+             <Alert className="mt-6 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
               <Lightbulb className="h-4 w-4" />
               <AlertDescription>
                 The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>.
