@@ -43,7 +43,7 @@ export default function WalletPage() {
             </Button>
           </Link>
           <Link href="/withdraw" passHref>
-            <Button variant="secondary" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
+            <Button variant="accent" size="lg" className="h-24 w-full text-lg flex-col gap-2 shadow-lg hover:scale-105 transition-transform group">
               <ArrowUpFromLine className="h-8 w-8 group-hover:animate-pulse" />
               <span>Withdraw</span>
             </Button>
