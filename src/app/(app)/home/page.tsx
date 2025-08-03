@@ -25,7 +25,7 @@ export default function HomePage() {
   }, []);
 
   const StatCard = ({ icon, title, value, isLoading, className }: { icon: React.ReactNode, title: string, value: string, isLoading: boolean, className?: string }) => (
-    <div className={`bg-background/70 backdrop-blur-sm p-4 rounded-xl flex items-center gap-4 ${className}`}>
+    <div className={`bg-muted/40 p-4 rounded-xl flex items-center gap-4 ${className}`}>
       <div className="p-3 bg-primary/10 rounded-full">
         {icon}
       </div>
@@ -88,3 +88,4 @@ export default function HomePage() {
     </ClientOnly>
   );
 }
+
