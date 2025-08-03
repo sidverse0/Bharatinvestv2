@@ -281,24 +281,9 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">Refer friends and earn a <span className="font-bold text-primary">{formatCurrency(REFERRAL_BONUS)}</span> bonus for each referral!</p>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full">Share Your Link</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Share and Earn!</DialogTitle>
-                    <DialogDescription>Share this link with your friends. When they sign up, contact your agent to claim your bonus.</DialogDescription>
-                  </DialogHeader>
-                  <div className="flex items-center space-x-2">
-                      <Input id="link" defaultValue={APP_LINK} readOnly />
-                      <Button type="submit" size="sm" className="px-3" onClick={() => handleCopy(APP_LINK, "App Link")}>
-                          <span className="sr-only">Copy</span>
-                          <Copy className="h-4 w-4" />
-                      </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <a href="https://www.mediafire.com/file/81yx5vdkzic6jdc/960x0.jpg/file" target="_blank" rel="noopener noreferrer">
+                <Button className="w-full">Share Your Link</Button>
+              </a>
             </CardContent>
           </Card>
 
