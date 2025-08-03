@@ -1,4 +1,5 @@
 
+
 export interface InvestmentPlan {
   id: number;
   title: string;
@@ -22,7 +23,7 @@ export interface UserInvestment {
   image: string;
 }
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return';
+export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return' | 'check-in';
 export type TransactionStatus = 'pending' | 'success' | 'failed';
 
 export interface Transaction {
@@ -49,4 +50,9 @@ export interface UserData {
   totalDeposits: number;
   loginStreak: number;
   lastLoginDate: string; // ISO date string
+  // Daily Check-in
+  lastCheckInDate: string;
+  checkInStreak: number;
 }
+
+    

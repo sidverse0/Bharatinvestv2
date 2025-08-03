@@ -57,6 +57,8 @@ export const signup = (name: string, email: string, password: string): { success
     totalDeposits: 0,
     loginStreak: 0,
     lastLoginDate: new Date().toISOString(),
+    lastCheckInDate: '',
+    checkInStreak: 0,
   };
   localStorage.setItem(`${USER_DATA_PREFIX}${name}`, JSON.stringify(newUser));
 
@@ -80,3 +82,5 @@ export const logout = () => {
    // Dispatch a storage event to notify other tabs/hooks
   window.dispatchEvent(new Event("storage"));
 };
+
+    

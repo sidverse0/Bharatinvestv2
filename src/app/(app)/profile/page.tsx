@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -128,6 +128,25 @@ export default function ProfilePage() {
       achieved: user.loginStreak >= 7,
     },
   ];
+  
+  const MenuLinkCard = ({ href, icon, title, description }: { href: string, icon: React.ReactNode, title: string, description: string }) => (
+     <Link href={href} passHref>
+        <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer h-full">
+            <CardHeader className="flex flex-row items-center justify-between p-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-lg text-primary">
+                    {icon}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-lg">{title}</p>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+        </Card>
+      </Link>
+  );
 
   return (
     <ClientOnly>
@@ -157,22 +176,20 @@ export default function ProfilePage() {
           </CardHeader>
         </Card>
 
-        <Link href="/my-investments" passHref>
-          <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer mt-6">
-            <CardHeader className="flex flex-row items-center justify-between p-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-lg text-primary">
-                    <Rocket className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-lg">My Investments</p>
-                    <p className="text-sm text-muted-foreground">View your active and past investments</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-          </Card>
-        </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <MenuLinkCard 
+                href="/my-investments"
+                icon={<Rocket className="h-6 w-6" />}
+                title="My Investments"
+                description="View your active and past investments"
+            />
+             <MenuLinkCard 
+                href="/daily-checkin"
+                icon={<CalendarCheck className="h-6 w-6" />}
+                title="Daily Check-in"
+                description="Claim your daily rewards"
+            />
+        </div>
         
         <Card className="shadow-sm">
           <CardHeader>
@@ -200,7 +217,7 @@ export default function ProfilePage() {
                   <DialogHeader>
                     <DialogTitle>Share and Earn!</DialogTitle>
                     <DialogDescription>Share this link with your friends. When they sign up, contact your agent to claim your bonus.</DialogDescription>
-                  </DialogHeader>
+                  </Header>
                   <div className="flex items-center space-x-2">
                       <Input id="link" defaultValue={APP_LINK} readOnly />
                       <Button type="submit" size="sm" className="px-3" onClick={() => handleCopy(APP_LINK, "App Link")}>
@@ -236,3 +253,5 @@ export default function ProfilePage() {
     </ClientOnly>
   );
 }
+
+    

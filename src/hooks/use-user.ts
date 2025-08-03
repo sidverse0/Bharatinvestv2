@@ -56,6 +56,15 @@ export function useUser() {
         parsedData.todaysReturn = 0;
         dataChanged = true;
       }
+      if (typeof parsedData.lastCheckInDate === 'undefined') {
+        parsedData.lastCheckInDate = ''; // Set to empty string if not present
+        dataChanged = true;
+      }
+      if (typeof parsedData.checkInStreak === 'undefined') {
+        parsedData.checkInStreak = 0;
+        dataChanged = true;
+      }
+
 
       // Apply sign-up bonus on first login & set streak
       if(parsedData.isFirstLogin) {
@@ -161,6 +170,15 @@ export function useUser() {
         }
       });
       parsedData.todaysReturn = todaysReturn;
+      
+       // Check and reset check-in streak if a day was missed
+      if (parsedData.lastCheckInDate) {
+        const lastCheckin = parseISO(parsedData.lastCheckInDate);
+        if (differenceInCalendarDays(new Date(), lastCheckin) > 1) {
+          parsedData.checkInStreak = 0;
+          dataChanged = true;
+        }
+      }
 
 
       if(dataChanged) {
@@ -286,5 +304,37 @@ export function useUser() {
     return 'success';
   }, [user]);
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, reloadUser: () => sessionName && loadUser(sessionName) };
+   const claimDailyCheckIn = useCallback((): {success: boolean, amount?: number} => {
+    if (!user) return {success: false};
+    
+    const canClaim = user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true;
+    if (!canClaim) return {success: false};
+
+    const rewardAmount = Math.floor(Math.random() * 5) + 1; // 1 to 5
+    const newStreak = (user.checkInStreak + 1) % 8 || 1; // Resets to 1 after 7
+
+    const newTransaction: Transaction = {
+      id: crypto.randomUUID(),
+      type: 'bonus',
+      amount: rewardAmount,
+      status: 'success',
+      date: new Date().toISOString(),
+      description: `Daily Check-in: Day ${user.checkInStreak + 1}`,
+    };
+
+    const updatedUser: UserData = {
+      ...user,
+      balance: user.balance + rewardAmount,
+      transactions: [newTransaction, ...user.transactions],
+      lastCheckInDate: new Date().toISOString(),
+      checkInStreak: newStreak,
+    };
+    updateUser(updatedUser);
+    return {success: true, amount: rewardAmount};
+
+  }, [user]);
+
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName) };
 }
+
+    
