@@ -36,6 +36,7 @@ import { useEffect, useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
+import Image from 'next/image';
 
 const promoCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
@@ -53,13 +54,13 @@ const AchievementBadge = ({ icon, label, description, achieved }: BadgeProps) =>
     <Tooltip>
       <TooltipTrigger asChild>
         <div className={cn(
-          "flex flex-col items-center gap-2 p-3 rounded-lg border text-center transition-all",
+          "flex flex-col items-center justify-center gap-2 p-3 rounded-lg border text-center transition-all aspect-square",
           achieved ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted text-muted-foreground opacity-60"
         )}>
-          <div className={cn("rounded-full p-2", achieved ? "bg-primary/20" : "bg-muted-foreground/20")}>
+          <div className={cn("rounded-full p-3", achieved ? "bg-primary/20" : "bg-muted-foreground/20")}>
             {icon}
           </div>
-          <p className="text-xs font-semibold">{label}</p>
+          <p className="text-sm font-semibold">{label}</p>
         </div>
       </TooltipTrigger>
       <TooltipContent>
@@ -148,19 +149,19 @@ export default function ProfilePage() {
   
   const achievementBadges: BadgeProps[] = [
     {
-      icon: <Medal className="h-6 w-6" />,
+      icon: <Medal className="h-7 w-7" />,
       label: "First Investment",
       description: "Awarded for making your first investment.",
       achieved: user.firstInvestmentMade,
     },
     {
-      icon: <Award className="h-6 w-6" />,
+      icon: <Award className="h-7 w-7" />,
       label: "₹1000 Deposited",
       description: "Awarded for depositing a total of ₹1000 or more.",
       achieved: user.totalDeposits >= 1000,
     },
     {
-      icon: <TrendingUp className="h-6 w-6" />,
+      icon: <TrendingUp className="h-7 w-7" />,
       label: "7-Day Streak",
       description: `Awarded for logging in 7 days in a row. Current streak: ${user.loginStreak} day(s).`,
       achieved: user.loginStreak >= 7,
@@ -281,11 +282,13 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">🎉 Achievements</CardTitle>
+        <Card className="shadow-sm overflow-hidden">
+          <CardHeader className="p-0 relative h-24 flex items-center justify-center text-center">
+             <Image src="https://files.catbox.moe/j09p2w.png" alt="Achievements Banner" layout="fill" objectFit="cover" className="z-0" data-ai-hint="achievement banner abstract" />
+             <div className="absolute inset-0 bg-black/50 z-10"></div>
+             <CardTitle className="text-3xl font-bold text-white z-20 flex items-center gap-2">🎉 Achievements</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
+          <CardContent className="p-4 bg-card grid grid-cols-3 gap-4">
             {achievementBadges.map(badge => (
               <AchievementBadge key={badge.label} {...badge} />
             ))}
