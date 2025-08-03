@@ -223,7 +223,7 @@ export function useUser() {
   }, [sessionName, loadUser]);
 
 
-  const addInvestment = useCallback((investment: Omit<UserInvestment, 'id' | 'lastPayoutDate'>) => {
+  const addInvestment = useCallback((investment: Omit<UserInvestment, 'id' | 'startDate' | 'lastPayoutDate'>) => {
     if (!user) return;
     const now = new Date().toISOString();
     const newInvestment: UserInvestment = { 

@@ -87,7 +87,6 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
       planName: plan.title,
       amount: plan.amount,
       expectedReturn: plan.returns,
-      startDate: new Date().toISOString(),
       duration: plan.duration,
       image: plan.image,
     });
