@@ -174,7 +174,10 @@ export function useUser() {
        // Check and reset check-in streak if a day was missed
       if (parsedData.lastCheckInDate) {
         const lastCheckin = parseISO(parsedData.lastCheckInDate);
-        if (differenceInCalendarDays(new Date(), lastCheckin) > 1) {
+        const daysSinceLastCheckin = differenceInCalendarDays(new Date(), lastCheckin);
+
+        if (daysSinceLastCheckin > 1) {
+          // If it's not the same day or the next day, reset the streak.
           parsedData.checkInStreak = 0;
           dataChanged = true;
         }
@@ -311,7 +314,8 @@ export function useUser() {
     if (!canClaim) return {success: false};
 
     const rewardAmount = Math.floor(Math.random() * 5) + 1; // 1 to 5
-    const newStreak = (user.checkInStreak + 1) % 8 || 1; // Resets to 1 after 7
+    
+    const newStreak = user.checkInStreak + 1;
 
     const newTransaction: Transaction = {
       id: crypto.randomUUID(),
@@ -336,5 +340,3 @@ export function useUser() {
 
   return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser: () => sessionName && loadUser(sessionName) };
 }
-
-    

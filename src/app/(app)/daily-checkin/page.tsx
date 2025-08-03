@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/use-user';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, CheckCircle, Gift, Star, X } from 'lucide-react';
+import { Check, CheckCircle, Gift, Star, X, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { isToday, parseISO } from 'date-fns';
+import { isToday, parseISO, differenceInSeconds, startOfTomorrow } from 'date-fns';
 import { formatCurrency } from '@/lib/helpers';
 import Confetti from 'react-confetti';
 import { useToast } from '@/hooks/use-toast';
@@ -45,10 +45,11 @@ const CheckInDay = ({ day, isClaimed, isToday, isFuture }: { day: number, isClai
 }
 
 export default function DailyCheckinPage() {
-    const { user, claimDailyCheckIn, loading } = useUser();
+    const { user, claimDailyCheckIn, loading, reloadUser } = useUser();
     const [showConfetti, setShowConfetti] = useState(false);
     const [claimedAmount, setClaimedAmount] = useState(0);
     const [showClaimDialog, setShowClaimDialog] = useState(false);
+    const [timeLeft, setTimeLeft] = useState<string | null>(null);
     const { toast } = useToast();
 
     if (loading || !user) {
@@ -57,6 +58,39 @@ export default function DailyCheckinPage() {
     
     const canClaimToday = user.lastCheckInDate ? !isToday(parseISO(user.lastCheckInDate)) : true;
     const currentDay = (user.checkInStreak % 7) + 1;
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout | null = null;
+        if (!canClaimToday) {
+            const calculateTimeLeft = () => {
+                const now = new Date();
+                const tomorrow = startOfTomorrow();
+                const secondsLeft = differenceInSeconds(tomorrow, now);
+
+                if (secondsLeft <= 0) {
+                    setTimeLeft(null);
+                    reloadUser(); // Refresh user data to re-enable claim
+                    if (timer) clearInterval(timer);
+                    return;
+                }
+
+                const hours = Math.floor(secondsLeft / 3600);
+                const minutes = Math.floor((secondsLeft % 3600) / 60);
+                const seconds = secondsLeft % 60;
+
+                setTimeLeft(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+            };
+
+            calculateTimeLeft(); // Initial call
+            timer = setInterval(calculateTimeLeft, 1000);
+        } else {
+            setTimeLeft(null);
+        }
+
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [canClaimToday, reloadUser]);
 
     const handleClaim = () => {
         if (!canClaimToday) {
@@ -105,9 +139,10 @@ export default function DailyCheckinPage() {
                     <CardContent className="p-4 grid grid-cols-3 sm:grid-cols-4 gap-4">
                         {[...Array(7)].map((_, i) => {
                             const day = i + 1;
-                            const isClaimed = day <= user.checkInStreak;
-                            const isTodayDay = day === user.checkInStreak + 1;
-                            const isFuture = day > user.checkInStreak + 1;
+                            const isClaimed = day <= (user.checkInStreak % 7) && !canClaimToday;
+                            const isTodayDay = day === (user.checkInStreak % 7) + 1;
+                             const wasMissed = day < (user.checkInStreak % 7) + 1 && canClaimToday && user.checkInStreak > 0
+                            const isFuture = day > (user.checkInStreak % 7) + 1;
                             
                             return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} />
                         })}
@@ -120,7 +155,15 @@ export default function DailyCheckinPage() {
                     onClick={handleClaim}
                     disabled={!canClaimToday || loading}
                 >
-                    {canClaimToday ? 'Claim Today\'s Reward' : 'Claimed for Today'}
+                    {canClaimToday 
+                        ? 'Claim Today\'s Reward' 
+                        : (
+                            <div className="flex items-center gap-2">
+                                <Clock className="h-6 w-6" />
+                                <span>Next claim in {timeLeft}</span>
+                            </div>
+                        )
+                    }
                 </Button>
             </div>
         </ClientOnly>
