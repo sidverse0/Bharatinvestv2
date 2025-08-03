@@ -152,7 +152,7 @@ export default function ProfilePage() {
         </Card>
 
         <Link href="/my-investments" passHref>
-          <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer">
+          <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer mt-6">
             <CardHeader className="flex flex-row items-center justify-between p-4">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-primary/10 rounded-lg text-primary">
