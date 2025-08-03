@@ -36,7 +36,7 @@ import { useSound } from '@/hooks/use-sound';
 
 
 const formSchema = z.object({
-  utr: z.string().min(12, 'UTR/Transaction ID must be at least 12 characters.'),
+  utr: z.string().length(12, 'UTR/Transaction ID must be 12 characters.'),
   confirmUtr: z.string()
 }).refine(data => data.utr === data.confirmUtr, {
   message: "UTRs don't match",
@@ -270,7 +270,7 @@ export default function DepositPage() {
             
             <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-tight">Scan QR</h1>
-                <p className="text-muted-foreground mt-2">Scan the QR code and submit your transaction ID.</p>
+                <p className="text-muted-foreground mt-2"></p>
             </div>
             
             <div className="flex flex-col items-center gap-4 mt-8">
