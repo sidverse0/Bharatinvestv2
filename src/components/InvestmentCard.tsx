@@ -15,12 +15,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, openTelegramLink } from "@/lib/helpers";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Clock, Flame, Star } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight, Calendar, TrendingUp, Wallet, Zap, Flame, Star, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface InvestmentCardProps {
@@ -28,22 +27,34 @@ interface InvestmentCardProps {
   animationDelay?: number;
 }
 
-const PlanBadge = ({ badge }: { badge: string }) => {
+const PlanBadge = ({ badge }: { badge?: string }) => {
+  if (!badge) return null;
+  
   const badgeContent = {
     'Popular': { icon: <Star className="h-3 w-3" />, color: 'bg-yellow-400/80 text-yellow-900 border-yellow-500/50' },
-    'Best Value': { icon: <Star className="h-3 w-3" />, color: 'bg-accent/80 text-accent-foreground border-accent/50' },
+    'Best Value': { icon: <Zap className="h-3 w-3" />, color: 'bg-accent/80 text-accent-foreground border-accent/50' },
     'Hot': { icon: <Flame className="h-3 w-3" />, color: 'bg-red-500/80 text-white border-red-600/50' },
   }[badge];
 
   if (!badgeContent) return null;
 
   return (
-    <Badge className={`absolute top-3 right-3 z-10 flex items-center gap-1 border shadow-lg ${badgeContent.color}`}>
+    <Badge className={cn("absolute top-4 right-4 z-10 flex items-center gap-1 border shadow-lg", badgeContent.color)}>
         {badgeContent.icon}
         <span>{badge}</span>
     </Badge>
   );
 };
+
+const InfoRow = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) => (
+    <div className="flex justify-between items-center text-sm">
+        <div className="flex items-center gap-2 text-muted-foreground">
+            {icon}
+            <span>{label}</span>
+        </div>
+        <span className="font-semibold text-foreground">{value}</span>
+    </div>
+);
 
 
 export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentCardProps) {
@@ -62,67 +73,58 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
 
     addInvestment({
       planId: plan.id,
-      planName: `Plan ${formatCurrency(plan.amount)}`,
+      planName: plan.title,
       amount: plan.amount,
       expectedReturn: plan.returns,
       startDate: new Date().toISOString(),
       duration: plan.duration,
     });
     
-    const message = `NEW INVESTMENT\n\nUser: ${user.name}\nPlan: ${formatCurrency(plan.amount)} -> ${formatCurrency(plan.returns)}\nDuration: ${plan.duration} days`;
+    const message = `NEW INVESTMENT\n\nUser: ${user.name}\nPlan: ${plan.title} (${formatCurrency(plan.amount)} -> ${formatCurrency(plan.returns)})\nDuration: ${plan.duration} days`;
     openTelegramLink(message);
 
     toast({
       title: 'Investment Successful!',
-      description: `You have invested ${formatCurrency(plan.amount)}.`,
+      description: `You have invested ${formatCurrency(plan.amount)} in ${plan.title}.`,
     });
   };
   
-  const planImages: { [key: number]: {src: string, hint: string} } = {
-    1: { src: 'https://placehold.co/400x200.png', hint: 'investment growth' },
-    2: { src: 'https://placehold.co/400x200.png', hint: 'financial security' },
-    3: { src: 'https://placehold.co/400x200.png', hint: 'savings success' },
-    4: { src: 'https://placehold.co/400x200.png', hint: 'money tree' },
-    5: { src: 'https://placehold.co/400x200.png', hint: 'market chart' },
-  };
-  
-  const image = planImages[plan.id] || { src: 'https://placehold.co/400x200.png', hint: 'finance' };
-
+  const dailyReturn = (plan.returns - plan.amount) / plan.duration;
 
   return (
     <Card 
         className={cn(
-            "relative flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden",
+            "relative flex flex-col bg-card/70 hover:bg-card transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg overflow-hidden border-2 border-transparent hover:border-primary/20",
             "animate-fade-in-up"
         )}
         style={{ animationDelay: `${animationDelay}ms`, animationFillMode: 'backwards' }}
     >
-      {plan.badge && <PlanBadge badge={plan.badge} />}
+      <PlanBadge badge={plan.badge} />
       
-      <div className="relative h-32 w-full">
-         <Image src={image.src} alt={`Investment plan ${plan.id}`} layout="fill" objectFit="cover" data-ai-hint={image.hint} />
-      </div>
-
-      <CardHeader>
-          <CardDescription>Invest {formatCurrency(plan.amount)}</CardDescription>
-          <CardTitle className="text-3xl font-bold text-primary">Get {formatCurrency(plan.returns)}</CardTitle>
+      <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold text-primary">{plan.title}</CardTitle>
+          <p className="text-sm text-muted-foreground h-10">{plan.description}</p>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Clock className="h-4 w-4" />
-          <span>{plan.duration} days duration</span>
-        </div>
+      
+      <CardContent className="flex-grow space-y-3 pt-0">
+        <InfoRow icon={<Wallet className="h-4 w-4" />} label="Invest Amount" value={formatCurrency(plan.amount)} />
+        <InfoRow icon={<TrendingUp className="h-4 w-4" />} label="Total Return" value={formatCurrency(plan.returns)} />
+        <InfoRow icon={<Percent className="h-4 w-4" />} label="Daily Return" value={formatCurrency(dailyReturn)} />
+        <InfoRow icon={<Calendar className="h-4 w-4" />} label="Duration" value={`${plan.duration} days`} />
       </CardContent>
+
       <CardFooter>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button className="w-full font-bold">Invest Now <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            <Button className="w-full font-bold h-11">
+                Invest Now <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Investment</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to invest <span className="font-bold">{formatCurrency(plan.amount)}</span> in this plan? This action cannot be undone.
+                Are you sure you want to invest <span className="font-bold">{formatCurrency(plan.amount)}</span> in the <span className="font-bold">{plan.title}</span> plan? This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

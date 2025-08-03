@@ -1,6 +1,8 @@
 
 export interface InvestmentPlan {
   id: number;
+  title: string;
+  description: string;
   amount: number;
   returns: number;
   duration: number; // in days
