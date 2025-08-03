@@ -333,7 +333,7 @@ export default function ProfilePage() {
               <h2 className="text-3xl font-bold text-yellow-500">Invest</h2>
             </div>
             <p className="text-lg font-semibold text-muted-foreground">Roz Kamao, Safe Bachaao!</p>
-            <p className="text-sm font-medium text-foreground">- By Govt. Of India</p>
+            <p className="text-sm font-medium text-foreground">BHARATINV PVT. LTD</p>
           </CardContent>
         </Card>
 
@@ -362,5 +362,3 @@ export default function ProfilePage() {
     </ClientOnly>
   );
 }
-
-    
