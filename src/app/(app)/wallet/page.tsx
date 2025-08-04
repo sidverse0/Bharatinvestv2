@@ -50,7 +50,17 @@ export default function WalletPage() {
           </Link>
         </div>
 
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex flex-col items-center justify-end gap-4">
+             <Card className="overflow-hidden p-2">
+                <Image
+                    src="https://files.catbox.moe/ax6knx.jpg"
+                    alt="Promotional Banner"
+                    width={300}
+                    height={100}
+                    className="object-contain rounded-md"
+                    data-ai-hint="promotional banner"
+                />
+            </Card>
              <Card className="overflow-hidden p-2">
                 <Image
                     src="https://files.catbox.moe/3gwusu.png"
