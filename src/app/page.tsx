@@ -3,24 +3,26 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/hooks/use-user';
+import { auth } from '@/lib/firebase';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // This is the root page. It will check for an active session
 // and redirect the user to either the login page or the home page.
 export default function RootPage() {
   const router = useRouter();
-  const { user, loading } = useUser();
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        router.replace('/home');
-      } else {
-        router.replace('/login');
-      }
-    }
-  }, [user, loading, router]);
+     const unsubscribe = onAuthStateChanged(auth, user => {
+        if (user) {
+            router.replace('/home');
+        } else {
+            router.replace('/login');
+        }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   // Display a loader while checking auth state.
   return (

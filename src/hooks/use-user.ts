@@ -154,15 +154,17 @@ export function useUser() {
   }, []);
 
   const fetchAndProcessUser = useCallback(async (fbUser: User) => {
-      setLoading(true);
       const userDocRef = doc(db, 'users', fbUser.uid);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         const rawData = userDoc.data() as UserData;
+        // First set the user data to show UI faster
+        setUser(rawData);
+        // Then process the data in the background
         const processedData = await processUserData(rawData, fbUser.uid);
         setUser(processedData);
       } else {
-        setUser(null); // Should not happen for a logged-in user
+        setUser(null);
       }
       setLoading(false);
   }, [processUserData]);
@@ -171,6 +173,7 @@ export function useUser() {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
+        setLoading(true);
         await fetchAndProcessUser(fbUser);
       } else {
         setFirebaseUser(null);
