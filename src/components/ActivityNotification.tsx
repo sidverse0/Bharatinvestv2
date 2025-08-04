@@ -6,12 +6,12 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { TrendingUp, ArrowDownToLine, ArrowUpFromLine, User } from 'lucide-react';
 
-const ActionIcon = ({ action, icon }: { action: string; icon: string; }) => {
+const ActionIcon = ({ action }: { action: string; }) => {
     switch (action) {
         case 'invested': return <User className="h-5 w-5 text-blue-500" />;
         case 'deposited': return <ArrowDownToLine className="h-5 w-5 text-green-500" />;
-        case 'withdrew': return <ArrowUpFromLine className="h-5 w-5 text-red-500" />;
-        default: return <span>{icon}</span>;
+        case 'withdraw': return <ArrowUpFromLine className="h-5 w-5 text-red-500" />;
+        default: return <TrendingUp className="h-5 w-5 text-yellow-500" />;
     }
 }
 
@@ -56,7 +56,7 @@ export default function ActivityNotification() {
         {notification && (
             <>
                 <div className="p-1.5 bg-background rounded-full">
-                    <ActionIcon action={notification.action} icon={notification.actionIcon} />
+                    <ActionIcon action={notification.action} />
                 </div>
                 <p className="text-sm font-medium text-foreground">
                     <span className="font-bold">{notification.name}</span>

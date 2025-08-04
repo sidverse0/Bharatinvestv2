@@ -342,7 +342,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">Refer friends and earn a <span className="font-bold text-primary">{formatCurrency(REFERRAL_BONUS)}</span> bonus for each referral!</p>
-              <a href="https://www.mediafire.com/file/81yx5vdkzic6jdc/960x0.jpg/file" target="_blank" rel="noopener noreferrer">
+              <a href={`${APP_LINK}?ref=${user.referralCode}`} target="_blank" rel="noopener noreferrer">
                 <Button className="w-full">Share Your Link</Button>
               </a>
             </CardContent>
