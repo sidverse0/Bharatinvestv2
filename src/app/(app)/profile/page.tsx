@@ -54,10 +54,10 @@ interface BadgeProps {
 const AchievementBadge = ({ icon, label, description, achieved, isClaimed, onClaim }: BadgeProps) => {
   const [claiming, setClaiming] = useState(false);
 
-  const handleClaim = () => {
+  const handleClaim = async () => {
     if (!achieved || isClaimed || claiming) return;
     setClaiming(true);
-    onClaim(label);
+    await onClaim(label);
     // No need to set claiming to false, as the component will re-render with isClaimed=true
   };
   
@@ -132,8 +132,8 @@ export default function ProfilePage() {
     defaultValues: { code: "" },
   });
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
     router.push('/login');
   };
@@ -143,13 +143,12 @@ export default function ProfilePage() {
     toast({ title: 'Copied to Clipboard', description: `${type} has been copied.` });
   };
 
-  const onPromoSubmit = (values: z.infer<typeof promoCodeSchema>) => {
-    const result = applyPromoCode(values.code);
+  const onPromoSubmit = async (values: z.infer<typeof promoCodeSchema>) => {
+    const result = await applyPromoCode(values.code);
     
     if (result.status === 'success') {
         setPromoAmount(result.amount);
         setShowPromoSuccessDialog(true);
-        reloadUser();
     } else {
         let description = 'Invalid promo code. Please ask your agent for a valid one.';
         if (result.status === 'used_today') {
@@ -162,14 +161,13 @@ export default function ProfilePage() {
     form.reset();
   };
 
-  const handleClaimAchievement = (label: string) => {
-    const result = claimAchievementReward(label);
+  const handleClaimAchievement = async (label: string) => {
+    const result = await claimAchievementReward(label);
     if (result.success && result.amount) {
       toast({
         title: 'Reward Claimed!',
         description: `You have received a bonus of ${formatCurrency(result.amount)}!`,
       });
-      reloadUser();
     }
   };
 
@@ -407,5 +405,3 @@ export default function ProfilePage() {
     </ClientOnly>
   );
 }
-
-    

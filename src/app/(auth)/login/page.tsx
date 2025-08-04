@@ -47,10 +47,7 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     
-    // Add a small delay for UX
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const result = login(values.email, values.password);
+    const result = await login(values.email, values.password);
     
     if (result.success) {
       toast({
@@ -58,7 +55,6 @@ export default function LoginPage() {
         description: "Welcome back to BharatInvest!",
       });
       router.push("/home");
-      router.refresh(); // Force a refresh to ensure layout re-evaluates auth
     } else {
       toast({
         variant: "destructive",

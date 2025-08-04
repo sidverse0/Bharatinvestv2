@@ -24,7 +24,7 @@ const ReceiptRow = ({ label, value, className = '' }: { label: string, value: st
 
 export default function InvestmentSuccessPage() {
     const router = useRouter();
-    const { user, loading } = useUser();
+    const { user, loading, reloadUser } = useUser();
     const [transaction, setTransaction] = useState<Transaction | null>(null);
     const playSuccessSound = useSound('https://files.catbox.moe/6fv876.wav');
 
@@ -42,6 +42,7 @@ export default function InvestmentSuccessPage() {
         if (foundTx) {
             setTransaction(foundTx);
             playSuccessSound();
+            reloadUser(); // reload user to get latest data after investment
         } else {
             router.replace('/history');
         }
@@ -51,7 +52,7 @@ export default function InvestmentSuccessPage() {
             sessionStorage.removeItem('last_investment_tx');
         }
 
-    }, [user, loading, router, playSuccessSound]);
+    }, [user, loading, router, playSuccessSound, reloadUser]);
 
     const renderSkeleton = () => (
         <Card className="w-full max-w-md mx-auto">

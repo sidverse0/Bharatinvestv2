@@ -4,27 +4,21 @@
 import BottomNav from '@/components/BottomNav';
 import ActivityNotification from '@/components/ActivityNotification';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useUser } from '@/hooks/use-user';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, loading } = useUser();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    // Rely on the useUser hook for auth state
-    if (!loading) {
-      if (!user) {
-        router.replace('/login');
-      } else {
-        setIsCheckingAuth(false);
-      }
+    if (!loading && !user) {
+      router.replace('/login');
     }
   }, [user, loading, router]);
 
-  if (isCheckingAuth || loading) {
+  if (loading) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-background text-center p-4">
         <div className="relative flex h-24 w-24 items-center justify-center">
@@ -37,11 +31,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return (
+  // Render children only if user is logged in
+  return user ? (
     <div className="relative flex min-h-screen w-full flex-col bg-background">
       <ActivityNotification />
       <main className="flex-grow pb-24">{children}</main>
       <BottomNav />
     </div>
-  );
+  ) : null;
 }

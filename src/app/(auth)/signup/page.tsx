@@ -46,9 +46,8 @@ export default function SignupPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const result = signup(values.name, values.email, values.password);
+    const result = await signup(values.name, values.email, values.password);
 
     if (result.success) {
       toast({
@@ -56,7 +55,6 @@ export default function SignupPage() {
         description: "You have been successfully registered. Welcome to BharatInvest!",
       });
       router.push("/home");
-      router.refresh(); // Force a refresh to ensure layout re-evaluates auth
     } else {
       toast({
         variant: "destructive",
