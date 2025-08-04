@@ -44,35 +44,47 @@ export function useUser() {
     }
 
     // Update login streak
-    const lastLogin = parseISO(userData.lastLoginDate);
-    const daysDiff = differenceInCalendarDays(now, lastLogin);
-    if (daysDiff === 1) {
-      userData.loginStreak += 1;
-    } else if (daysDiff > 1) {
-      userData.loginStreak = 1; // Reset
+    if (userData.lastLoginDate) {
+        const lastLogin = parseISO(userData.lastLoginDate);
+        const daysDiff = differenceInCalendarDays(now, lastLogin);
+        if (daysDiff === 1) {
+            userData.loginStreak += 1;
+            dataChanged = true;
+        } else if (daysDiff > 1) {
+            userData.loginStreak = 1; // Reset
+            dataChanged = true;
+        }
+    } else {
+        userData.loginStreak = 1;
+        dataChanged = true;
     }
-    if (daysDiff > 0) {
-      userData.lastLoginDate = now.toISOString();
+    
+    if (!userData.lastLoginDate || !isToday(parseISO(userData.lastLoginDate))) {
+        userData.lastLoginDate = now.toISOString();
+        dataChanged = true;
     }
-     dataChanged = true;
 
 
     // Process transactions
     const newTransactions: Transaction[] = [];
+    const transactionsToAdd: Transaction[] = [];
     userData.transactions.forEach(tx => {
       if (tx.status !== 'pending') {
         newTransactions.push(tx);
         return;
       }
       const txDate = parseISO(tx.date);
+      // Auto-approve deposits after 2 mins
       if (tx.type === 'deposit' && differenceInMinutes(now, txDate) >= 2) {
         userData.balance += tx.amount;
         userData.totalDeposits = (userData.totalDeposits || 0) + tx.amount;
         newTransactions.push({ ...tx, status: 'success' });
         dataChanged = true;
-      } else if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 48) {
-        userData.balance += tx.amount;
-        newTransactions.unshift({
+      } 
+      // Auto-fail withdrawals after 48 hours
+      else if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 48) {
+        userData.balance += tx.amount; // Refund
+        transactionsToAdd.unshift({
           id: crypto.randomUUID(), type: 'return', amount: tx.amount, status: 'success',
           date: now.toISOString(), description: 'Withdrawal request failed & refunded',
         });
@@ -82,33 +94,50 @@ export function useUser() {
         newTransactions.push(tx);
       }
     });
-    userData.transactions = newTransactions;
+    userData.transactions = [...newTransactions, ...transactionsToAdd];
 
     // Calculate daily returns
     let todaysReturn = 0;
-    userData.investments.forEach((inv, index) => {
+    const updatedInvestments = userData.investments.map(inv => {
+      let investmentChanged = false;
       if (!inv.lastPayoutDate) {
         inv.lastPayoutDate = inv.startDate;
-        dataChanged = true;
+        investmentChanged = true;
       }
+      
       const endDate = addDays(parseISO(inv.startDate), inv.duration);
+      const dailyReturnValue = (inv.expectedReturn - inv.amount) / inv.duration;
+
       if (isBefore(now, endDate)) {
-        const dailyReturnValue = (inv.expectedReturn - inv.amount) / inv.duration;
-        if (!isToday(parseISO(inv.lastPayoutDate))) {
-          userData.balance += dailyReturnValue;
-          userData.transactions.unshift({
-            id: crypto.randomUUID(), type: 'return', amount: dailyReturnValue,
-            status: 'success', date: now.toISOString(), description: 'Investment Return',
-          });
-          userData.investments[index].lastPayoutDate = now.toISOString();
-          dataChanged = true;
+        const lastPayoutDate = parseISO(inv.lastPayoutDate);
+        const daysSinceLastPayout = differenceInCalendarDays(now, lastPayoutDate);
+        
+        if (daysSinceLastPayout > 0) {
+            const payoutAmount = daysSinceLastPayout * dailyReturnValue;
+            userData.balance += payoutAmount;
+            
+            for(let i=0; i<daysSinceLastPayout; i++) {
+                const payoutDate = addDays(lastPayoutDate, i + 1);
+                transactionsToAdd.unshift({
+                    id: crypto.randomUUID(), type: 'return', amount: dailyReturnValue,
+                    status: 'success', date: payoutDate.toISOString(), description: 'Investment Return',
+                });
+            }
+
+            inv.lastPayoutDate = now.toISOString();
+            investmentChanged = true;
         }
         todaysReturn += dailyReturnValue;
       }
+      
+      if(investmentChanged) dataChanged = true;
+      return inv;
     });
+
+    userData.investments = updatedInvestments;
     userData.todaysReturn = todaysReturn;
     
-    // Check-in streak
+    // Check-in streak reset
     if (userData.lastCheckInDate) {
       const daysSinceLastCheckin = differenceInCalendarDays(now, parseISO(userData.lastCheckInDate));
       if (daysSinceLastCheckin > 1) {
@@ -118,47 +147,56 @@ export function useUser() {
     }
 
     if (dataChanged) {
-      await updateDoc(doc(db, "users", uid), { ...userData });
+      await updateDoc(doc(db, "users", uid), { ...userData, transactions: [...userData.transactions, ...transactionsToAdd] });
     }
     
     return userData;
   }, []);
 
+  const fetchAndProcessUser = useCallback(async (fbUser: User) => {
+      setLoading(true);
+      const userDocRef = doc(db, 'users', fbUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const rawData = userDoc.data() as UserData;
+        const processedData = await processUserData(rawData, fbUser.uid);
+        setUser(processedData);
+      } else {
+        setUser(null); // Should not happen for a logged-in user
+      }
+      setLoading(false);
+  }, [processUserData]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
-        const userDocRef = doc(db, 'users', fbUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const rawData = userDoc.data() as UserData;
-          const processedData = await processUserData(rawData, fbUser.uid);
-          setUser(processedData);
-        } else {
-          setUser(null);
-        }
+        await fetchAndProcessUser(fbUser);
       } else {
         setFirebaseUser(null);
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
-    return () => unsubscribe();
-  }, [processUserData]);
+
+    const intervalId = setInterval(() => {
+      if (auth.currentUser) {
+        fetchAndProcessUser(auth.currentUser);
+      }
+    }, 60000); // Poll every 60 seconds
+
+    return () => {
+      unsubscribe();
+      clearInterval(intervalId);
+    };
+  }, [fetchAndProcessUser]);
+
 
   const reloadUser = useCallback(async () => {
     if (firebaseUser) {
-      setLoading(true);
-      const userDocRef = doc(db, 'users', firebaseUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const rawData = userDoc.data() as UserData;
-        const processedData = await processUserData(rawData, firebaseUser.uid);
-        setUser(processedData);
-      }
-      setLoading(false);
+        await fetchAndProcessUser(firebaseUser);
     }
-  }, [firebaseUser, processUserData]);
+  }, [firebaseUser, fetchAndProcessUser]);
 
 
   const addInvestment = useCallback(async (investment: Omit<UserInvestment, 'id' | 'startDate' | 'lastPayoutDate'>) => {
@@ -223,9 +261,12 @@ export function useUser() {
       const updatedTransactions = user.transactions.filter(tx => tx.id !== txId);
       let newBalance = user.balance;
 
-      if (txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
-          newBalance += txToRemove.amount; // Refund
+      if (txToRemove.type === 'deposit' && txToRemove.status === 'pending') {
+          // If a pending deposit is cancelled, no change in balance is needed.
+      } else if (txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
+          newBalance += txToRemove.amount; // Refund if a pending withdrawal is cancelled.
       }
+
 
       const userDocRef = doc(db, "users", firebaseUser.uid);
       await updateDoc(userDocRef, {
@@ -268,7 +309,7 @@ export function useUser() {
     
     reloadUser();
     return { status: 'success', amount: promoValue };
-  }, [firebaseUser, reloadUser]);
+  }, [firebaseUser, reloadUser, user]);
 
    const claimDailyCheckIn = useCallback(async (): Promise<{success: boolean, amount?: number}> => {
     if (!user || !firebaseUser) return { success: false };
@@ -278,7 +319,8 @@ export function useUser() {
 
     const rewardAmount = Math.floor(Math.random() * 5) + 1;
     
-    const newStreak = differenceInCalendarDays(new Date(), parseISO(user.lastCheckInDate)) === 1 ? user.checkInStreak + 1 : 1;
+    const lastCheckinDate = user.lastCheckInDate ? parseISO(user.lastCheckInDate) : new Date(0);
+    const newStreak = differenceInCalendarDays(new Date(), lastCheckinDate) === 1 ? user.checkInStreak + 1 : 1;
     
     const newTransaction: Transaction = {
       id: crypto.randomUUID(), type: 'check-in', amount: rewardAmount,
@@ -301,6 +343,17 @@ export function useUser() {
   const claimAchievementReward = useCallback(async (achievementLabel: string): Promise<ClaimAchievementResult> => {
     if (!user || !firebaseUser || user.claimedAchievements.includes(achievementLabel)) {
       return { success: false };
+    }
+
+    // Determine eligibility for the achievement before claiming
+    const achievements: { [key: string]: boolean } = {
+        "First Investment": user.firstInvestmentMade,
+        "₹1000 Deposited": user.totalDeposits >= 1000,
+        "7-Day Streak": user.loginStreak >= 7,
+    };
+
+    if (!achievements[achievementLabel]) {
+        return { success: false };
     }
 
     const rewardAmount = Math.floor(Math.random() * 10) + 1;

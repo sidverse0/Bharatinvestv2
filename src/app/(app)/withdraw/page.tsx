@@ -48,7 +48,7 @@ export default function WithdrawPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [withdrawalDetails, setWithdrawalDetails] = useState<WithdrawalDetails | null>(null);
-  const { user, addTransaction } = useUser();
+  const { user, addTransaction, reloadUser } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   const playSuccessSound = useSound('https://files.catbox.moe/6fv876.wav');
@@ -63,7 +63,7 @@ export default function WithdrawPage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) return;
     if (values.amount > user.balance) {
       form.setError('amount', { type: 'manual', message: 'Insufficient balance.' });
@@ -71,7 +71,7 @@ export default function WithdrawPage() {
     }
     setIsLoading(true);
     
-    addTransaction({
+    await addTransaction({
       type: 'withdrawal',
       amount: values.amount,
       status: 'pending',
@@ -85,15 +85,14 @@ export default function WithdrawPage() {
         date: new Date(),
     });
     
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
-      playSuccessSound();
-      toast({
-        title: "Request Sent",
-        description: "Your withdrawal request has been sent for approval."
-      });
-    }, 1000);
+    setIsLoading(false);
+    setIsSuccess(true);
+    playSuccessSound();
+    toast({
+      title: "Request Sent",
+      description: "Your withdrawal request has been sent for approval."
+    });
+    reloadUser();
   };
 
   if (isSuccess && withdrawalDetails) {
@@ -213,7 +212,7 @@ export default function WithdrawPage() {
              <Alert className="mt-6 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
               <Lightbulb className="h-4 w-4" />
               <AlertDescription>
-                The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>.
+                The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>. Withdrawals are processed within 48 hours.
               </AlertDescription>
             </Alert>
           </CardContent>

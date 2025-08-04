@@ -103,21 +103,18 @@ export default function DepositPage() {
     if (showApprovalToast) {
        toast({
         title: "Request Sent",
-        description: "Your deposit request has been sent to the admin for approval."
+        description: "Your deposit request has been sent for approval."
       })
       setShowApprovalToast(false); // Reset the trigger
     }
   }, [showApprovalToast, toast]);
 
-  const stableRemoveTransaction = useCallback(removeTransaction, [removeTransaction]);
+  const stableRemoveTransaction = useCallback(removeTransaction, []);
   
-  // This is the cleanup effect. It runs when the component unmounts.
   useEffect(() => {
     return () => {
-      // If we have a pending transaction ID and we are in the approval step, it means the user is navigating away.
       if (pendingTxId && step === 'pending_approval') {
         stableRemoveTransaction(pendingTxId);
-        // Also clear timers to be safe
         stopTimer('both');
       }
     };
@@ -157,8 +154,8 @@ export default function DepositPage() {
         setApprovalTimeLeft((prev) => {
             if (prev <= 1) {
                 stopTimer('approval');
-                setPendingTxId(null); // Clear the pending tx ID as it's now "approved"
-                reloadUser(); // Force user data refresh
+                setPendingTxId(null); 
+                reloadUser(); 
                 toast({ title: 'Deposit Approved!', description: 'Your balance has been updated.' });
                 router.replace('/history');
                 return 0;
@@ -169,7 +166,6 @@ export default function DepositPage() {
   };
   
   useEffect(() => {
-    // A general cleanup for all timers when the component unmounts for any reason.
     return () => stopTimer('both');
   }, []);
 
@@ -180,17 +176,21 @@ export default function DepositPage() {
   };
 
   const handleBack = () => {
+    if (pendingTxId) {
+        removeTransaction(pendingTxId);
+        setPendingTxId(null);
+    }
     stopTimer('transaction');
     setStep('select_amount');
     form.reset();
   }
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!selectedAmount || !user) return;
     setIsLoading(true);
     stopTimer('transaction');
     
-    const txId = addTransaction({
+    const txId = await addTransaction({
       type: 'deposit',
       amount: selectedAmount,
       status: 'pending',
@@ -199,15 +199,13 @@ export default function DepositPage() {
     
     if (txId) {
       setPendingTxId(txId);
-    }
-    
-    setTimeout(() => {
       setStep('pending_approval');
       playSuccessSound();
       startApprovalTimer();
-      setIsLoading(false);
       setShowApprovalToast(true);
-    }, 1000);
+    }
+    
+    setIsLoading(false);
   };
 
   const renderApprovalTimer = () => {
@@ -242,6 +240,7 @@ export default function DepositPage() {
                     removeTransaction(pendingTxId);
                     setPendingTxId(null);
                 }
+                stopTimer('approval');
                 router.push('/home')
             }}>
                 <Home className="mr-2" /> Go to Home
@@ -269,10 +268,12 @@ export default function DepositPage() {
         const seconds = timeLeft % 60;
         return (
           <div>
+            <Button variant="ghost" size="sm" onClick={handleBack} className="mb-4">
+                <ChevronLeft /> Back
+            </Button>
             
             <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-tight">Scan QR</h1>
-                
             </div>
             
             <div className="flex flex-col items-center gap-4 mt-8">
@@ -315,7 +316,6 @@ export default function DepositPage() {
                 <Button type="submit" variant="accent" size="lg" className="w-full text-lg h-12" disabled={isLoading}>
                   {isLoading ? <Loader2 className="animate-spin" /> : "Submit for Approval"}
                 </Button>
-                 
               </form>
             </Form>
           </div>

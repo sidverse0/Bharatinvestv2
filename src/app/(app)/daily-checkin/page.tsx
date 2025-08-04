@@ -23,14 +23,14 @@ import {
 } from '@/components/ui/alert-dialog';
 
 
-const CheckInDay = ({ day, isClaimed, isToday, isFuture }: { day: number, isClaimed: boolean, isToday: boolean, isFuture: boolean }) => {
+const CheckInDay = ({ day, isClaimed, isToday, isFuture, isMissed }: { day: number, isClaimed: boolean, isToday: boolean, isFuture: boolean, isMissed: boolean }) => {
     return (
         <div className={cn(
             "relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-300",
             isClaimed && "border-green-500 bg-green-500/10",
             isToday && !isClaimed && "border-primary bg-primary/10 animate-pulse",
             isFuture && "border-dashed bg-muted/50 text-muted-foreground opacity-70",
-            !isFuture && !isClaimed && !isToday && "border-red-500 bg-red-500/10"
+            isMissed && "border-red-500 bg-red-500/10"
         )}>
             {isClaimed && <CheckCircle className="absolute -top-3 -right-3 h-7 w-7 bg-background text-green-500 rounded-full" />}
             
@@ -57,8 +57,7 @@ export default function DailyCheckinPage() {
     const [timeLeft, setTimeLeft] = useState<string | null>(null);
     
     const canClaimToday = user ? (user.lastCheckInDate ? differenceInHours(new Date(), parseISO(user.lastCheckInDate)) >= 24 : true) : false;
-    const isTodayCheckedIn = user?.lastCheckInDate ? isToday(parseISO(user.lastCheckInDate)) : false;
-
+    
     useEffect(() => {
         if (!user || !user.lastCheckInDate) return;
 
@@ -71,7 +70,7 @@ export default function DailyCheckinPage() {
 
                 if (secondsLeft <= 0) {
                     setTimeLeft(null);
-                    reloadUser();
+                    if(!loading) reloadUser();
                     if (timer) clearInterval(timer);
                     return;
                 }
@@ -92,15 +91,15 @@ export default function DailyCheckinPage() {
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [canClaimToday, reloadUser, user]);
+    }, [canClaimToday, reloadUser, user, loading]);
 
-    const handleClaim = () => {
+    const handleClaim = async () => {
         if (!canClaimToday) {
              toast({ variant: 'destructive', title: 'Already Claimed', description: 'You can claim your next reward in 24 hours.' });
             return;
         }
 
-        const result = claimDailyCheckIn();
+        const result = await claimDailyCheckIn();
         if(result.success && result.amount) {
             setClaimedAmount(result.amount);
             setShowConfetti(true);
@@ -115,7 +114,10 @@ export default function DailyCheckinPage() {
         return <ClientOnly />;
     }
 
-    const currentStreakDay = isTodayCheckedIn ? (user.checkInStreak % 7 === 0 ? 7 : user.checkInStreak % 7) : (user.checkInStreak % 7);
+    const streak = user.checkInStreak;
+    const todayCheckedIn = user.lastCheckInDate ? isToday(parseISO(user.lastCheckInDate)) : false;
+    // Day in the 7-day cycle. (1-7)
+    const currentDayInCycle = todayCheckedIn ? (streak > 0 ? (streak -1) % 7 + 1 : 1) : (streak % 7 + 1) ;
 
     return (
         <ClientOnly>
@@ -145,11 +147,12 @@ export default function DailyCheckinPage() {
                 <div className="p-4 grid grid-cols-3 sm:grid-cols-4 gap-4">
                     {[...Array(7)].map((_, i) => {
                         const day = i + 1;
-                        const isClaimed = day <= currentStreakDay;
-                        const isTodayDay = day === currentStreakDay + 1;
-                        const isFuture = day > currentStreakDay + 1;
-                        
-                        return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} />
+                        const isClaimed = todayCheckedIn ? day <= currentDayInCycle : day < currentDayInCycle;
+                        const isTodayDay = !todayCheckedIn && day === currentDayInCycle;
+                        const isFuture = day > currentDayInCycle;
+                        const isMissed = !isClaimed && !isTodayDay && !isFuture;
+
+                        return <CheckInDay key={day} day={day} isClaimed={isClaimed} isToday={isTodayDay && canClaimToday} isFuture={isFuture} isMissed={isMissed} />
                     })}
                 </div>
                 
@@ -161,7 +164,7 @@ export default function DailyCheckinPage() {
                     variant="accent"
                 >
                     {canClaimToday 
-                        ? 'Claim' 
+                        ? 'Claim Your Reward!' 
                         : (
                             <div className="flex items-center gap-2">
                                 <Clock className="h-6 w-6" />
