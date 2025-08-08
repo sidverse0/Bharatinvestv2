@@ -9,16 +9,32 @@ import { formatCurrency, formatCurrencySimple } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Wallet, TrendingUp, User as UserIcon, Flame, Headset } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { IconButton } from '@/components/ui/icon-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import Autoplay from "embla-carousel-autoplay";
+
+
+const bannerImages = [
+    "https://files.catbox.moe/m3mwdy.jpg",
+    "https://files.catbox.moe/4tee46.jpg",
+    "https://files.catbox.moe/vy0pu4.jpg",
+    "https://files.catbox.moe/um9fve.jpg",
+    "https://files.catbox.moe/4g1iqm.jpg",
+    "https://files.catbox.moe/ugygu2.jpg",
+];
 
 export default function HomePage() {
   const { user, loading } = useUser();
   const [investedUsers, setInvestedUsers] = useState(1250);
+
+  const plugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,7 +58,7 @@ export default function HomePage() {
   return (
     <ClientOnly>
       <div className="container mx-auto max-w-2xl p-4">
-        <header className="mb-8">
+        <header className="mb-6">
             <div className="bg-card p-4 rounded-2xl shadow-sm">
                 <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
@@ -60,7 +76,7 @@ export default function HomePage() {
                           <h1 className="text-xl font-bold">Welcome, {user.name}!</h1>
                       )}
                     </div>
-                    <Link href="https://t.me/Pvt_s1n" target="_blank" rel="noopener noreferrer">
+                    <Link href="https://wa.me/93720016849" target="_blank" rel="noopener noreferrer">
                       <IconButton variant="ghost" aria-label="Contact Support">
                         <Headset className="h-6 w-6 text-primary" />
                       </IconButton>
@@ -77,6 +93,33 @@ export default function HomePage() {
                 </div>
             </div>
         </header>
+
+         <section className="mb-8">
+            <Carousel
+                plugins={[plugin.current]}
+                className="w-full"
+                opts={{
+                    loop: true,
+                }}
+            >
+                <CarouselContent>
+                    {bannerImages.map((src, index) => (
+                        <CarouselItem key={index}>
+                            <Card className="overflow-hidden">
+                                <Image
+                                    src={src}
+                                    alt={`Promotional Banner ${index + 1}`}
+                                    width={600}
+                                    height={200}
+                                    className="aspect-[3/1] w-full object-cover"
+                                    data-ai-hint="promotional banner"
+                                />
+                            </Card>
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+            </Carousel>
+        </section>
 
         <section>
           <div className="flex justify-between items-center mb-2">
