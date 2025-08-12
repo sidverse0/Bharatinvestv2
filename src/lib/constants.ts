@@ -16,9 +16,9 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     id: 2, 
     title: "Solar Energy",
     description: "Invest in renewable energy and power up your portfolio with green tech.",
-    amount: 200, 
-    returns: 680, 
-    duration: 40, 
+    amount: 251, 
+    returns: 451, 
+    duration: 30, 
     badge: 'Hot',
     image: 'https://files.catbox.moe/qokkuq.jpg',
   },
@@ -102,7 +102,9 @@ export const PROMO_CODES: { [key: string]: number } = {
 };
 
 export const REFERRAL_BONUS = 100;
-export const SIGNUP_BONUS = 50;
+export const SIGNUP_BONUS = 25;
 
 export const APP_LINK = "https://bharatinvest.app/download";
+
+
 
