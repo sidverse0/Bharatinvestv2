@@ -20,12 +20,12 @@ import Autoplay from "embla-carousel-autoplay";
 
 
 const bannerImages = [
-    "https://files.catbox.moe/m3mwdy.jpg",
-    "https://files.catbox.moe/7f6gfw.jpg",
+    "https://files.catbox.moe/2ex4pe.jpg",
+    "https://files.catbox.moe/4s8t11.jpg",
     "https://files.catbox.moe/vy0pu4.jpg",
     "https://files.catbox.moe/um9fve.jpg",
     "https://files.catbox.moe/4g1iqm.jpg",
-    "https://files.catbox.moe/ugygu2.jpg",
+    "https://files.catbox.moe/pit36t.jpg",
 ];
 
 export default function HomePage() {
