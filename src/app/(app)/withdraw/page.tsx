@@ -104,7 +104,7 @@ export default function WithdrawPage() {
                     <CheckCircle className="h-16 w-16 text-green-500 mb-2" />
                     <CardTitle className="text-2xl">Request Submitted!</CardTitle>
                     <CardDescription className="text-base px-4">
-                        Your balance will be credited to your account within 48 hours.
+                        Your request will be processed after manual verification.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -212,7 +212,7 @@ export default function WithdrawPage() {
              <Alert className="mt-6 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
               <Lightbulb className="h-4 w-4" />
               <AlertDescription>
-                The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>. Withdrawals are processed within 48 hours.
+                The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>. Withdrawals are processed after manual verification.
               </AlertDescription>
             </Alert>
           </CardContent>
