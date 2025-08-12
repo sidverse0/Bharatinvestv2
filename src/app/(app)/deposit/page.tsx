@@ -122,7 +122,7 @@ export default function DepositPage() {
       case 'make_payment':
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
-        const upiLink = `upi://pay?pa=${PAYEE_UPI_ID}&pn=${PAYEE_NAME}&am=${selectedAmount}&cu=INR&tn=Deposit%20for%20BharatInvest`;
+        const upiLink = `upi://pay?pa=${PAYEE_UPI_ID}&pn=${PAYEE_NAME}&am=${selectedAmount}&cu=INR&tn=${selectedAmount}`;
         const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}`;
         
         return (
@@ -136,7 +136,7 @@ export default function DepositPage() {
             </div>
             
             <div className="flex flex-col items-center gap-4 mt-6">
-                <Image src="https://files.catbox.moe/dd0hv5.png" data-ai-hint="qr code" alt="QR Code" width={250} height={250} className="rounded-lg border-2 border-primary shadow-[0_0_20px_hsl(var(--primary))]" />
+                <Image src="https://placehold.co/250x250.png" data-ai-hint="qr code" alt="QR Code" width={250} height={250} className="rounded-lg border-2 border-primary shadow-[0_0_20px_hsl(var(--primary))]" />
                 <div className="flex items-center justify-center gap-2 text-center font-mono text-2xl p-3 bg-destructive/10 text-destructive rounded-md w-full ring-2 ring-destructive/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
                     <Timer className="h-7 w-7" />
                     <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
