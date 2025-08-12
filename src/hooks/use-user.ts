@@ -18,6 +18,16 @@ type ClaimAchievementResult =
   | { success: true; amount: number }
   | { success: false; amount?: never };
 
+const generateTransactionId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+};
+
+
 export function useUser() {
   const [user, setUser] = useState<UserData | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -32,7 +42,7 @@ export function useUser() {
     if (userData.isFirstLogin) {
       userData.balance += SIGNUP_BONUS;
       userData.transactions.unshift({
-        id: crypto.randomUUID(),
+        id: generateTransactionId(),
         type: 'bonus',
         amount: SIGNUP_BONUS,
         status: 'success',
@@ -64,32 +74,21 @@ export function useUser() {
         dataChanged = true;
     }
 
-
-    // Process transactions
+    let calculatedBalance = 0;
+    
+    // Process transactions & calculate balance from scratch based on successful transactions
     const newTransactions: Transaction[] = [];
-    const transactionsToAdd: Transaction[] = [];
-    userData.transactions.forEach(tx => {
-      if (tx.status !== 'pending') {
-        newTransactions.push(tx);
-        return;
-      }
-      const txDate = parseISO(tx.date);
-      // Auto-approve deposits after 2 mins
-      if (tx.type === 'deposit' && differenceInMinutes(now, txDate) >= 2) {
-        userData.balance += tx.amount;
-        userData.totalDeposits = (userData.totalDeposits || 0) + tx.amount;
-        newTransactions.push({ ...tx, status: 'success' });
+    const processedReturnTx = new Set<string>();
+
+    for (let tx of userData.transactions) {
+      if ((tx.type === 'deposit' || tx.type === 'withdrawal') && tx.status === 'success' && !tx.isProcessed) {
+        tx.isProcessed = true; 
         dataChanged = true;
-      } 
-      // Auto-approve withdrawals after 48 hours
-      else if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 48) {
-        newTransactions.push({ ...tx, status: 'success', description: 'Withdrawal approved' });
-        dataChanged = true;
-      } else {
-        newTransactions.push(tx);
       }
-    });
-    userData.transactions = [...newTransactions, ...transactionsToAdd];
+      newTransactions.push(tx);
+    }
+    userData.transactions = newTransactions;
+
 
     // Calculate daily returns
     let todaysReturn = 0;
@@ -108,19 +107,22 @@ export function useUser() {
         const daysSinceLastPayout = differenceInCalendarDays(now, lastPayoutDate);
         
         if (daysSinceLastPayout > 0) {
-            const payoutAmount = daysSinceLastPayout * dailyReturnValue;
-            userData.balance += payoutAmount;
-            
             for(let i=0; i<daysSinceLastPayout; i++) {
                 const payoutDate = addDays(lastPayoutDate, i + 1);
-                transactionsToAdd.unshift({
-                    id: crypto.randomUUID(), type: 'return', amount: dailyReturnValue,
-                    status: 'success', date: payoutDate.toISOString(), description: 'Investment Return',
-                });
+                const payoutDateKey = `${inv.planName}-${payoutDate.toISOString().split('T')[0]}`;
+                
+                // Ensure we don't add a duplicate return transaction
+                if (!processedReturnTx.has(payoutDateKey)) {
+                  userData.transactions.unshift({
+                      id: generateTransactionId(), type: 'return', amount: dailyReturnValue,
+                      status: 'success', date: payoutDate.toISOString(), description: inv.planName,
+                  });
+                }
             }
 
             inv.lastPayoutDate = now.toISOString();
             investmentChanged = true;
+            dataChanged = true;
         }
         todaysReturn += dailyReturnValue;
       }
@@ -132,6 +134,41 @@ export function useUser() {
     userData.investments = updatedInvestments;
     userData.todaysReturn = todaysReturn;
     
+    // Recalculate balance from all successful transactions
+    calculatedBalance = userData.transactions.reduce((acc, tx) => {
+        if (tx.status === 'success') {
+            if (['deposit', 'return', 'bonus', 'promo', 'check-in'].includes(tx.type)) {
+                return acc + tx.amount;
+            } else if (['withdrawal', 'investment'].includes(tx.type)) {
+                return acc - tx.amount;
+            }
+        }
+        return acc;
+    }, 0);
+
+
+    // Check for manual balance increase by admin
+    if (userData.balance > calculatedBalance) {
+        const difference = userData.balance - calculatedBalance;
+        if (difference > 0.01) { // Avoid floating point inaccuracies
+            userData.transactions.unshift({
+                id: generateTransactionId(),
+                type: 'bonus',
+                amount: difference,
+                status: 'success',
+                date: now.toISOString(),
+                description: 'Bonus',
+            });
+            // The balance is already what it should be, so no need to change it, just log the transaction.
+            dataChanged = true;
+        }
+    } else if (Math.abs(userData.balance - calculatedBalance) > 0.01) {
+        // If balances don't match for other reasons, sync them
+        userData.balance = calculatedBalance;
+        dataChanged = true;
+    }
+
+
     // Check-in streak reset
     if (userData.lastCheckInDate) {
       const daysSinceLastCheckin = differenceInCalendarDays(now, parseISO(userData.lastCheckInDate));
@@ -142,7 +179,7 @@ export function useUser() {
     }
 
     if (dataChanged) {
-      await updateDoc(doc(db, "users", uid), { ...userData, transactions: [...userData.transactions, ...transactionsToAdd] });
+        await updateDoc(doc(db, "users", uid), { ...userData });
     }
     
     return userData;
@@ -203,16 +240,16 @@ export function useUser() {
     const dailyReturn = (investment.expectedReturn - investment.amount) / investment.duration;
 
     const newInvestment: UserInvestment = { 
-      ...investment, id: crypto.randomUUID(), startDate: now, lastPayoutDate: now,
+      ...investment, id: generateTransactionId(), startDate: now, lastPayoutDate: now,
     };
     
     const investmentTransaction: Transaction = {
-      id: crypto.randomUUID(), type: 'investment', amount: investment.amount,
+      id: generateTransactionId(), type: 'investment', amount: investment.amount,
       status: 'success', date: now, description: investment.planName,
     };
 
     const instantReturnTransaction: Transaction = {
-      id: crypto.randomUUID(), type: 'return', amount: dailyReturn,
+      id: generateTransactionId(), type: 'return', amount: dailyReturn,
       status: 'success', date: now, description: 'Investment Return',
     };
 
@@ -233,14 +270,16 @@ export function useUser() {
 
   const addTransaction = useCallback(async (tx: Omit<Transaction, 'id' | 'date'>): Promise<string | undefined> => {
     if (!user || !firebaseUser) return;
-    const newTransaction: Transaction = { ...tx, id: crypto.randomUUID(), date: new Date().toISOString() };
+    const newTransaction: Transaction = { ...tx, id: generateTransactionId(), date: new Date().toISOString() };
     
+    const userDocRef = doc(db, "users", firebaseUser.uid);
     let newBalance = user.balance;
+
+    // Immediately deduct balance for withdrawal requests
     if (newTransaction.type === 'withdrawal') {
         newBalance -= newTransaction.amount;
     }
 
-    const userDocRef = doc(db, "users", firebaseUser.uid);
     await updateDoc(userDocRef, {
       balance: newBalance,
       transactions: arrayUnion(newTransaction),
@@ -259,12 +298,10 @@ export function useUser() {
       const updatedTransactions = user.transactions.filter(tx => tx.id !== txId);
       let newBalance = user.balance;
 
-      if (txToRemove.type === 'deposit' && txToRemove.status === 'pending') {
-          // If a pending deposit is cancelled, no change in balance is needed.
-      } else if (txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
-          newBalance += txToRemove.amount; // Refund if a pending withdrawal is cancelled.
+      if (txToRemove.type === 'withdrawal' && txToRemove.status === 'pending') {
+          // If a pending withdrawal is cancelled, refund the balance.
+          newBalance += txToRemove.amount; 
       }
-
 
       const userDocRef = doc(db, "users", firebaseUser.uid);
       await updateDoc(userDocRef, {
@@ -293,7 +330,7 @@ export function useUser() {
     }
     
     const newTransaction: Transaction = {
-      id: crypto.randomUUID(), type: 'promo', amount: promoValue,
+      id: generateTransactionId(), type: 'promo', amount: promoValue,
       status: 'success', date: new Date().toISOString(), description: 'Promo Code',
     };
     
@@ -321,7 +358,7 @@ export function useUser() {
     const newStreak = differenceInCalendarDays(new Date(), lastCheckinDate) === 1 ? user.checkInStreak + 1 : 1;
     
     const newTransaction: Transaction = {
-      id: crypto.randomUUID(), type: 'check-in', amount: rewardAmount,
+      id: generateTransactionId(), type: 'check-in', amount: rewardAmount,
       status: 'success', date: new Date().toISOString(), description: 'Daily Check-in',
     };
 
@@ -357,7 +394,7 @@ export function useUser() {
     const rewardAmount = Math.floor(Math.random() * 10) + 1;
 
     const newTransaction: Transaction = {
-      id: crypto.randomUUID(), type: 'bonus', amount: rewardAmount,
+      id: generateTransactionId(), type: 'bonus', amount: rewardAmount,
       status: 'success', date: new Date().toISOString(), description: 'Achievement',
     };
 
