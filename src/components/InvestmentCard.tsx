@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatCurrency, calculateTimeLeft } from "@/lib/helpers";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
@@ -30,28 +30,32 @@ interface InvestmentCardProps {
   animationDelay?: number;
 }
 
-const PlanBadge = ({ badge }: { badge?: string }) => {
+const PlanBadge = ({ badge, timeLeft }: { badge?: string, timeLeft?: string }) => {
   if (!badge) return null;
   
-  const badgeContent = {
+  const badgeContent: {[key: string]: {icon: React.ReactNode, color: string}} = {
     'Popular': { icon: <Star className="h-3 w-3" />, color: 'bg-yellow-400/80 text-yellow-900 border-yellow-500/50' },
     'Best Value': { icon: <Zap className="h-3 w-3" />, color: 'bg-accent/80 text-accent-foreground border-accent/50' },
     'Hot': { icon: <Flame className="h-3 w-3" />, color: 'bg-red-500/80 text-white border-red-600/50' },
-  }[badge];
+    'Limited Offer': { icon: <Hourglass className="h-3 w-3" />, color: 'bg-blue-500/80 text-white border-blue-600/50' },
+    'Expired': { icon: <PackageX className="h-3 w-3" />, color: 'bg-muted text-muted-foreground border-muted-foreground/50' },
+  };
 
-  if (!badgeContent) return null;
+  const currentBadge = badgeContent[badge];
+  if (!currentBadge) return null;
 
   return (
-    <Badge className={cn("absolute top-4 right-4 z-10 flex items-center gap-1 border shadow-lg", badgeContent.color)}>
-        {badgeContent.icon}
+    <Badge className={cn("absolute top-4 right-4 z-10 flex items-center gap-1.5 border shadow-lg", currentBadge.color)}>
+        {currentBadge.icon}
         <span>{badge}</span>
+        {badge === 'Limited Offer' && timeLeft && <span className="font-mono text-xs">({timeLeft})</span>}
     </Badge>
   );
 };
 
-const InfoRow = ({ icon, value, iconClassName }: { icon: React.ReactNode, value: string, iconClassName?: string }) => (
+const InfoRow = ({ icon, value }: { icon: React.ReactNode, value: string }) => (
     <div className="flex items-center justify-between text-sm py-1">
-        <div className={cn("flex items-center gap-2 text-muted-foreground", iconClassName)}>
+        <div className={cn("flex items-center gap-2 text-muted-foreground")}>
             {icon}
             <span className="font-semibold text-foreground text-base">{value}</span>
         </div>
@@ -64,13 +68,30 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
   const { toast } = useToast();
   const [stockProgress, setStockProgress] = useState(0);
   const [isOutOfStock, setIsOutOfStock] = useState(false);
+  const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    const CYCLE_DURATION = 48 * 60 * 60 * 1000; // 48 hours in ms
-    const OUT_OF_STOCK_DURATION = 4 * 60 * 60 * 1000; // 4 hours in ms
-    const TOTAL_CYCLE = CYCLE_DURATION + OUT_OF_STOCK_DURATION;
+    if (plan.badge === 'Expired') {
+        setIsOutOfStock(true);
+        setStockProgress(100);
+        return;
+    }
+
+    const isLimited = plan.badge === 'Limited Offer';
     
-    // Use plan ID to create a deterministic but unique start time for each plan's cycle
+    // Limited Offer: 24 hours available, 4 hours renewing
+    const LIMITED_AVAILABILITY = 24 * 60 * 60 * 1000;
+    const LIMITED_RENEWAL = 4 * 60 * 60 * 1000;
+    const LIMITED_CYCLE = LIMITED_AVAILABILITY + LIMITED_RENEWAL;
+
+    // Regular Offer: 48 hours available, 4 hours renewing
+    const REGULAR_AVAILABILITY = 48 * 60 * 60 * 1000;
+    const REGULAR_RENEWAL = 4 * 60 * 60 * 1000;
+    const REGULAR_CYCLE = REGULAR_AVAILABILITY + REGULAR_RENEWAL;
+
+    const CYCLE_DURATION = isLimited ? LIMITED_AVAILABILITY : REGULAR_AVAILABILITY;
+    const TOTAL_CYCLE = isLimited ? LIMITED_CYCLE : REGULAR_CYCLE;
+    
     const cycleStartTime = Math.floor(Date.now() / TOTAL_CYCLE) * TOTAL_CYCLE - (plan.id * (CYCLE_DURATION / 10));
 
     const updateProgress = () => {
@@ -81,18 +102,28 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
         const progress = (timeIntoCycle / CYCLE_DURATION) * 100;
         setStockProgress(progress);
         setIsOutOfStock(false);
+        
+        if(isLimited) {
+            const msLeft = CYCLE_DURATION - timeIntoCycle;
+            const hours = Math.floor(msLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((msLeft % (1000 * 60)) / 1000);
+            setTimeLeft(`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2, '0')}`);
+        }
+
       } else {
         setStockProgress(100);
         setIsOutOfStock(true);
+        if(isLimited) setTimeLeft("00:00:00");
       }
     };
     
     updateProgress();
-    const interval = setInterval(updateProgress, 1000 * 60); // Update every minute
+    const interval = setInterval(updateProgress, 1000); // Update every second
 
     return () => clearInterval(interval);
 
-  }, [plan.id]);
+  }, [plan.id, plan.badge]);
 
   const handleInvest = () => {
     if (!user) {
@@ -135,7 +166,7 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
         )}
         style={{ animationDelay: `${animationDelay}ms`, animationFillMode: 'backwards' }}
     >
-      <PlanBadge badge={plan.badge} />
+      <PlanBadge badge={plan.badge} timeLeft={timeLeft} />
       
       <CardHeader className="p-0">
           <Image src={plan.image} alt={plan.title} width={400} height={200} className="w-full h-32 object-cover" data-ai-hint="investment growth" />
@@ -147,14 +178,14 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-2">
             <InfoRow icon={<Wallet className="h-5 w-5 text-blue-500" />} value={formatCurrency(plan.amount)} />
             <InfoRow icon={<TrendingUp className="h-5 w-5 text-green-500" />} value={formatCurrency(plan.returns)} />
-            <InfoRow icon={<Percent className="h-5 w-5 text-purple-500" />} value={formatCurrency(dailyReturn)} />
+            <InfoRow icon={<Percent className="h-5 w-5 text-purple-500" />} value={`${formatCurrency(dailyReturn)}/day`} />
             <InfoRow icon={<Calendar className="h-5 w-5 text-red-500" />} value={`${plan.duration} days`} />
         </div>
       </CardContent>
 
        <div className="px-4 pb-2 space-y-2">
             <div className="flex justify-between items-center text-xs">
-                {isOutOfStock ? (
+                {isOutOfStock && plan.badge !== 'Expired' ? (
                     <span className="font-semibold text-destructive flex items-center gap-1"><Hourglass className="h-3 w-3 animate-spin" /> Renewing...</span>
                 ) : (
                     <span className="font-medium text-muted-foreground">Availability</span>
@@ -168,7 +199,9 @@ export default function InvestmentCard({ plan, animationDelay = 0 }: InvestmentC
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="accent" className="w-full font-bold h-11" disabled={isOutOfStock}>
-                {isOutOfStock ? <><PackageX className="mr-2 h-4 w-4" /> Out of Stock</> : <>Invest Now <ArrowRight className="ml-2 h-4 w-4" /></>}
+                {isOutOfStock && plan.badge === 'Expired' ? <><PackageX className="mr-2 h-4 w-4" /> Expired</> : 
+                 isOutOfStock ? <><PackageX className="mr-2 h-4 w-4" /> Out of Stock</> :
+                 <>Invest Now <ArrowRight className="ml-2 h-4 w-4" /></>}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
