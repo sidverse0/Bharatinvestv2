@@ -33,6 +33,8 @@ export interface Transaction {
   status: TransactionStatus;
   date: string; // ISO date string
   description: string;
+  receiptImageUrl?: string; // Optional URL for withdrawal receipt image
+  isProcessed?: boolean; // For deposits, to check if balance has been updated
 }
 
 export interface UserData {
