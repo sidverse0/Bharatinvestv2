@@ -5,7 +5,7 @@ import { useUser } from '@/hooks/use-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/helpers';
-import { ArrowDownLeft, ArrowUpRight, PiggyBank, Receipt, Gift, TrendingUp, CalendarCheck, List, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, PiggyBank, Receipt, Gift, TrendingUp, CalendarCheck, List, ArrowDownToLine, ArrowUpFromLine, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,6 +13,7 @@ import { Transaction, TransactionType } from '@/types';
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const TransactionIcon = ({ type }: { type: TransactionType }) => {
   const iconMap: Record<TransactionType, React.ReactNode> = {
@@ -50,6 +51,45 @@ const FilterButton = ({ label, icon, isActive, onClick }: { label: string, icon:
         <span className="text-[10px] font-semibold">{label}</span>
     </Button>
 );
+
+const TransactionItem = ({ tx }: { tx: Transaction }) => {
+    const isClickable = tx.type === 'withdrawal' && tx.status === 'success';
+
+    const content = (
+         <Card className={cn("bg-card/50", isClickable && "hover:bg-muted/50 transition-colors")}>
+            <CardContent className="p-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-muted rounded-full">
+                        <TransactionIcon type={tx.type} />
+                    </div>
+                    <div>
+                        <p className="font-semibold capitalize">{tx.description}</p>
+                        <p className="text-xs text-muted-foreground">{format(new Date(tx.date), 'dd MMM yyyy, hh:mm a')}</p>
+                    </div>
+                </div>
+                <div className="text-right flex items-center gap-2">
+                    <div>
+                        <p className={`font-bold ${tx.type === 'withdrawal' || tx.type === 'investment' ? 'text-red-600' : 'text-green-600'}`}>
+                        {tx.type === 'withdrawal' || tx.type === 'investment' ? '-' : '+'} {formatCurrency(tx.amount)}
+                        </p>
+                        <StatusBadge status={tx.status} />
+                    </div>
+                     {isClickable && <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                </div>
+            </CardContent>
+        </Card>
+    );
+
+    if (isClickable) {
+        return (
+            <Link href={`/receipt/${tx.id}`} passHref>
+                {content}
+            </Link>
+        )
+    }
+
+    return content;
+}
 
 
 export default function HistoryPage() {
@@ -136,25 +176,7 @@ export default function HistoryPage() {
         ) : (
           <div className="space-y-3">
             {filteredAndSortedTransactions.map((tx) => (
-              <Card key={tx.id} className="bg-card/50">
-                <CardContent className="p-3 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-muted rounded-full">
-                      <TransactionIcon type={tx.type} />
-                    </div>
-                    <div>
-                      <p className="font-semibold capitalize">{tx.description}</p>
-                      <p className="text-xs text-muted-foreground">{format(new Date(tx.date), 'dd MMM yyyy, hh:mm a')}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-bold ${tx.type === 'withdrawal' || tx.type === 'investment' ? 'text-red-600' : 'text-green-600'}`}>
-                      {tx.type === 'withdrawal' || tx.type === 'investment' ? '-' : '+'} {formatCurrency(tx.amount)}
-                    </p>
-                    <StatusBadge status={tx.status} />
-                  </div>
-                </CardContent>
-              </Card>
+              <TransactionItem key={tx.id} tx={tx} />
             ))}
           </div>
         )}
