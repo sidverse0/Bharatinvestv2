@@ -7,7 +7,7 @@ export interface InvestmentPlan {
   amount: number;
   returns: number;
   duration: number; // in days
-  badge?: 'Popular' | 'Best Value' | 'Hot';
+  badge?: 'Popular' | 'Best Value' | 'Hot' | 'Limited Offer' | 'Expired';
   image: string;
 }
 
