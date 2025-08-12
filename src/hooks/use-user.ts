@@ -81,14 +81,9 @@ export function useUser() {
         newTransactions.push({ ...tx, status: 'success' });
         dataChanged = true;
       } 
-      // Auto-fail withdrawals after 48 hours
+      // Auto-approve withdrawals after 48 hours
       else if (tx.type === 'withdrawal' && differenceInHours(now, txDate) >= 48) {
-        userData.balance += tx.amount; // Refund
-        transactionsToAdd.unshift({
-          id: crypto.randomUUID(), type: 'return', amount: tx.amount, status: 'success',
-          date: now.toISOString(), description: 'Withdrawal request failed & refunded',
-        });
-        newTransactions.push({ ...tx, status: 'failed' });
+        newTransactions.push({ ...tx, status: 'success', description: 'Withdrawal approved' });
         dataChanged = true;
       } else {
         newTransactions.push(tx);
