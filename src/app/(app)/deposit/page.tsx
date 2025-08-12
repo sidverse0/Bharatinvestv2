@@ -161,7 +161,7 @@ export default function DepositPage() {
             
             <div className="flex flex-col items-center gap-4 mt-6">
                 <div className="p-4 bg-white rounded-lg border-2 border-primary shadow-[0_0_20px_hsl(var(--primary))]">
-                  <Image src="https://placehold.co/250x250.png" data-ai-hint="qr code" alt="QR Code" width={250} height={250} className="rounded-lg" />
+                  <Image src="https://files.catbox.moe/dd0hv5.png" data-ai-hint="qr code" alt="QR Code" width={250} height={250} className="rounded-lg" />
                 </div>
                 <div className="flex items-center justify-center gap-2 text-center font-mono text-2xl p-3 bg-destructive/10 text-destructive rounded-md w-full ring-2 ring-destructive/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
                     <Timer className="h-7 w-7" />
