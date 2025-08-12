@@ -2,15 +2,15 @@
 import { InvestmentPlan } from "@/types";
 
 export const INVESTMENT_PLANS: InvestmentPlan[] = [
-  { 
-    id: 1, 
+  {
+    id: 1,
     title: "Starter Plan",
-    description: "A great starting point for new investors. Low risk, steady returns.",
-    amount: 100, 
-    returns: 410, 
-    duration: 30, 
-    badge: 'Popular',
-    image: 'https://files.catbox.moe/5ydg1r.png',
+    description: "This plan is no longer available for investment.",
+    amount: 100,
+    returns: 150,
+    duration: 30,
+    badge: 'Expired',
+    image: 'https://files.catbox.moe/qokkuq.jpg',
   },
   { 
     id: 2, 
@@ -29,7 +29,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 351,
     returns: 651,
     duration: 15,
-    badge: 'Hot',
+    badge: 'Limited Offer',
     image: 'https://files.catbox.moe/x6t7ak.jpg',
   },
   { 
@@ -49,7 +49,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 551,
     returns: 1051,
     duration: 20,
-    badge: 'Best Value',
+    badge: 'Limited Offer',
     image: 'https://files.catbox.moe/h148yz.jpg',
   },
   { 
@@ -79,12 +79,12 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     amount: 1551,
     returns: 3051,
     duration: 25,
-    badge: 'Popular',
+    badge: 'Limited Offer',
     image: 'https://files.catbox.moe/m5fabe.jpg',
   }
 ];
 
-export const DEPOSIT_AMOUNTS = [100, 200, 400, 600, 1000];
+export const DEPOSIT_AMOUNTS = [200, 400, 600, 1000];
 
 export const MIN_WITHDRAWAL = 410;
 
