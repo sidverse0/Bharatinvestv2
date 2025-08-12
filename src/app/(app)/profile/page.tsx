@@ -298,12 +298,6 @@ export default function ProfilePage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <MenuLinkCard 
-                href="/my-investments"
-                icon={<Rocket className="h-6 w-6" />}
-                title="My Investments"
-                description="View your active and past investments"
-            />
              <MenuLinkCard 
                 href="/daily-checkin"
                 icon={<CalendarCheck className="h-6 w-6" />}
@@ -426,5 +420,3 @@ export default function ProfilePage() {
     </ClientOnly>
   );
 }
-
-    
