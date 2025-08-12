@@ -150,7 +150,7 @@ export default function DepositPage() {
       case 'make_payment':
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
-        const upiLink = `upi://pay?pa=${PAYEE_UPI_ID}&pn=${PAYEE_NAME}&am=${selectedAmount}&cu=INR&tn=Deposit for BharatInvest`;
+        const upiLink = `upi://pay?pa=${PAYEE_UPI_ID}&pn=${PAYEE_NAME}&am=${selectedAmount}&cu=INR&tn=${selectedAmount}`;
         const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}`;
         
         return (
