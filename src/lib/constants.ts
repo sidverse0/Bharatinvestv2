@@ -38,7 +38,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     description: "A classic and secure investment in precious metals for stable growth.",
     amount: 400, 
     returns: 890, 
-    duration: 45, 
+    duration: 30, 
     badge: 'Best Value',
     image: 'https://files.catbox.moe/m5fabe.jpg',
   },
@@ -58,7 +58,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     description: "Get a piece of the property market with our diversified real estate plan.",
     amount: 600, 
     returns: 1080, 
-    duration: 50,
+    duration: 30,
     badge: 'Popular',
     image: 'https://files.catbox.moe/h148yz.jpg',
   },
@@ -68,7 +68,7 @@ export const INVESTMENT_PLANS: InvestmentPlan[] = [
     description: "High-risk, high-reward investment in the next generation of tech innovators.",
     amount: 1000, 
     returns: 1550, 
-    duration: 60,
+    duration: 30,
     badge: 'Hot',
     image: 'https://files.catbox.moe/x6t7ak.jpg',
   },
@@ -106,7 +106,7 @@ export const PROMO_CODES: { [key: string]: number } = {
 export const REFERRAL_BONUS = 100;
 export const SIGNUP_BONUS = 25;
 
-export const APP_LINK = "https://bharatinvest.app/download";
+export const APP_LINK = "https://tinyurl.com/BharatinvestGovt";
 
 
 
