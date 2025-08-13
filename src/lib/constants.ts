@@ -94,6 +94,8 @@ export const PROMO_CODES: { [key: string]: number } = {
   VFUT: 7,
   QWRT: 8,
   GKCT: 10,
+  VHOP: 25,
+  KCVT: 50,
   PBHY: 100,
   QSTU: 200,
   HFTV: 300,
