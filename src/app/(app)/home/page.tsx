@@ -20,9 +20,9 @@ import Autoplay from "embla-carousel-autoplay";
 
 
 const bannerImages = [
-    "https://files.catbox.moe/2ex4pe.jpg",
-    "https://files.catbox.moe/4s8t11.jpg",
-    "https://files.catbox.moe/vy0pu4.jpg",
+    "https://files.catbox.moe/2t1z46.jpg",
+    "https://files.catbox.moe/dm9ft4.jpg",
+    "https://files.catbox.moe/dcgmn3.jpg",
     "https://files.catbox.moe/um9fve.jpg",
     "https://files.catbox.moe/4g1iqm.jpg",
     "https://files.catbox.moe/pit36t.jpg",
