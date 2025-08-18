@@ -10,7 +10,7 @@ import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Lock, CheckCircle, Trophy, MessageSquare } from 'lucide-react';
+import { Copy, LogOut, Gift, Share2, Wallet, User as UserIcon, Medal, Award, TrendingUp, Rocket, ChevronRight, BadgeCheck, Crown, CalendarCheck, Moon, Sun, Star, ShieldCheck, Lock, CheckCircle, Trophy, MessageSquare, Landmark, KeyRound, UserCheck, Hourglass } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -42,63 +42,8 @@ const promoCodeSchema = z.object({
   code: z.string().min(4, "Code must be at least 4 characters.").max(10, "Code must be at most 10 characters."),
 });
 
-interface BadgeProps {
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-  achieved: boolean;
-  isClaimed: boolean;
-  onClaim: (label: string) => void;
-}
-
-const AchievementBadge = ({ icon, label, description, achieved, isClaimed, onClaim }: BadgeProps) => {
-  const [claiming, setClaiming] = useState(false);
-
-  const handleClaim = async () => {
-    if (!achieved || isClaimed || claiming) return;
-    setClaiming(true);
-    await onClaim(label);
-    // No need to set claiming to false, as the component will re-render with isClaimed=true
-  };
-  
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className={cn(
-            "flex flex-col items-center justify-between gap-2 p-3 rounded-lg border text-center transition-all aspect-square",
-            achieved ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted text-muted-foreground opacity-60"
-          )}>
-            <div className={cn("rounded-full p-3", achieved ? "bg-primary/20" : "bg-muted-foreground/20")}>
-              {icon}
-            </div>
-            <p className="text-sm font-semibold leading-tight">{label}</p>
-            <div className="h-9 mt-1">
-              {achieved && !isClaimed && (
-                 <Button size="sm" variant="accent" className="h-7 text-xs px-2" onClick={handleClaim} disabled={claiming}>
-                    <Gift className="mr-1 h-3 w-3" />
-                    {claiming ? 'Claiming...' : 'Claim'}
-                  </Button>
-              )}
-               {achieved && isClaimed && (
-                  <div className="flex items-center gap-1 text-xs font-semibold text-green-600">
-                    <CheckCircle className="h-4 w-4" />
-                    <span>Claimed</span>
-                  </div>
-              )}
-            </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{description}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
-
 export default function ProfilePage() {
-  const { user, loading, applyPromoCode, reloadUser, claimAchievementReward } = useUser();
+  const { user, loading, applyPromoCode } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -161,16 +106,6 @@ export default function ProfilePage() {
     form.reset();
   };
 
-  const handleClaimAchievement = async (label: string) => {
-    const result = await claimAchievementReward(label);
-    if (result.success && result.amount) {
-      toast({
-        title: 'Reward Claimed!',
-        description: `You have received a bonus of ${formatCurrency(result.amount)}!`,
-      });
-    }
-  };
-
   if (loading || !user) {
     return (
       <div className="container mx-auto max-w-2xl p-4 space-y-6">
@@ -181,27 +116,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-  
-  const achievementBadges: Omit<BadgeProps, 'isClaimed' | 'onClaim'>[] = [
-    {
-      icon: <Medal className="h-7 w-7" />,
-      label: "First Investment",
-      description: "Awarded for making your first investment.",
-      achieved: user.firstInvestmentMade,
-    },
-    {
-      icon: <Award className="h-7 w-7" />,
-      label: "₹1000 Deposited",
-      description: "Awarded for depositing a total of ₹1000 or more.",
-      achieved: user.totalDeposits >= 1000,
-    },
-    {
-      icon: <TrendingUp className="h-7 w-7" />,
-      label: "7-Day Streak",
-      description: `Awarded for logging in 7 days in a row. Current streak: ${user.loginStreak} day(s).`,
-      achieved: user.loginStreak >= 7,
-    },
-  ];
   
   const MenuLinkCard = ({ href, icon, title, description, isExternal = false }: { href: string, icon: React.ReactNode, title: string, description: string, isExternal?: boolean }) => {
     const content = (
@@ -235,6 +149,20 @@ export default function ProfilePage() {
         </Link>
     );
   };
+  
+  const SecurityItem = ({ label, status, href }: { label: string, status: string, href: string }) => (
+    <Link href={href} passHref>
+      <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-lg cursor-pointer">
+          <p className="font-medium">{label}</p>
+          <div className="flex items-center gap-2">
+            <span className={cn("text-sm font-semibold", status === 'Verified' || status === 'Set' || status === 'Linked' ? 'text-green-600' : 'text-yellow-600' )}>
+              {status}
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </div>
+      </div>
+    </Link>
+  );
 
   return (
     <ClientOnly>
@@ -297,90 +225,99 @@ export default function ProfilePage() {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-             <MenuLinkCard 
+        <div className="space-y-4">
+            <MenuLinkCard 
                 href="/treasure"
                 icon={<Image src="https://files.catbox.moe/0re852.png" alt="Treasure" width={32} height={32} />}
                 title="Treasure Hunt"
                 description="Win exciting rewards!"
             />
-             <MenuLinkCard 
+
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl"><ShieldCheck className="h-6 w-6" /> KYC &amp; Security</CardTitle>
+                <CardDescription>Manage your account security and withdrawal settings.</CardDescription>
+              </CardHeader>
+              <CardContent className="divide-y divide-border p-0">
+                 <div className="flex items-center justify-between py-3 px-4">
+                   <p className="font-medium">KYC Status</p>
+                   <div className={cn("flex items-center gap-1 text-sm font-semibold px-2 py-1 rounded-full", user.kycStatus === 'Verified' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')}>
+                      {user.kycStatus === 'Verified' ? <BadgeCheck className="h-4 w-4" /> : <Hourglass className="h-4 w-4" />}
+                      {user.kycStatus}
+                   </div>
+                </div>
+                <SecurityItem 
+                  label="UPI / Bank Account"
+                  status={user.linkedBankAccount ? 'Linked' : 'Not Linked'}
+                  href="/bind-bank-account"
+                />
+                <SecurityItem 
+                  label="Withdrawal PIN"
+                  status={user.withdrawalPin ? 'Set' : 'Not Set'}
+                  href="/set-pin"
+                />
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Refer &amp; Earn</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-4">Refer friends and earn a <span className="font-bold text-primary">{formatCurrency(REFERRAL_BONUS)}</span> bonus for each referral!</p>
+                  <a href="https://www.mediafire.com/file/3r0mg1cwa49twwz/Gov.Bharatinvest.apk/file" target="_blank" rel="noopener noreferrer">
+                    <Button className="w-full">Share Your Link</Button>
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5"/> Apply Promo Code</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onPromoSubmit)} className="flex items-start gap-2">
+                      <FormField control={form.control} name="code" render={({ field }) => (
+                        <FormItem className="flex-grow">
+                          <FormControl><Input className="font-code text-center tracking-widest" placeholder="CODE" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <Button type="submit" variant="accent">Apply</Button>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">Appearance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="dark-mode" className="flex items-center gap-2 text-base">
+                    {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                    Dark Mode
+                  </Label>
+                  <Switch
+                    id="dark-mode"
+                    checked={isDarkMode}
+                    onCheckedChange={toggleTheme}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <MenuLinkCard 
                 href="https://wa.me/93720016849"
                 isExternal={true}
                 icon={<MessageSquare className="h-6 w-6" />}
                 title="Customer Support"
                 description="Contact us on WhatsApp"
             />
-        </div>
-        
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">Appearance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="dark-mode" className="flex items-center gap-2 text-base">
-                {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                Dark Mode
-              </Label>
-              <Switch
-                id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={toggleTheme}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm overflow-hidden">
-          <CardHeader className="p-0 relative h-24 flex items-center justify-center text-center">
-             <Image src="https://files.catbox.moe/claqn3.jpg" alt="Achievements Banner" layout="fill" objectFit="cover" className="z-0" data-ai-hint="achievement banner abstract" />
-             <div className="absolute inset-0 bg-black/50 z-10"></div>
-             <CardTitle className="text-3xl font-bold text-white z-20 flex items-center gap-2"><Trophy className="h-8 w-8" /> Achievements</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 bg-card grid grid-cols-3 gap-4">
-            {achievementBadges.map(badge => (
-              <AchievementBadge 
-                key={badge.label} 
-                {...badge}
-                isClaimed={user.claimedAchievements.includes(badge.label)}
-                onClaim={handleClaimAchievement}
-              />
-            ))}
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Refer & Earn</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">Refer friends and earn a <span className="font-bold text-primary">{formatCurrency(REFERRAL_BONUS)}</span> bonus for each referral!</p>
-              <a href="https://www.mediafire.com/file/3r0mg1cwa49twwz/Gov.Bharatinvest.apk/file" target="_blank" rel="noopener noreferrer">
-                <Button className="w-full">Share Your Link</Button>
-              </a>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5"/> Apply Promo Code</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onPromoSubmit)} className="flex items-start gap-2">
-                  <FormField control={form.control} name="code" render={({ field }) => (
-                    <FormItem className="flex-grow">
-                      <FormControl><Input className="font-code text-center tracking-widest" placeholder="CODE" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <Button type="submit" variant="accent">Apply</Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
         </div>
 
         <Card className="shadow-sm text-center">
@@ -415,7 +352,6 @@ export default function ProfilePage() {
                 </div>
             </CardContent>
         </Card>
-
       </div>
     </ClientOnly>
   );
