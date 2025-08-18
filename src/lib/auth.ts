@@ -42,6 +42,7 @@ export const signup = async (name: string, email: string, password: string): Pro
       checkInStreak: 0,
       claimedAchievements: [],
       isBanned: false,
+      kycStatus: 'Pending',
     };
     
     await setDoc(doc(db, "users", user.uid), newUser);
