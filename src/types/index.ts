@@ -23,7 +23,7 @@ export interface UserInvestment {
   image: string;
 }
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return' | 'check-in' | 'treasure_cost' | 'treasure_win';
+export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return' | 'check-in' | 'treasure_cost' | 'treasure_win' | 'withdrawal_refund';
 export type TransactionStatus = 'pending' | 'success' | 'failed';
 
 export interface Transaction {
@@ -35,6 +35,13 @@ export interface Transaction {
   description: string;
   receiptImageUrl?: string; // Optional URL for withdrawal receipt image
   isProcessed?: boolean; // For deposits, to check if balance has been updated
+  remark?: string; // Optional failure reason from admin
+}
+
+export interface BankAccount {
+    name: string;
+    bankName: string;
+    upiId: string;
 }
 
 export interface UserData {
@@ -58,4 +65,8 @@ export interface UserData {
   checkInStreak: number;
   // Banned status
   isBanned: boolean;
+  // KYC & Security
+  kycStatus: 'Verified' | 'Pending';
+  linkedBankAccount?: BankAccount;
+  withdrawalPin?: string; // Stored as a string, but should be numeric
 }
