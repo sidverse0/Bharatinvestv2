@@ -1,7 +1,7 @@
 
 {
-  "maintenanceMode": false,
-  "countdownEndTime": "2025-08-20T00:00:00.000Z",
+  "maintenanceMode": true,
+  "countdownEndTime": "2025-08-19T00:00:00.000Z",
   "title": "Under Maintenance",
   "message": "We are currently performing server maintenance. We'll be back online shortly. Thank you for your patience."
 }
