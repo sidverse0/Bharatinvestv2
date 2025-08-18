@@ -41,6 +41,7 @@ export const signup = async (name: string, email: string, password: string): Pro
       lastCheckInDate: '',
       checkInStreak: 0,
       claimedAchievements: [],
+      isBanned: false,
     };
     
     await setDoc(doc(db, "users", user.uid), newUser);
