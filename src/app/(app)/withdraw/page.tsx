@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt, Lightbulb } from 'lucide-react';
+import { Loader2, CheckCircle, Wallet, ArrowLeft, Receipt, Lightbulb, BadgeCheck, ShieldAlert, KeyRound, Banknote } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -21,11 +21,10 @@ import { ClientOnly } from '@/components/ClientOnly';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSound } from '@/hooks/use-sound';
+import Link from 'next/link';
 
 const formSchema = z.object({
-  name: z.string().min(3, 'Please enter your full name.'),
-  bankName: z.string().min(3, 'Please enter a valid bank name.'),
-  upiId: z.string().min(5, 'Please enter a valid UPI ID.').regex(/@/, 'Please enter a valid UPI ID.'),
+  pin: z.string().length(4, 'PIN must be 4 digits.').regex(/^\d+$/, 'PIN must be numeric.'),
   amount: z.coerce.number().min(MIN_WITHDRAWAL, `Minimum withdrawal amount is ${formatCurrency(MIN_WITHDRAWAL)}.`),
 });
 
@@ -43,6 +42,37 @@ const ReceiptRow = ({ label, value }: { label: string; value: string }) => (
     </div>
 );
 
+const PreWithdrawalCheck = ({ user }: { user: any }) => (
+    <div className="container mx-auto max-w-md p-4 flex flex-col items-center justify-center h-[calc(100vh-8rem)]">
+        <Card className="w-full text-center">
+            <CardHeader>
+                 <div className="mx-auto bg-destructive/10 p-4 rounded-full w-fit mb-2">
+                    <ShieldAlert className="h-12 w-12 text-destructive" />
+                 </div>
+                <CardTitle className="text-2xl">Security Setup Required</CardTitle>
+                <CardDescription>
+                    To protect your account, you need to link a bank account and set a withdrawal PIN before you can make a withdrawal.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 {!user.linkedBankAccount && (
+                     <Link href="/bind-bank-account" passHref>
+                        <Button className="w-full" variant="accent"><Banknote className="mr-2" /> Link Bank Account</Button>
+                     </Link>
+                 )}
+                 {!user.withdrawalPin && (
+                    <Link href="/set-pin" passHref>
+                        <Button className="w-full" variant="accent"><KeyRound className="mr-2" /> Set Withdrawal PIN</Button>
+                    </Link>
+                 )}
+            </CardContent>
+             <CardFooter>
+                 <Button className="w-full" onClick={() => history.back()}><ArrowLeft className="mr-2" /> Go Back</Button>
+             </CardFooter>
+        </Card>
+    </div>
+);
+
 
 export default function WithdrawPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -56,19 +86,24 @@ export default function WithdrawPage() {
   const form = useForm<z.infer<typeof formSchema,>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      bankName: '',
-      upiId: '',
+      pin: '',
       amount: undefined,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!user) return;
+    if (!user || !user.linkedBankAccount || !user.withdrawalPin) return;
+    
+    if (values.pin !== user.withdrawalPin) {
+      form.setError('pin', { type: 'manual', message: 'Incorrect PIN.' });
+      return;
+    }
+
     if (values.amount > user.balance) {
       form.setError('amount', { type: 'manual', message: 'Insufficient balance.' });
       return;
     }
+    
     setIsLoading(true);
     
     await addTransaction({
@@ -80,8 +115,8 @@ export default function WithdrawPage() {
 
     setWithdrawalDetails({
         amount: values.amount,
-        name: values.name,
-        upiId: values.upiId,
+        name: user.linkedBankAccount.name,
+        upiId: user.linkedBankAccount.upiId,
         date: new Date(),
     });
     
@@ -94,6 +129,14 @@ export default function WithdrawPage() {
     });
     reloadUser();
   };
+
+  if (user && (!user.linkedBankAccount || !user.withdrawalPin)) {
+    return (
+        <ClientOnly>
+            <PreWithdrawalCheck user={user} />
+        </ClientOnly>
+    );
+  }
 
   if (isSuccess && withdrawalDetails) {
     return (
@@ -114,7 +157,7 @@ export default function WithdrawPage() {
                         <ReceiptRow label="Recipient Name" value={withdrawalDetails.name} />
                         <ReceiptRow label="UPI ID" value={withdrawalDetails.upiId} />
                          <Separator />
-                        <ReceiptRow label="Date & Time" value={format(withdrawalDetails.date, 'dd MMM yyyy, hh:mm a')} />
+                        <ReceiptRow label="Date &amp; Time" value={format(withdrawalDetails.date, 'dd MMM yyyy, hh:mm a')} />
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-3">
@@ -134,13 +177,9 @@ export default function WithdrawPage() {
   return (
     <ClientOnly>
       <div className="container mx-auto max-w-md p-4 space-y-6">
-        <header className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Withdraw Funds</h1>
-          <p className="text-muted-foreground mt-1">Request a withdrawal to your bank account.</p>
-        </header>
         
         {user && (
-            <Card className="text-center bg-muted/30">
+            <Card className="text-center bg-muted/30 mt-6">
                 <CardHeader>
                     <CardDescription className="flex items-center justify-center gap-2"><Wallet className="h-4 w-4" /> Available Balance</CardDescription>
                     <CardTitle className="text-4xl font-bold text-primary">{formatCurrency(user.balance)}</CardTitle>
@@ -149,48 +188,31 @@ export default function WithdrawPage() {
         )}
         
         <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl"><BadgeCheck className="text-blue-500"/> Verified Account</CardTitle>
+            <CardDescription>Withdrawals will be sent to this account.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between items-center text-sm">
+                <p className="text-muted-foreground">Name</p>
+                <p className="font-medium">{user?.linkedBankAccount?.name}</p>
+            </div>
+             <div className="flex justify-between items-center text-sm">
+                <p className="text-muted-foreground">Bank Name</p>
+                <p className="font-medium">{user?.linkedBankAccount?.bankName}</p>
+            </div>
+             <div className="flex justify-between items-center text-sm">
+                <p className="text-muted-foreground">UPI ID</p>
+                <p className="font-medium">{user?.linkedBankAccount?.upiId}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+
+        <Card>
           <CardContent className="pt-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name (as per bank)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="bankName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bank Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. State Bank of India" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="upiId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>UPI ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="yourname@bank" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="amount"
@@ -198,7 +220,20 @@ export default function WithdrawPage() {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder={`e.g. 500`} {...field} />
+                        <Input type="number" placeholder={`Minimum ${MIN_WITHDRAWAL}`} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="pin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>4-Digit Withdrawal PIN</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="••••" maxLength={4} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -209,12 +244,6 @@ export default function WithdrawPage() {
                 </Button>
               </form>
             </Form>
-             <Alert className="mt-6 bg-yellow-500/10 border-yellow-500/30 text-yellow-700 dark:text-yellow-600 dark:[&>svg]:text-yellow-500 [&>svg]:text-yellow-600">
-              <Lightbulb className="h-4 w-4" />
-              <AlertDescription>
-                The minimum withdrawal amount is <strong>{formatCurrency(MIN_WITHDRAWAL)}</strong>. Withdrawals are processed after manual verification.
-              </AlertDescription>
-            </Alert>
           </CardContent>
         </Card>
       </div>
