@@ -9,8 +9,6 @@ import { useUser } from '@/hooks/use-user';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
 import { ClientOnly } from '@/components/ClientOnly';
 import BannedScreen from '@/components/BannedScreen';
-import MaintenanceScreen from '@/components/MaintenanceScreen';
-import maintenanceConfig from '../../../maintenance.config.json';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -21,10 +19,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       router.replace('/login');
     }
   }, [user, loading, router]);
-
-  if (maintenanceConfig.maintenanceMode) {
-    return <MaintenanceScreen config={maintenanceConfig} />;
-  }
 
   if (user && user.isBanned) {
     return <BannedScreen />;
