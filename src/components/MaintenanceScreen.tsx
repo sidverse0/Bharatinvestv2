@@ -3,10 +3,11 @@
 
 import { useState, useEffect } from 'react';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
-import { differenceInSeconds } from 'date-fns';
 
 interface MaintenanceConfig {
-  countdownEndTime: string;
+  countdownHours: number;
+  countdownMinutes: number;
+  countdownSeconds: number;
   title: string;
   message: string;
 }
@@ -96,39 +97,25 @@ const MaintenanceGraphic = () => (
 
 
 export default function MaintenanceScreen({ config }: { config: MaintenanceConfig }) {
-  const [timeLeft, setTimeLeft] = useState({
-    hours: '00',
-    minutes: '00',
-    seconds: '00',
-  });
+  const [totalSeconds, setTotalSeconds] = useState(0);
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const endTime = new Date(config.countdownEndTime);
-      const totalSeconds = differenceInSeconds(endTime, now);
+    // Set the initial total seconds from the config
+    const initialSeconds = (config.countdownHours * 3600) + (config.countdownMinutes * 60) + config.countdownSeconds;
+    setTotalSeconds(initialSeconds);
 
-      if (totalSeconds <= 0) {
-        setTimeLeft({ hours: '00', minutes: '00', seconds: '00' });
-        return;
-      }
+    // Start the countdown interval
+    const interval = setInterval(() => {
+      setTotalSeconds(prevSeconds => (prevSeconds > 0 ? prevSeconds - 1 : 0));
+    }, 1000);
 
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      setTimeLeft({
-        hours: String(hours).padStart(2, '0'),
-        minutes: String(minutes).padStart(2, '0'),
-        seconds: String(seconds).padStart(2, '0'),
-      });
-    };
-
-    calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 1000);
-
+    // Cleanup interval on component unmount
     return () => clearInterval(interval);
-  }, [config.countdownEndTime]);
+  }, [config]);
+
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background text-center p-6">
@@ -145,11 +132,11 @@ export default function MaintenanceScreen({ config }: { config: MaintenanceConfi
         <p className="mt-2 text-base md:text-lg text-muted-foreground">{config.message}</p>
         
         <div className="mt-10 flex justify-center items-center gap-4 sm:gap-8">
-            <CountdownUnit value={timeLeft.hours} label="Hours" />
+            <CountdownUnit value={hours} label="Hours" />
              <div className="text-4xl sm:text-6xl font-bold text-muted-foreground -mt-5">:</div>
-            <CountdownUnit value={timeLeft.minutes} label="Minutes" />
+            <CountdownUnit value={minutes} label="Minutes" />
              <div className="text-4xl sm:text-6xl font-bold text-muted-foreground -mt-5">:</div>
-            <CountdownUnit value={timeLeft.seconds} label="Seconds" />
+            <CountdownUnit value={seconds} label="Seconds" />
         </div>
 
       </div>
