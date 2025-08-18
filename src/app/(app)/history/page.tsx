@@ -14,6 +14,7 @@ import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const TransactionIcon = ({ type }: { type: TransactionType }) => {
   const iconMap: Record<TransactionType, React.ReactNode> = {
@@ -24,6 +25,8 @@ const TransactionIcon = ({ type }: { type: TransactionType }) => {
     'promo': <Receipt className="h-5 w-5 text-purple-600" />,
     'return': <TrendingUp className="h-5 w-5 text-indigo-500" />,
     'check-in': <CalendarCheck className="h-5 w-5 text-cyan-500" />,
+    'treasure_cost': <Image src="https://files.catbox.moe/0re852.png" alt="Treasure" width={20} height={20} className="opacity-70" />,
+    'treasure_win': <Image src="https://files.catbox.moe/0re852.png" alt="Treasure" width={20} height={20} />,
   }
   return iconMap[type] || null;
 };
@@ -59,7 +62,7 @@ const TransactionItem = ({ tx }: { tx: Transaction }) => {
          <Card className={cn("bg-card/50", isClickable && "hover:bg-muted/50 transition-colors")}>
             <CardContent className="p-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-muted rounded-full">
+                    <div className="p-2 bg-muted rounded-full flex items-center justify-center h-9 w-9">
                         <TransactionIcon type={tx.type} />
                     </div>
                     <div>
@@ -69,8 +72,8 @@ const TransactionItem = ({ tx }: { tx: Transaction }) => {
                 </div>
                 <div className="text-right flex items-center gap-2">
                     <div>
-                        <p className={`font-bold ${tx.type === 'withdrawal' || tx.type === 'investment' ? 'text-red-600' : 'text-green-600'}`}>
-                        {tx.type === 'withdrawal' || tx.type === 'investment' ? '-' : '+'} {formatCurrency(tx.amount)}
+                        <p className={`font-bold ${['withdrawal', 'investment', 'treasure_cost'].includes(tx.type) ? 'text-red-600' : 'text-green-600'}`}>
+                        {['withdrawal', 'investment', 'treasure_cost'].includes(tx.type) ? '-' : '+'} {formatCurrency(tx.amount)}
                         </p>
                         <StatusBadge status={tx.status} />
                     </div>
