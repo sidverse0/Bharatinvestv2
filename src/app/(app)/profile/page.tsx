@@ -299,12 +299,12 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
              <MenuLinkCard 
-                href="/daily-checkin"
-                icon={<CalendarCheck className="h-6 w-6" />}
-                title="Daily Check-in"
-                description="Claim your daily rewards"
+                href="/treasure"
+                icon={<Rocket className="h-6 w-6" />}
+                title="Treasure Hunt"
+                description="Win exciting rewards!"
             />
-            <MenuLinkCard 
+             <MenuLinkCard 
                 href="https://wa.me/93720016849"
                 isExternal={true}
                 icon={<MessageSquare className="h-6 w-6" />}
