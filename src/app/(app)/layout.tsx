@@ -8,6 +8,9 @@ import { useEffect } from 'react';
 import { useUser } from '@/hooks/use-user';
 import { BharatInvestLogo } from '@/components/icons/BharatInvestLogo';
 import { ClientOnly } from '@/components/ClientOnly';
+import BannedScreen from '@/components/BannedScreen';
+import MaintenanceScreen from '@/components/MaintenanceScreen';
+import maintenanceConfig from '../../../maintenance.config.json';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -18,6 +21,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       router.replace('/login');
     }
   }, [user, loading, router]);
+
+  if (maintenanceConfig.maintenanceMode) {
+    return <MaintenanceScreen config={maintenanceConfig} />;
+  }
+
+  if (user && user.isBanned) {
+    return <BannedScreen />;
+  }
+
+  if (loading || !user) {
+    return (
+       <div className="flex h-screen w-full flex-col items-center justify-center bg-background text-center p-4">
+        <div className="relative flex h-24 w-24 items-center justify-center">
+            <div className="loading-spinner"></div>
+            <BharatInvestLogo className="h-16 w-16" />
+        </div>
+      </div>
+    )
+  }
 
   // Render children only if user is logged in
   return (
