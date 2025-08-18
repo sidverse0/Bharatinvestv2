@@ -23,7 +23,7 @@ export interface UserInvestment {
   image: string;
 }
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return' | 'check-in';
+export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'bonus' | 'promo' | 'return' | 'check-in' | 'treasure_cost' | 'treasure_win';
 export type TransactionStatus = 'pending' | 'success' | 'failed';
 
 export interface Transaction {
@@ -56,4 +56,6 @@ export interface UserData {
   // Daily Check-in
   lastCheckInDate: string;
   checkInStreak: number;
+  // Banned status
+  isBanned: boolean;
 }
