@@ -8,7 +8,7 @@ import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
 import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays, differenceInHours } from 'date-fns';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, Timestamp, onSnapshot } from 'firebase/firestore';
 
 type PromoCodeResult = 
   | { status: 'success'; amount: number }
@@ -75,14 +75,19 @@ export function useUser() {
     }
 
     let calculatedBalance = 0;
+    let totalDeposits = 0;
     
     // Process transactions & calculate balance from scratch based on successful transactions
     const newTransactions: Transaction[] = [];
     const processedReturnTx = new Set<string>();
 
     for (let tx of userData.transactions) {
-      if ((tx.type === 'deposit' || tx.type === 'withdrawal') && tx.status === 'success' && !tx.isProcessed) {
+      if (tx.type === 'deposit' && tx.status === 'success' && !tx.isProcessed) {
         tx.isProcessed = true; 
+        dataChanged = true;
+      }
+      if (tx.type === 'withdrawal' && tx.status === 'success' && !tx.isProcessed) {
+        tx.isProcessed = true;
         dataChanged = true;
       }
       newTransactions.push(tx);
@@ -136,10 +141,14 @@ export function useUser() {
     
     // Recalculate balance from all successful transactions
     calculatedBalance = userData.transactions.reduce((acc, tx) => {
-        if (tx.status === 'success') {
-            if (['deposit', 'return', 'bonus', 'promo', 'check-in'].includes(tx.type)) {
+        if (tx.type === 'deposit' && tx.isProcessed) {
+            totalDeposits += tx.amount;
+        }
+
+        if (tx.status === 'success' || (tx.type === 'withdrawal' && tx.status === 'pending')) {
+             if (['deposit', 'return', 'bonus', 'promo', 'treasure_win'].includes(tx.type)) {
                 return acc + tx.amount;
-            } else if (['withdrawal', 'investment'].includes(tx.type)) {
+            } else if (['withdrawal', 'investment', 'treasure_cost'].includes(tx.type)) {
                 return acc - tx.amount;
             }
         }
@@ -159,7 +168,7 @@ export function useUser() {
                 date: now.toISOString(),
                 description: 'Bonus',
             });
-            // The balance is already what it should be, so no need to change it, just log the transaction.
+            calculatedBalance = userData.balance;
             dataChanged = true;
         }
     } else if (Math.abs(userData.balance - calculatedBalance) > 0.01) {
@@ -167,7 +176,8 @@ export function useUser() {
         userData.balance = calculatedBalance;
         dataChanged = true;
     }
-
+    
+    userData.totalDeposits = totalDeposits;
 
     // Check-in streak reset
     if (userData.lastCheckInDate) {
@@ -186,52 +196,57 @@ export function useUser() {
   }, []);
 
   const fetchAndProcessUser = useCallback(async (fbUser: User) => {
-      const userDocRef = doc(db, 'users', fbUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const rawData = userDoc.data() as UserData;
-        // First set the user data to show UI faster
-        setUser(rawData);
-        // Then process the data in the background
-        const processedData = await processUserData(rawData, fbUser.uid);
-        setUser(processedData);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-  }, [processUserData]);
+    const unsub = onSnapshot(doc(db, "users", fbUser.uid), async (doc) => {
+        if (doc.exists()) {
+            const rawData = doc.data() as UserData;
+            // First set the user data to show UI faster
+            setUser(rawData);
+            // Then process the data in the background
+            const processedData = await processUserData(rawData, fbUser.uid);
+            setUser(processedData);
+        } else {
+            setUser(null);
+        }
+        setLoading(false);
+    });
+    return unsub;
+}, [processUserData]);
 
   useEffect(() => {
     setLoading(true);
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+    let unsubscribeFirestore: (() => void) | null = null;
+    const unsubscribeAuth = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
-        await fetchAndProcessUser(fbUser);
+        if (unsubscribeFirestore) unsubscribeFirestore();
+        unsubscribeFirestore = await fetchAndProcessUser(fbUser);
       } else {
         setFirebaseUser(null);
         setUser(null);
         setLoading(false);
+        if (unsubscribeFirestore) unsubscribeFirestore();
       }
     });
 
-    const intervalId = setInterval(() => {
-      if (auth.currentUser) {
-        fetchAndProcessUser(auth.currentUser);
-      }
-    }, 60000); // Poll every 60 seconds
-
     return () => {
-      unsubscribe();
-      clearInterval(intervalId);
+      unsubscribeAuth();
+      if (unsubscribeFirestore) unsubscribeFirestore();
     };
   }, [fetchAndProcessUser]);
 
 
   const reloadUser = useCallback(async () => {
     if (firebaseUser) {
-        await fetchAndProcessUser(firebaseUser);
+        setLoading(true);
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const rawData = userDoc.data() as UserData;
+          setUser(rawData);
+        }
+        setLoading(false);
     }
-  }, [firebaseUser, fetchAndProcessUser]);
+  }, [firebaseUser]);
 
 
   const addInvestment = useCallback(async (investment: Omit<UserInvestment, 'id' | 'startDate' | 'lastPayoutDate'>) => {
@@ -265,8 +280,8 @@ export function useUser() {
 
     sessionStorage.setItem('last_investment_tx', investmentTransaction.id);
     router.push('/investment-success');
-    reloadUser();
-  }, [user, firebaseUser, router, reloadUser]);
+    
+  }, [user, firebaseUser, router]);
 
   const addTransaction = useCallback(async (tx: Omit<Transaction, 'id' | 'date'>): Promise<string | undefined> => {
     if (!user || !firebaseUser) return;
@@ -276,7 +291,7 @@ export function useUser() {
     let newBalance = user.balance;
 
     // Immediately deduct balance for withdrawal requests
-    if (newTransaction.type === 'withdrawal') {
+    if (newTransaction.type === 'withdrawal' && newTransaction.status === 'pending') {
         newBalance -= newTransaction.amount;
     }
 
@@ -285,9 +300,9 @@ export function useUser() {
       transactions: arrayUnion(newTransaction),
     });
 
-    reloadUser();
+    
     return newTransaction.id;
-  }, [user, firebaseUser, reloadUser]);
+  }, [user, firebaseUser]);
 
   const removeTransaction = useCallback(async (txId: string) => {
      if (!user || !firebaseUser) return;
@@ -308,8 +323,8 @@ export function useUser() {
         transactions: updatedTransactions,
         balance: newBalance
       });
-      reloadUser();
-  }, [user, firebaseUser, reloadUser]);
+      
+  }, [user, firebaseUser]);
   
   const applyPromoCode = useCallback(async (code: string): Promise<PromoCodeResult> => {
     if (!user || !firebaseUser) return { status: 'invalid' };
@@ -342,38 +357,37 @@ export function useUser() {
       usedPromoCodes: newUsedPromoCodes
     });
     
-    reloadUser();
+    
     return { status: 'success', amount: promoValue };
-  }, [firebaseUser, reloadUser, user]);
+  }, [firebaseUser, user]);
 
-   const claimDailyCheckIn = useCallback(async (): Promise<{success: boolean, amount?: number}> => {
+  const openTreasureBox = useCallback(async (): Promise<{success: boolean, amount?: number}> => {
     if (!user || !firebaseUser) return { success: false };
     
-    const canClaim = user.lastCheckInDate ? differenceInHours(new Date(), parseISO(user.lastCheckInDate)) >= 24 : true;
-    if (!canClaim) return { success: false };
+    const openCost = 10;
+    if (user.balance < openCost) return { success: false };
 
     const rewardAmount = Math.floor(Math.random() * 5) + 1;
     
-    const lastCheckinDate = user.lastCheckInDate ? parseISO(user.lastCheckInDate) : new Date(0);
-    const newStreak = differenceInCalendarDays(new Date(), lastCheckinDate) === 1 ? user.checkInStreak + 1 : 1;
-    
-    const newTransaction: Transaction = {
-      id: generateTransactionId(), type: 'check-in', amount: rewardAmount,
-      status: 'success', date: new Date().toISOString(), description: 'Daily Check-in',
+    const costTransaction: Transaction = {
+      id: generateTransactionId(), type: 'treasure_cost', amount: openCost,
+      status: 'success', date: new Date().toISOString(), description: 'Treasure Box Cost',
+    };
+    const winTransaction: Transaction = {
+      id: generateTransactionId(), type: 'treasure_win', amount: rewardAmount,
+      status: 'success', date: new Date().toISOString(), description: 'Treasure Box Reward',
     };
 
     const userDocRef = doc(db, 'users', firebaseUser.uid);
     await updateDoc(userDocRef, {
-        balance: user.balance + rewardAmount,
-        transactions: arrayUnion(newTransaction),
-        lastCheckInDate: new Date().toISOString(),
-        checkInStreak: newStreak,
+        balance: user.balance - openCost + rewardAmount,
+        transactions: arrayUnion(costTransaction, winTransaction),
     });
     
-    reloadUser();
+    
     return {success: true, amount: rewardAmount};
 
-  }, [user, firebaseUser, reloadUser]);
+  }, [user, firebaseUser]);
 
   const claimAchievementReward = useCallback(async (achievementLabel: string): Promise<ClaimAchievementResult> => {
     if (!user || !firebaseUser || user.claimedAchievements.includes(achievementLabel)) {
@@ -404,10 +418,10 @@ export function useUser() {
         transactions: arrayUnion(newTransaction),
         claimedAchievements: arrayUnion(achievementLabel)
     });
-    reloadUser();
+    
     return { success: true, amount: rewardAmount };
-  }, [user, firebaseUser, reloadUser]);
+  }, [user, firebaseUser]);
 
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, claimDailyCheckIn, reloadUser, removeTransaction, claimAchievementReward };
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, openTreasureBox, reloadUser, removeTransaction, claimAchievementReward };
 }
