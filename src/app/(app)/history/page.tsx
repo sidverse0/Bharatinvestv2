@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { useUser } from '@/hooks/use-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/helpers';
-import { ArrowDownLeft, ArrowUpRight, PiggyBank, Receipt, Gift, TrendingUp, CalendarCheck, List, ArrowDownToLine, ArrowUpFromLine, ChevronRight } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, PiggyBank, Receipt, Gift, TrendingUp, CalendarCheck, List, ArrowDownToLine, ArrowUpFromLine, ChevronRight, Info, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const TransactionIcon = ({ type }: { type: TransactionType }) => {
   const iconMap: Record<TransactionType, React.ReactNode> = {
@@ -27,6 +29,7 @@ const TransactionIcon = ({ type }: { type: TransactionType }) => {
     'check-in': <CalendarCheck className="h-5 w-5 text-cyan-500" />,
     'treasure_cost': <Image src="https://files.catbox.moe/0re852.png" alt="Treasure" width={20} height={20} className="opacity-70" />,
     'treasure_win': <Image src="https://files.catbox.moe/0re852.png" alt="Treasure" width={20} height={20} />,
+    'withdrawal_refund': <RotateCcw className="h-5 w-5 text-green-600" />
   }
   return iconMap[type] || null;
 };
@@ -59,8 +62,8 @@ const TransactionItem = ({ tx }: { tx: Transaction }) => {
     const isClickable = tx.type === 'withdrawal' && tx.status === 'success';
 
     const content = (
-         <Card className={cn("bg-card/50", isClickable && "hover:bg-muted/50 transition-colors")}>
-            <CardContent className="p-3 flex items-center justify-between gap-2">
+         <Card className={cn("bg-card/50 overflow-hidden", isClickable && "hover:bg-muted/50 transition-colors")}>
+            <div className="p-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-muted rounded-full flex items-center justify-center h-9 w-9">
                         <TransactionIcon type={tx.type} />
@@ -79,7 +82,17 @@ const TransactionItem = ({ tx }: { tx: Transaction }) => {
                     </div>
                      {isClickable && <ChevronRight className="h-5 w-5 text-muted-foreground" />}
                 </div>
-            </CardContent>
+            </div>
+             {tx.type === 'withdrawal_refund' && tx.remark && (
+                <div className="px-3 pb-3">
+                    <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 [&>svg]:text-destructive">
+                        <Info className="h-4 w-4" />
+                        <AlertDescription>
+                            <span className="font-semibold">Reason:</span> {tx.remark}
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            )}
         </Card>
     );
 
@@ -107,7 +120,7 @@ export default function HistoryPage() {
     if (filter === 'all') {
       return sorted;
     }
-    return sorted.filter(tx => tx.type === filter);
+    return sorted.filter(tx => tx.type === filter || (filter === 'withdrawal' && tx.type === 'withdrawal_refund'));
 
   }, [user, filter]);
 
@@ -178,8 +191,8 @@ export default function HistoryPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {filteredAndSortedTransactions.map((tx) => (
-              <TransactionItem key={tx.id} tx={tx} />
+            {filteredAndSortedTransactions.map((tx, index) => (
+              <TransactionItem key={`${tx.id}-${index}`} tx={tx} />
             ))}
           </div>
         )}
