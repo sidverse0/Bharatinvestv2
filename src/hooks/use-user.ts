@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserData, UserInvestment, Transaction } from '@/types';
+import { UserData, UserInvestment, Transaction, BankAccount } from '@/types';
 import { SIGNUP_BONUS, PROMO_CODES } from '@/lib/constants';
 import { isToday, parseISO, differenceInMinutes, differenceInCalendarDays, isBefore, addDays, differenceInHours } from 'date-fns';
 import { auth, db } from '@/lib/firebase';
@@ -90,6 +91,22 @@ export function useUser() {
         tx.isProcessed = true;
         dataChanged = true;
       }
+       // Handle failed withdrawal refunds
+      if (tx.type === 'withdrawal' && tx.status === 'failed' && !tx.isProcessed) {
+        const refundTx: Transaction = {
+          id: generateTransactionId(),
+          type: 'withdrawal_refund',
+          amount: tx.amount,
+          status: 'success',
+          date: new Date().toISOString(),
+          description: 'Withdrawal Refund',
+          remark: tx.remark,
+        };
+        userData.transactions.push(refundTx);
+        tx.isProcessed = true; // Mark as processed to prevent duplicate refunds
+        dataChanged = true;
+      }
+
       newTransactions.push(tx);
     }
     userData.transactions = newTransactions;
@@ -141,12 +158,12 @@ export function useUser() {
     
     // Recalculate balance from all successful transactions
     calculatedBalance = userData.transactions.reduce((acc, tx) => {
-        if (tx.type === 'deposit' && tx.isProcessed) {
+        if (tx.type === 'deposit' && tx.status === 'success') {
             totalDeposits += tx.amount;
         }
 
         if (tx.status === 'success' || (tx.type === 'withdrawal' && tx.status === 'pending')) {
-             if (['deposit', 'return', 'bonus', 'promo', 'treasure_win'].includes(tx.type)) {
+             if (['deposit', 'return', 'bonus', 'promo', 'treasure_win', 'withdrawal_refund'].includes(tx.type)) {
                 return acc + tx.amount;
             } else if (['withdrawal', 'investment', 'treasure_cost'].includes(tx.type)) {
                 return acc - tx.amount;
@@ -389,39 +406,29 @@ export function useUser() {
 
   }, [user, firebaseUser]);
 
-  const claimAchievementReward = useCallback(async (achievementLabel: string): Promise<ClaimAchievementResult> => {
-    if (!user || !firebaseUser || user.claimedAchievements.includes(achievementLabel)) {
-      return { success: false };
-    }
-
-    // Determine eligibility for the achievement before claiming
-    const achievements: { [key: string]: boolean } = {
-        "First Investment": user.firstInvestmentMade,
-        "₹1000 Deposited": user.totalDeposits >= 1000,
-        "7-Day Streak": user.loginStreak >= 7,
-    };
-
-    if (!achievements[achievementLabel]) {
-        return { success: false };
-    }
-
-    const rewardAmount = Math.floor(Math.random() * 10) + 1;
-
-    const newTransaction: Transaction = {
-      id: generateTransactionId(), type: 'bonus', amount: rewardAmount,
-      status: 'success', date: new Date().toISOString(), description: 'Achievement',
-    };
-
-    const userDocRef = doc(db, "users", firebaseUser.uid);
+  const bindBankAccount = useCallback(async (account: BankAccount): Promise<boolean> => {
+    if (!firebaseUser) return false;
+    const userDocRef = doc(db, 'users', firebaseUser.uid);
     await updateDoc(userDocRef, {
-        balance: user.balance + rewardAmount,
-        transactions: arrayUnion(newTransaction),
-        claimedAchievements: arrayUnion(achievementLabel)
+        linkedBankAccount: account,
+        kycStatus: 'Verified'
     });
-    
-    return { success: true, amount: rewardAmount };
-  }, [user, firebaseUser]);
+    reloadUser();
+    return true;
+  }, [firebaseUser, reloadUser]);
+
+  const setWithdrawalPin = useCallback(async (pin: string): Promise<boolean> => {
+    if (!firebaseUser) return false;
+    const userDocRef = doc(db, 'users', firebaseUser.uid);
+    await updateDoc(userDocRef, {
+        withdrawalPin: pin
+    });
+    reloadUser();
+    return true;
+  }, [firebaseUser, reloadUser]);
 
 
-  return { user, loading, addInvestment, addTransaction, applyPromoCode, openTreasureBox, reloadUser, removeTransaction, claimAchievementReward };
+  return { user, loading, addInvestment, addTransaction, applyPromoCode, openTreasureBox, reloadUser, removeTransaction, bindBankAccount, setWithdrawalPin };
 }
+
+    
