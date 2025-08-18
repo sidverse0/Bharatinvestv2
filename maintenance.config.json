@@ -1,7 +1,9 @@
 
 {
   "maintenanceMode": true,
-  "countdownEndTime": "2025-01-01T23:59:59Z",
-  "title": "SERVER UPDATE",
-  "message": "We are currently performing server maintenance. We'll be back online shortly. Thank you for your patience. [VESRION BHI-85IH]."
+  "countdownHours": 24,
+  "countdownMinutes": 0,
+  "countdownSeconds": 0,
+  "title": "Under Maintenance",
+  "message": "We are currently performing server maintenance. We'll be back online shortly. Thank you for your patience."
 }
