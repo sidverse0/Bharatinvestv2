@@ -208,7 +208,7 @@ export default function ProfilePage() {
         <Card className="shadow-sm hover:bg-muted/50 transition-colors cursor-pointer h-full">
             <CardHeader className="flex flex-row items-center justify-between p-4">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/10 rounded-lg text-primary">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary flex items-center justify-center h-12 w-12">
                         {icon}
                     </div>
                     <div>
@@ -300,7 +300,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
              <MenuLinkCard 
                 href="/treasure"
-                icon={<Rocket className="h-6 w-6" />}
+                icon={<Image src="https://files.catbox.moe/0re852.png" alt="Treasure" width={32} height={32} />}
                 title="Treasure Hunt"
                 description="Win exciting rewards!"
             />
