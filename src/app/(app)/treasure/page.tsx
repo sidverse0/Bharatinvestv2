@@ -131,7 +131,7 @@ export default function TreasurePage() {
                 </Card>
 
                 <div className="grid grid-cols-3 gap-4 w-full max-w-md">
-                    {[...Array(9)].map((_, i) => (
+                    {[...Array(12)].map((_, i) => (
                         <TreasureBox 
                             key={i} 
                             boxId={i}
