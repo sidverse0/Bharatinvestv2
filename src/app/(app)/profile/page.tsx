@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/helpers';
-import { logout } from '@/lib/auth';
+import { logout, updatePassword } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,31 +46,8 @@ export default function ProfilePage() {
   const { user, loading, applyPromoCode } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [showPromoSuccessDialog, setShowPromoSuccessDialog] = useState(false);
   const [promoAmount, setPromoAmount] = useState(0);
-
-   useEffect(() => {
-    const theme = localStorage.getItem('theme');
-    if (theme === 'dark') {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleTheme = (checked: boolean) => {
-    setIsDarkMode(checked);
-    if (checked) {
-      localStorage.setItem('theme', 'dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      localStorage.setItem('theme', 'light');
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const form = useForm<z.infer<typeof promoCodeSchema>>({
     resolver: zodResolver(promoCodeSchema),
@@ -256,6 +233,11 @@ export default function ProfilePage() {
                   status={user.withdrawalPin ? 'Set' : 'Not Set'}
                   href="/set-pin"
                 />
+                 <SecurityItem 
+                  label="Update Password"
+                  status={'******'}
+                  href="/update-password"
+                />
               </CardContent>
             </Card>
 
@@ -291,25 +273,6 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </div>
-
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">Appearance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="dark-mode" className="flex items-center gap-2 text-base">
-                    {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                    Dark Mode
-                  </Label>
-                  <Switch
-                    id="dark-mode"
-                    checked={isDarkMode}
-                    onCheckedChange={toggleTheme}
-                  />
-                </div>
-              </CardContent>
-            </Card>
 
             <MenuLinkCard 
                 href="https://wa.me/93720016849"
