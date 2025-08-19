@@ -120,7 +120,7 @@ export default function HistoryPage() {
     if (filter === 'all') {
       return sorted;
     }
-    return sorted.filter(tx => tx.type === filter || (filter === 'withdrawal' && tx.type === 'withdrawal_refund'));
+    return sorted.filter(tx => tx.type === filter || (filter === 'withdrawal' && (tx.type === 'withdrawal_refund' || tx.type === 'withdrawal')));
 
   }, [user, filter]);
 
@@ -191,8 +191,8 @@ export default function HistoryPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {filteredAndSortedTransactions.map((tx, index) => (
-              <TransactionItem key={`${tx.id}-${index}`} tx={tx} />
+            {filteredAndSortedTransactions.map((tx) => (
+              <TransactionItem key={tx.id} tx={tx} />
             ))}
           </div>
         )}
