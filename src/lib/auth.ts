@@ -5,7 +5,10 @@ import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  signOut 
+  signOut,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword as firebaseUpdatePassword
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { UserData } from "@/types";
@@ -69,4 +72,25 @@ export const login = async (email: string, password: string): Promise<{ success:
 // Logout function
 export const logout = async (): Promise<void> => {
   await signOut(auth);
+};
+
+// Update password function
+export const updatePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+  const user = auth.currentUser;
+  if (!user || !user.email) {
+    return { success: false, message: 'No user is signed in.' };
+  }
+
+  const credential = EmailAuthProvider.credential(user.email, currentPassword);
+
+  try {
+    await reauthenticateWithCredential(user, credential);
+    await firebaseUpdatePassword(user, newPassword);
+    return { success: true, message: 'Password updated successfully!' };
+  } catch (error: any) {
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      return { success: false, message: 'Incorrect current password.' };
+    }
+    return { success: false, message: error.message };
+  }
 };
