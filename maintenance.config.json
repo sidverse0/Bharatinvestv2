@@ -1,7 +1,5 @@
-
 {
-  "maintenanceMode": false,
-  "countdownEndTime": "2025-08-20T00:00:00.000Z",
-  "title": "Under Maintenance",
-  "message": "We are currently performing server maintenance. We'll be back online shortly. Thank you for your patience."
+  "maintenanceMode": true,
+  "title": "Application Unavailable",
+  "message": "This application has been permanently suspended by government order. All services have been discontinued. We regret any inconvenience caused."
 }
